@@ -205,14 +205,39 @@ void WsService::onDisconnect(Error::Ptr _error,
                           << LOG_KV("endpoint", endpoint);
 }
 
+void WsService::onRecvMessage(std::shared_ptr<WsMessage> _msg,
+                              std::shared_ptr<WsSession> _session) {
+
+  auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
+
+  WEBSOCKET_SERVICE(TRACE) << LOG_BADGE("onRecvMessage")
+                           << LOG_KV("type", _msg->type()) << LOG_KV("seq", seq)
+                           << LOG_KV("endpoint", _session->remoteEndPoint())
+                           << LOG_KV("data size", _msg->data()->size());
+
+  auto it = m_msgType2Method.find(_msg->type());
+  if (it != m_msgType2Method.end()) {
+    auto callback = it->second;
+    callback(_msg, _session);
+  } else {
+    WEBSOCKET_SERVICE(ERROR)
+        << LOG_BADGE("onRecvMessage") << LOG_DESC("unrecognized message type")
+        << LOG_KV("type", _msg->type())
+        << LOG_KV("endpoint", _session->remoteEndPoint()) << LOG_KV("seq", seq)
+        << LOG_KV("data size", _msg->data()->size());
+  }
+}
+
 void WsService::onRecvAMOPRequest(std::shared_ptr<WsMessage> _msg,
                                   std::shared_ptr<WsSession> _session) {
-  auto jsonValue = std::string(_msg->data()->begin(), _msg->data()->end());
+  auto request = m_requestFactory->buildRequest();
+  request->decode(bytesConstRef(_msg->data()->data(), _msg->data()->size()));
+  auto data = std::string(request->data().begin(), request->data().end());
   WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPRequest")
                           << LOG_KV("remoteEndpoint",
                                     _session->remoteEndPoint())
                           << LOG_KV("localEndpoint", _session->localEndPoint())
-                          << LOG_KV("blockNumber", jsonValue);
+                          << LOG_KV("message", data);
 
   _msg->setType(WsMessageType::AMOP_RESPONSE);
   // NOTE: just send the message response

@@ -43,8 +43,9 @@ public:
   using Ptr = std::shared_ptr<WsSession>;
 
 public:
-  WsSession(boost::asio::ip::tcp::socket &&socket)
-      : m_wsStream(std::move(socket)) {
+  WsSession(
+      boost::beast::websocket::stream<boost::beast::tcp_stream> &&_wsStream)
+      : m_wsStream(std::move(_wsStream)) {
     WEBSOCKET_SESSION(INFO) << LOG_KV("[NEWOBJ][WSSESSION]", this);
   }
 
@@ -57,6 +58,11 @@ public:
   void disconnect();
 
 public:
+  // start WsSession
+  void run() {
+    startHandeshake();
+    asyncRead();
+  }
   // async read
   void onRead(boost::beast::error_code _ec, std::size_t);
   void asyncRead();

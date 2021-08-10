@@ -74,6 +74,7 @@ set(RPC_CLIENT_TARGET "rpc-client")
 
 add_subdirectory(bcos-cpp-sdk/ws)
 add_subdirectory(bcos-cpp-sdk/rpc)
+add_subdirectory(bcos-cpp-sdk/client)
 
 if (TESTS)
     include(InstallBcosCryptoDependencies)
@@ -85,6 +86,15 @@ endif()
 # install bcos-cpp-sdk target
 install(
     TARGETS ${WS_SERVICE_TARGET}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+    TARGETS ${RPC_CLIENT_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"

@@ -75,6 +75,8 @@ public:
   //---------------------------------------------------------
   //-------------- message begin
   //---------------------------------------------------------
+  virtual void onRecvMessage(std::shared_ptr<WsMessage> _msg,
+                             std::shared_ptr<WsSession> _session);
   virtual void onRecvAMOPRequest(std::shared_ptr<WsMessage> _msg,
                                  std::shared_ptr<WsSession> _session);
   virtual void onRecvAMOPResponse(std::shared_ptr<WsMessage> _msg,

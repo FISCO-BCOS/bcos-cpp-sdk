@@ -18,6 +18,7 @@
  * @date 2021-07-08
  */
 
+#include <bcos-cpp-sdk/ws/WsMessageType.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/interfaces/protocol/CommonError.h>
 #include <bcos-framework/libutilities/DataConvertUtility.h>
@@ -158,7 +159,20 @@ void WsSession::asyncWrite() {
  * @return void:
  */
 void WsSession::startHandeshake() {
-  // TODO: add handshake logic
+  //   auto msg = m_messageFactory->buildMessage();
+  //   msg->setType(WsMessageType::HANDESHAKE);
+
+  //   asyncSendMessage(msg, Options(10000),
+  //                    [](bcos::Error::Ptr _error, std::shared_ptr<WsMessage>
+  //                    _msg,
+  //                       std::shared_ptr<WsSession> _session) {
+  //                      boost::ignore_unused(_error, _msg, _session);
+  //                      // TODO: handle handshake message
+  //                      WEBSOCKET_SESSION(INFO) <<
+  //                      LOG_BADGE("startHandeshake")
+  //                                              << LOG_DESC("callback
+  //                                              response");
+  //                    });
 }
 
 /**
@@ -196,18 +210,19 @@ void WsSession::asyncSendMessage(std::shared_ptr<WsMessage> _msg,
     addRespCallback(seq, callback);
   }
 
+  std::unique_lock lock(x_queue);
+  auto size = m_queue.size();
+
   WEBSOCKET_SESSION(DEBUG) << LOG_BADGE("asyncSendMessage")
                            << LOG_KV("seq", seq)
                            << LOG_KV("timeout", _options.timeout)
-                           << LOG_KV("data size", buffer->size());
+                           << LOG_KV("queue size", size);
 
-  std::unique_lock lock(x_queue);
-  auto isEmpty = m_queue.empty();
   // data to be sent is always enqueue first
   m_queue.push_back(buffer);
 
   // no writing, send it
-  if (isEmpty) {
+  if (0 == size) {
     // we are not currently writing, so send this immediately
     asyncWrite();
   }
