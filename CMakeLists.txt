@@ -70,8 +70,10 @@ include(InstallBcosFrameworkDependencies)
 
 # set(CPP_SDK_TARGET "bcos-cpp-sdk")
 set(WS_SERVICE_TARGET "ws-service")
+set(RPC_CLIENT_TARGET "rpc-client")
 
 add_subdirectory(bcos-cpp-sdk/ws)
+add_subdirectory(bcos-cpp-sdk/rpc)
 
 if (TESTS)
     include(InstallBcosCryptoDependencies)
