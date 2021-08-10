@@ -35,14 +35,12 @@ class WsSession;
 using RespCallBack = std::function<void(
     bcos::Error::Ptr, std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
 
-using WsAcceptHandler =
-    std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
-using WsHandshakeHandler =
+using WsConnectHandler =
     std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
 using WsDisconnectHandler =
     std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
-using WsRecvMessageHandler = std::function<void(
-    bcos::Error::Ptr, std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
+using WsRecvMessageHandler =
+    std::function<void(std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
 
 struct Options {
   Options(uint32_t _timeout) : timeout(_timeout) {}

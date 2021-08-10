@@ -60,7 +60,6 @@ void WsSession::disconnect() {
   }
 
   WEBSOCKET_SESSION(INFO) << LOG_BADGE("disconnect")
-                          << LOG_DESC("disconnect the session")
                           << LOG_KV("remoteEndPoint", m_remoteEndPoint)
                           << LOG_KV("localEndPoint", m_localEndPoint)
                           << LOG_KV("session", this);
@@ -114,7 +113,7 @@ void WsSession::onRead(boost::beast::error_code _ec, std::size_t _size) {
 
       callback->respCallBack(nullptr, message, session);
     } else {
-      session->recvMessageHandler()(nullptr, message, session);
+      session->recvMessageHandler()(message, session);
     }
   });
 
@@ -152,6 +151,14 @@ void WsSession::asyncWrite() {
                          std::bind(&WsSession::onWrite, session,
                                    std::placeholders::_1,
                                    std::placeholders::_2));
+}
+
+/**
+ * @brief: start handshake with node
+ * @return void:
+ */
+void WsSession::startHandeshake() {
+  // TODO: add handshake logic
 }
 
 /**

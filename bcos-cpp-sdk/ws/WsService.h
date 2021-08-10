@@ -72,7 +72,7 @@ public:
   virtual void onDisconnect(Error::Ptr _error,
                             std::shared_ptr<WsSession> _session);
 
-  //------------------------------------------------------------------------------------------
+  //---------------------------------------------------------
   //-------------- message begin
   //---------------------------------------------------------
   virtual void onRecvAMOPRequest(std::shared_ptr<WsMessage> _msg,
@@ -81,14 +81,20 @@ public:
                                   std::shared_ptr<WsSession> _session);
   virtual void onRecvAMOPBroadcast(std::shared_ptr<WsMessage> _msg,
                                    std::shared_ptr<WsSession> _session);
-  virtual void onRecvRpcResponse(std::shared_ptr<WsMessage> _msg,
-                                 std::shared_ptr<WsSession> _session);
-  virtual void onRecvBlockNotify(std::shared_ptr<WsMessage> _msg,
-                                 std::shared_ptr<WsSession> _session);
+  virtual void onRecvBlockNumberNotify(std::shared_ptr<WsMessage> _msg,
+                                       std::shared_ptr<WsSession> _session);
 
   //-------------- message end
   //---------------------------------------------------------
-  //----------------------------------------------------------------------------------------
+
+  void subscribe(const std::set<std::string> _topics,
+                 std::shared_ptr<WsSession> _session);
+  void publish(const std::string &_topic, std::shared_ptr<bcos::bytes> _msg,
+               std::shared_ptr<WsSession> _session,
+               std::function<void(Error::Ptr, std::shared_ptr<bcos::bytes>)>
+                   _callback = nullptr);
+  void broadcast(const std::string &_topic, std::shared_ptr<bcos::bytes> _msg,
+                 std::shared_ptr<WsSession> _session);
 
 public:
   std::shared_ptr<AMOPRequestFactory> requestFactory() const {

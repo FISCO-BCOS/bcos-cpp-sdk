@@ -28,5 +28,6 @@ enum WsProtocolVersion : uint32_t {
   // Focus: update current when websocket protocol upgrade
   current = v1
 };
+
 } // namespace ws
 } // namespace bcos

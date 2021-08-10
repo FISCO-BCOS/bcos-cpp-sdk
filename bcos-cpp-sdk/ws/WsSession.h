@@ -63,7 +63,11 @@ public:
   // async write
   void onWrite(boost::beast::error_code _ec, std::size_t);
   void asyncWrite();
-
+  /**
+   * @brief: start handshake with node
+   * @return void:
+   */
+  void startHandeshake();
   /**
    * @brief: async send message
    * @param _msg: message
@@ -77,7 +81,7 @@ public:
 
 public:
   bool isConnected() {
-    return m_wsStream.next_layer().socket().is_open() && !m_isDrop;
+    return !m_isDrop && m_wsStream.next_layer().socket().is_open();
   }
 
   std::string remoteEndPoint() const { return m_remoteEndPoint; }
@@ -89,10 +93,10 @@ public:
     m_localEndPoint = _localEndPoint;
   }
 
-  void setAcceptHandler(WsAcceptHandler _acceptHandler) {
-    m_acceptHandler = _acceptHandler;
+  void setAcceptHandler(WsConnectHandler _connectHandler) {
+    m_connectHandler = _connectHandler;
   }
-  WsAcceptHandler acceptHandler() { return m_acceptHandler; }
+  WsConnectHandler connectHandler() { return m_connectHandler; }
 
   void setDisconnectHandler(WsDisconnectHandler _disconnectHandler) {
     m_disconnectHandler = _disconnectHandler;
@@ -147,8 +151,8 @@ private:
   std::unordered_map<std::string, CallBack::Ptr> m_callbacks;
 
   // callback handler
+  WsConnectHandler m_connectHandler;
   WsDisconnectHandler m_disconnectHandler;
-  WsAcceptHandler m_acceptHandler;
   WsRecvMessageHandler m_recvMessageHandler;
 
   // message factory
