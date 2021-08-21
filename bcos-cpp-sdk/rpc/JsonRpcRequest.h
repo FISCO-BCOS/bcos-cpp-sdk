@@ -19,65 +19,78 @@
  */
 
 #pragma once
-#include <any>
-#include <atomic>
 #include <json/json.h>
+#include <atomic>
 #include <list>
 #include <memory>
 #include <string>
 
-namespace bcos {
-namespace cppsdk {
-namespace jsonrpc {
-
-class JsonRpcRequest {
+namespace bcos
+{
+namespace cppsdk
+{
+namespace jsonrpc
+{
+class JsonRpcRequest
+{
 public:
-  using Ptr = std::shared_ptr<JsonRpcRequest>;
+    using Ptr = std::shared_ptr<JsonRpcRequest>;
 
-  JsonRpcRequest() = default;
-  ~JsonRpcRequest() = default;
-
-public:
-  void setJsonrpc(const std::string _jsonrpc) { m_jsonrpc = _jsonrpc; }
-  std::string jsonrpc() { return m_jsonrpc; }
-  void setMethod(const std::string _method) { m_method = _method; }
-  std::string method() { return m_method; }
-  void setId(int64_t _id) { m_id = _id; }
-  int64_t id() { return m_id; }
+    JsonRpcRequest() {}
+    ~JsonRpcRequest() {}
 
 public:
-  // TODO: how to encode variables type of params
-  std::string toJsonWithParams(Json::Value jParams);
+    void setJsonrpc(const std::string _jsonrpc) { m_jsonrpc = _jsonrpc; }
+    std::string jsonrpc() { return m_jsonrpc; }
+    void setMethod(const std::string _method) { m_method = _method; }
+    std::string method() { return m_method; }
+    void setId(int64_t _id) { m_id = _id; }
+    int64_t id() { return m_id; }
+    Json::Value params() { return m_params; }
+    void setParams(const Json::Value& _params) { m_params = _params; }
+
+public:
+    std::string toString();
 
 private:
-  std::string m_jsonrpc = "3.0";
-  std::string m_method;
-  int64_t m_id{1};
+    std::string m_jsonrpc = "2.0";
+    std::string m_method;
+    int64_t m_id{1};
+    Json::Value m_params;
 };
 
-class JsonRpcRequestFactory {
+class JsonRpcRequestFactory
+{
 public:
-  using Ptr = std::shared_ptr<JsonRpcRequestFactory>;
-  JsonRpcRequestFactory() {}
+    using Ptr = std::shared_ptr<JsonRpcRequestFactory>;
+    JsonRpcRequestFactory() {}
 
 public:
-  JsonRpcRequest::Ptr buildRequest(const std::string &_method) {
-    auto request = std::make_shared<JsonRpcRequest>();
-    auto id = nextID();
-    request->setId(id);
-    request->setMethod(_method);
-    return request;
-  }
+    JsonRpcRequest::Ptr buildRequest()
+    {
+        auto request = std::make_shared<JsonRpcRequest>();
+        request->setId(nextId());
+        return request;
+    }
 
-  int64_t nextID() {
-    int64_t _id = ++id;
-    return _id;
-  }
+    JsonRpcRequest::Ptr buildRequest(const std::string& _method, const Json::Value& _params)
+    {
+        auto request = buildRequest();
+        request->setMethod(_method);
+        request->setParams(_params);
+        return request;
+    }
+
+    int64_t nextId()
+    {
+        int64_t _id = ++id;
+        return _id;
+    }
 
 private:
-  std::atomic<int64_t> id{0};
+    std::atomic<int64_t> id{0};
 };
 
-} // namespace jsonrpc
-} // namespace cppsdk
-} // namespace bcos
+}  // namespace jsonrpc
+}  // namespace cppsdk
+}  // namespace bcos

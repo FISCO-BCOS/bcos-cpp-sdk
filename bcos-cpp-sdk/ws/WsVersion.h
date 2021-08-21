@@ -20,14 +20,17 @@
 #pragma once
 
 #include <cstdint>
-namespace bcos {
-namespace ws {
-enum WsProtocolVersion : uint32_t {
-  None = 0,
-  v1 = 1,
-  // Focus: update current when websocket protocol upgrade
-  current = v1
+namespace bcos
+{
+namespace ws
+{
+enum WsProtocolVersion : uint32_t
+{
+    None = 0,
+    v1 = 1,
+    // Focus: update current when websocket protocol upgrade
+    current = v1
 };
 
-} // namespace ws
-} // namespace bcos
+}  // namespace ws
+}  // namespace bcos

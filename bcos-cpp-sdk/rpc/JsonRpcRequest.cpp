@@ -26,17 +26,16 @@ using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
 
-std::string JsonRpcRequest::toJsonWithParams(Json::Value jParams) {
-  /*"{\"jsonrpc\":\"2.0\",\"method\":\"getBlockNumber\",\"params\":[1],"
-         "\"id\":1}"*/
-  Json::Value jValue;
-  jValue["jsonrpc"] = m_jsonrpc;
-  jValue["method"] = m_method;
-  jValue["id"] = 1;
-  // Json::Value jParams = Json::Value(Json::arrayValue);
-  jValue["params"] = jParams;
+std::string JsonRpcRequest::toString()
+{
+    Json::Value jReq;
+    jReq["jsonrpc"] = m_jsonrpc;
+    jReq["method"] = m_method;
+    jReq["id"] = m_id;
+    jReq["params"] = params();
 
-  Json::FastWriter writer;
-  std::string jsonString = writer.write(jValue);
-  return jsonString;
+    Json::FastWriter writer;
+    std::string s = writer.write(jReq);
+    RPCREQ_LOG(DEBUG) << LOG_BADGE("toString") << LOG_KV("request", s);
+    return s;
 }

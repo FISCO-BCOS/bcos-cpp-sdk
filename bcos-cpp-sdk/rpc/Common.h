@@ -21,5 +21,5 @@
 #pragma once
 #include <bcos-framework/libutilities/Common.h>
 
-#define RPCREQ_LOG(LEVEL) LOG(LEVEL) << "[RPC][REQUEST]"
-#define RPCIMPL_LOG(LEVEL) LOG(LEVEL) << "[RPC][IMPL]"
+#define RPCREQ_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][REQUEST]"
+#define RPCIMPL_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][IMPL]"

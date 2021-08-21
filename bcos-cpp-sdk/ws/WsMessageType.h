@@ -19,19 +19,22 @@
  */
 #pragma once
 
-namespace bcos {
-namespace ws {
-enum WsMessageType {
-  HANDESHAKE = 0x100,
-  BLOCK_NOTIFY = 0x101,
-  RPC_REQUEST = 0x102,
+namespace bcos
+{
+namespace ws
+{
+enum WsMessageType
+{
+    HANDESHAKE = 0x100,
+    BLOCK_NOTIFY = 0x101,
+    RPC_REQUEST = 0x102,
 
-  // ------------AMOP begin ---------
-  AMOP_SUBTOPIC = 0x110,
-  AMOP_REQUEST = 0x111,
-  AMOP_BROADCAST = 0x112,
-  AMOP_RESPONSE = 0x113
-  // ------------AMOP end ---------
+    // ------------AMOP begin ---------
+    AMOP_SUBTOPIC = 0x110,
+    AMOP_REQUEST = 0x111,
+    AMOP_BROADCAST = 0x112,
+    AMOP_RESPONSE = 0x113
+    // ------------AMOP end ---------
 };
 }
-} // namespace bcos
+}  // namespace bcos

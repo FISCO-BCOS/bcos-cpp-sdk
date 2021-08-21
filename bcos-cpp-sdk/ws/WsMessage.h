@@ -28,106 +28,115 @@
 #include <memory>
 #include <utility>
 
-namespace bcos {
-namespace ws {
+namespace bcos
+{
+namespace ws
+{
 // websocket message
-class WsMessage {
+class WsMessage
+{
 public:
-  using Ptr = std::shared_ptr<WsMessage>;
-  // seq field length
-  const static size_t SEQ_LENGTH = 32;
-  /// type(2) + error(2) + seq(32) + data(N)
-  const static size_t MESSAGE_MIN_LENGTH = 36;
+    using Ptr = std::shared_ptr<WsMessage>;
+    // seq field length
+    const static size_t SEQ_LENGTH = 32;
+    /// type(2) + error(2) + seq(32) + data(N)
+    const static size_t MESSAGE_MIN_LENGTH = 36;
 
 public:
-  WsMessage() {
-    m_seq = std::make_shared<bcos::bytes>(SEQ_LENGTH, 0);
-    m_data = std::make_shared<bcos::bytes>();
-  }
+    WsMessage()
+    {
+        m_seq = std::make_shared<bcos::bytes>(SEQ_LENGTH, 0);
+        m_data = std::make_shared<bcos::bytes>();
+    }
 
-  virtual ~WsMessage() {}
-
-public:
-  virtual uint16_t type() { return m_type; }
-  virtual void setType(uint16_t _type) { m_type = _type; }
-  virtual uint16_t status() { return m_status; }
-  virtual void setStauts(uint16_t _status) { m_status = _status; }
-  virtual std::shared_ptr<bcos::bytes> seq() { return m_seq; }
-  virtual void setSeq(std::shared_ptr<bcos::bytes> _seq) { m_seq = _seq; }
-  virtual std::shared_ptr<bcos::bytes> data() { return m_data; }
-  virtual void setData(std::shared_ptr<bcos::bytes> _data) { m_data = _data; }
+    virtual ~WsMessage() {}
 
 public:
-  virtual bool encode(bcos::bytes &_buffer);
-  virtual ssize_t decode(const bcos::byte *_buffer, std::size_t _size);
+    virtual uint16_t type() { return m_type; }
+    virtual void setType(uint16_t _type) { m_type = _type; }
+    virtual uint16_t status() { return m_status; }
+    virtual void setStauts(uint16_t _status) { m_status = _status; }
+    virtual std::shared_ptr<bcos::bytes> seq() { return m_seq; }
+    virtual void setSeq(std::shared_ptr<bcos::bytes> _seq) { m_seq = _seq; }
+    virtual std::shared_ptr<bcos::bytes> data() { return m_data; }
+    virtual void setData(std::shared_ptr<bcos::bytes> _data) { m_data = _data; }
+
+public:
+    virtual bool encode(bcos::bytes& _buffer);
+    virtual ssize_t decode(const bcos::byte* _buffer, std::size_t _size);
 
 private:
-  uint16_t m_type{0};
-  uint16_t m_status{0};
-  std::shared_ptr<bcos::bytes> m_seq;
-  std::shared_ptr<bcos::bytes> m_data;
+    uint16_t m_type{0};
+    uint16_t m_status{0};
+    std::shared_ptr<bcos::bytes> m_seq;
+    std::shared_ptr<bcos::bytes> m_data;
 };
 
-class AMOPRequest {
+class AMOPRequest
+{
 public:
-  // topic field length
-  const static size_t TOPIC_MAX_LENGTH = 65535;
-  const static size_t MESSAGE_MIN_LENGTH = 2;
-  AMOPRequest() { m_data = bytesConstRef(); }
-  using Ptr = std::shared_ptr<AMOPRequest>;
+    // topic field length
+    const static size_t TOPIC_MAX_LENGTH = 65535;
+    const static size_t MESSAGE_MIN_LENGTH = 2;
+    AMOPRequest() { m_data = bytesConstRef(); }
+    using Ptr = std::shared_ptr<AMOPRequest>;
 
 public:
-  std::string topic() const { return m_topic; }
-  void setTopic(const std::string &_topic) { m_topic = _topic; }
-  void setData(bytesConstRef _data) { m_data = _data; }
-  bytesConstRef data() const { return m_data; }
+    std::string topic() const { return m_topic; }
+    void setTopic(const std::string& _topic) { m_topic = _topic; }
+    void setData(bytesConstRef _data) { m_data = _data; }
+    bytesConstRef data() const { return m_data; }
 
 public:
-  bool encode(bcos::bytes &_buffer);
-  ssize_t decode(bytesConstRef _data);
+    bool encode(bcos::bytes& _buffer);
+    ssize_t decode(bytesConstRef _data);
 
 private:
-  std::string m_topic;
-  bytesConstRef m_data;
+    std::string m_topic;
+    bytesConstRef m_data;
 };
-class WsMessageFactory {
+class WsMessageFactory
+{
 public:
-  using Ptr = std::shared_ptr<WsMessageFactory>;
+    using Ptr = std::shared_ptr<WsMessageFactory>;
 
 public:
-  std::string newSeq() {
-    std::string seq =
-        boost::uuids::to_string(boost::uuids::random_generator()());
-    seq.erase(std::remove(seq.begin(), seq.end(), '-'), seq.end());
-    return seq;
-  }
-  std::shared_ptr<WsMessage> buildMessage() {
-    auto msg = std::make_shared<WsMessage>();
-    auto seq = newSeq();
-    msg->setSeq(std::make_shared<bcos::bytes>(seq.begin(), seq.end()));
-    return msg;
-  }
+    std::string newSeq()
+    {
+        std::string seq = boost::uuids::to_string(boost::uuids::random_generator()());
+        seq.erase(std::remove(seq.begin(), seq.end(), '-'), seq.end());
+        return seq;
+    }
+    std::shared_ptr<WsMessage> buildMessage()
+    {
+        auto msg = std::make_shared<WsMessage>();
+        auto seq = newSeq();
+        msg->setSeq(std::make_shared<bcos::bytes>(seq.begin(), seq.end()));
+        return msg;
+    }
 
-  std::shared_ptr<WsMessage> buildMessage(uint16_t _type,
-                                          std::shared_ptr<bcos::bytes> _data) {
-    auto msg = std::make_shared<WsMessage>();
-    auto seq = newSeq();
-    msg->setType(_type);
-    msg->setData(_data);
-    msg->setSeq(std::make_shared<bcos::bytes>(seq.begin(), seq.end()));
-    return msg;
-  }
+    std::shared_ptr<WsMessage> buildMessage(uint16_t _type, std::shared_ptr<bcos::bytes> _data)
+    {
+        auto msg = std::make_shared<WsMessage>();
+        auto seq = newSeq();
+        msg->setType(_type);
+        msg->setData(_data);
+        msg->setSeq(std::make_shared<bcos::bytes>(seq.begin(), seq.end()));
+        return msg;
+    }
 };
 
-class AMOPRequestFactory {
+class AMOPRequestFactory
+{
 public:
-  using Ptr = std::shared_ptr<AMOPRequestFactory>;
+    using Ptr = std::shared_ptr<AMOPRequestFactory>;
 
 public:
-  std::shared_ptr<AMOPRequest> buildRequest() {
-    auto msg = std::make_shared<AMOPRequest>();
-    return msg;
-  }
+    std::shared_ptr<AMOPRequest> buildRequest()
+    {
+        auto msg = std::make_shared<AMOPRequest>();
+        return msg;
+    }
 };
-} // namespace ws
-} // namespace bcos
+}  // namespace ws
+}  // namespace bcos

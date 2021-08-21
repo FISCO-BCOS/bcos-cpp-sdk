@@ -27,25 +27,25 @@
 #define WEBSOCKET_MESSAGE(LEVEL) BCOS_LOG(LEVEL) << "[WS][MESSAGE]"
 #define WEBSOCKET_SERVICE(LEVEL) BCOS_LOG(LEVEL) << "[WS][SERVICE]"
 
-namespace bcos {
-namespace ws {
+namespace bcos
+{
+namespace ws
+{
 class WsMessage;
 class WsSession;
 
-using RespCallBack = std::function<void(
-    bcos::Error::Ptr, std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
-using WsConnectHandler =
-    std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
-using WsDisconnectHandler =
-    std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
+using RespCallBack =
+    std::function<void(bcos::Error::Ptr, std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
+using WsConnectHandler = std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
+using WsDisconnectHandler = std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
 using WsRecvMessageHandler =
     std::function<void(std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
 
-struct Options {
-  Options(uint32_t _timeout) : timeout(_timeout) {}
-  uint32_t timeout =
-      0; ///< The timeout value of async function, in milliseconds.
+struct Options
+{
+    Options(uint32_t _timeout) : timeout(_timeout) {}
+    uint32_t timeout = 0;  ///< The timeout value of async function, in milliseconds.
 };
 
-} // namespace ws
-} // namespace bcos
+}  // namespace ws
+}  // namespace bcos

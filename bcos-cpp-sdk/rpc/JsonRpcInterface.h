@@ -19,28 +19,79 @@
  */
 
 #pragma once
+#include <bcos-framework/interfaces/protocol/CommonError.h>
+#include <bcos-framework/libutilities/Common.h>
+#include <bcos-framework/libutilities/Error.h>
 #include <functional>
 #include <memory>
 
-namespace bcos {
-namespace cppsdk {
-namespace jsonrpc {
+namespace bcos
+{
+namespace cppsdk
+{
+namespace jsonrpc
+{
+using RespFunc = std::function<void(bcos::Error::Ptr, std::shared_ptr<bcos::bytes>)>;
 
-class JsonRpcInterface {
+class JsonRpcInterface
+{
 public:
-  using Ptr = std::shared_ptr<JsonRpcInterface>;
+    using Ptr = std::shared_ptr<JsonRpcInterface>;
 
-  JsonRpcInterface() = default;
-  virtual ~JsonRpcInterface() {}
-
-public:
-  virtual void start() = 0;
-  virtual void stop() = 0;
+    JsonRpcInterface() = default;
+    virtual ~JsonRpcInterface() {}
 
 public:
-  virtual std::string getBlockNumber() = 0;
+    virtual void start() = 0;
+    virtual void stop() = 0;
+
+public:
+    virtual void call(const std::string& _group, const std::string& _to, const std::string& _data,
+        RespFunc _respFunc) = 0;
+
+    virtual void sendTransaction(const std::string& _group, const std::string& _data,
+        bool _requireProof, RespFunc _respFunc) = 0;
+
+    virtual void getTransaction(const std::string& _group, const std::string& _txHash,
+        bool _requireProof, RespFunc _respFunc) = 0;
+
+    virtual void getTransactionReceipt(const std::string& _group, const std::string& _txHash,
+        bool _requireProof, RespFunc _respFunc) = 0;
+
+    virtual void getBlockByHash(const std::string& _group, const std::string& _blockHash,
+        bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc) = 0;
+
+    virtual void getBlockByNumber(const std::string& _group, int64_t _blockNumber, bool _onlyHeader,
+        bool _onlyTxHash, RespFunc _respFunc) = 0;
+
+    virtual void getBlockHashByNumber(
+        const std::string& _group, int64_t _blockNumber, RespFunc _respFunc) = 0;
+
+    virtual void getBlockNumber(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getCode(
+        const std::string& _group, const std::string _contractAddress, RespFunc _respFunc) = 0;
+
+    virtual void getSealerList(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getObserverList(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getPbftView(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getPendingTxSize(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getSyncStatus(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getSystemConfigByKey(
+        const std::string& _group, const std::string& _keyValue, RespFunc _respFunc) = 0;
+
+    virtual void getTotalTransactionCount(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getPeers(const std::string& _group, RespFunc _respFunc) = 0;
+
+    virtual void getNodeInfo(RespFunc _respFunc) = 0;
 };
 
-} // namespace jsonrpc
-} // namespace cppsdk
-} // namespace bcos
+}  // namespace jsonrpc
+}  // namespace cppsdk
+}  // namespace bcos
