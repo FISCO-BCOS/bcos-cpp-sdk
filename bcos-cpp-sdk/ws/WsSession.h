@@ -94,10 +94,6 @@ public:
   void setRemoteEndPoint(const std::string &_remoteEndPoint) {
     m_remoteEndPoint = _remoteEndPoint;
   }
-  std::string localEndPoint() const { return m_localEndPoint; }
-  void setLocalEndPoint(const std::string &_localEndPoint) {
-    m_localEndPoint = _localEndPoint;
-  }
 
   void setAcceptHandler(WsConnectHandler _connectHandler) {
     m_connectHandler = _connectHandler;
@@ -150,7 +146,6 @@ private:
   // websocket stream
   boost::beast::websocket::stream<boost::beast::tcp_stream> m_wsStream;
   std::string m_remoteEndPoint;
-  std::string m_localEndPoint;
 
   // callbacks
   mutable std::shared_mutex x_callback;
