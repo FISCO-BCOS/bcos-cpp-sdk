@@ -37,7 +37,7 @@ using namespace bcos::ws;
 
 void WsSession::drop()
 {
-    WEBSOCKET_SESSION(INFO) << LOG_BADGE("drop") << LOG_KV("endpoint", m_remoteEndPoint)
+    WEBSOCKET_SESSION(INFO) << LOG_BADGE("drop") << LOG_KV("endpoint", m_endPoint)
                             << LOG_KV("session", this);
     m_isDrop = true;
     auto self = std::weak_ptr<WsSession>(shared_from_this());
@@ -62,7 +62,7 @@ void WsSession::disconnect()
         WEBSOCKET_SESSION(WARNING) << LOG_BADGE("disconnect") << LOG_KV("e", e.what());
     }
 
-    WEBSOCKET_SESSION(INFO) << LOG_BADGE("disconnect") << LOG_KV("endpoint", m_remoteEndPoint)
+    WEBSOCKET_SESSION(INFO) << LOG_BADGE("disconnect") << LOG_KV("endpoint", m_endPoint)
                             << LOG_KV("session", this);
 }
 
@@ -81,9 +81,9 @@ void WsSession::onRead(boost::beast::error_code _ec, std::size_t _size)
     auto decodeSize = message->decode(data, size);
     if (decodeSize < 0)
     {  // invalid packet, stop this session ?
-        WEBSOCKET_SESSION(WARNING) << LOG_BADGE("onRead") << LOG_DESC("invalid packet")
-                                   << LOG_KV("endpoint", remoteEndPoint())
-                                   << LOG_KV("data", *toHexString(data, data + size));
+        WEBSOCKET_SESSION(WARNING)
+            << LOG_BADGE("onRead") << LOG_DESC("invalid packet") << LOG_KV("endpoint", endPoint())
+            << LOG_KV("data", *toHexString(data, data + size));
         return drop();
     }
 

@@ -92,11 +92,8 @@ public:
 public:
     bool isConnected() { return !m_isDrop && m_wsStream.next_layer().socket().is_open(); }
 
-    std::string remoteEndPoint() const { return m_remoteEndPoint; }
-    void setRemoteEndPoint(const std::string& _remoteEndPoint)
-    {
-        m_remoteEndPoint = _remoteEndPoint;
-    }
+    std::string endPoint() const { return m_endPoint; }
+    void setEndPoint(const std::string& _endPoint) { m_endPoint = _endPoint; }
 
     void setAcceptHandler(WsConnectHandler _connectHandler) { m_connectHandler = _connectHandler; }
     WsConnectHandler connectHandler() { return m_connectHandler; }
@@ -148,7 +145,7 @@ private:
     std::atomic_bool m_isDrop = false;
     // websocket stream
     boost::beast::websocket::stream<boost::beast::tcp_stream> m_wsStream;
-    std::string m_remoteEndPoint;
+    std::string m_endPoint;
 
     // callbacks
     mutable std::shared_mutex x_callback;

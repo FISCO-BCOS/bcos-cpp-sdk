@@ -144,12 +144,12 @@ void WsService::addSession(std::shared_ptr<WsSession> _session)
 {
     {
         std::unique_lock lock(x_mutex);
-        m_sessions[_session->remoteEndPoint()] = _session;
+        m_sessions[_session->endPoint()] = _session;
     }
 
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("addSession")
-                            << LOG_KV("endpoint",
-                                   _session ? _session->remoteEndPoint() : std::string(""));
+                            << LOG_KV(
+                                   "endpoint", _session ? _session->endPoint() : std::string(""));
 }
 
 void WsService::removeSession(const std::string& _endPoint)
@@ -183,7 +183,7 @@ WsSessions WsService::sessions()
             {
                 WEBSOCKET_SERVICE(DEBUG)
                     << LOG_BADGE("sessions") << LOG_DESC("the session is disconnected")
-                    << LOG_KV("endpoint", session.second->remoteEndPoint());
+                    << LOG_KV("endpoint", session.second->endPoint());
             }
         }
     }
@@ -205,7 +205,7 @@ void WsService::onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _sess
     std::string endpoint = "";
     if (_session)
     {
-        endpoint = _session->remoteEndPoint();
+        endpoint = _session->endPoint();
     }
 
     // clear the session
@@ -220,7 +220,7 @@ void WsService::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<W
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
 
     WEBSOCKET_SERVICE(TRACE) << LOG_BADGE("onRecvMessage") << LOG_KV("type", _msg->type())
-                             << LOG_KV("seq", seq) << LOG_KV("endpoint", _session->remoteEndPoint())
+                             << LOG_KV("seq", seq) << LOG_KV("endpoint", _session->endPoint())
                              << LOG_KV("data size", _msg->data()->size());
 
     auto it = m_msgType2Method.find(_msg->type());
@@ -234,8 +234,8 @@ void WsService::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<W
         WEBSOCKET_SERVICE(ERROR) << LOG_BADGE("onRecvMessage")
                                  << LOG_DESC("unrecognized message type")
                                  << LOG_KV("type", _msg->type())
-                                 << LOG_KV("endpoint", _session->remoteEndPoint())
-                                 << LOG_KV("seq", seq) << LOG_KV("data size", _msg->data()->size());
+                                 << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
+                                 << LOG_KV("data size", _msg->data()->size());
     }
 }
 
@@ -246,8 +246,7 @@ void WsService::onRecvAMOPRequest(
     request->decode(bytesConstRef(_msg->data()->data(), _msg->data()->size()));
     auto data = std::string(request->data().begin(), request->data().end());
     WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPRequest")
-                            << LOG_KV("endpoint", _session->remoteEndPoint())
-                            << LOG_KV("message", data);
+                            << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("message", data);
 
     _msg->setType(WsMessageType::AMOP_RESPONSE);
     _msg->setData(std::make_shared<bcos::bytes>(request->data().begin(), request->data().end()));
@@ -260,7 +259,7 @@ void WsService::onRecvAMOPResponse(
 {
     auto strMsg = std::string(_msg->data()->begin(), _msg->data()->end());
     WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPResponse")
-                            << LOG_KV("endpoint", _session->remoteEndPoint())
+                            << LOG_KV("endpoint", _session->endPoint())
                             << LOG_KV("message", strMsg);
 }
 
@@ -269,7 +268,7 @@ void WsService::onRecvAMOPBroadcast(
 {
     auto strMsg = std::string(_msg->data()->begin(), _msg->data()->end());
     WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPBroadcast")
-                            << LOG_KV("endpoint", _session->remoteEndPoint())
+                            << LOG_KV("endpoint", _session->endPoint())
                             << LOG_KV("message", strMsg);
 }
 
@@ -279,7 +278,7 @@ void WsService::onRecvBlockNumberNotify(
     auto jsonValue = std::string(_msg->data()->begin(), _msg->data()->end());
     WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvBlockNumberNotify")
                             << LOG_KV("blockNumber", jsonValue)
-                            << LOG_KV("endpoint", _session->remoteEndPoint());
+                            << LOG_KV("endpoint", _session->endPoint());
 }
 
 void WsService::subscribe(const std::set<std::string> _topics, std::shared_ptr<WsSession> _session)

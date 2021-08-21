@@ -184,7 +184,7 @@ int main(int argc, char** argv)
             auto _wsServiceWeakPtr = std::weak_ptr<bcos::ws::WsService>(wsService);
             wsSession->setThreadPool(wsService->threadPool());
             wsSession->setMessageFactory(wsService->messageFactory());
-            wsSession->setRemoteEndPoint(s);
+            wsSession->setEndPoint(s);
             wsSession->setRecvMessageHandler(
                 [_wsServiceWeakPtr](std::shared_ptr<bcos::ws::WsMessage> _msg,
                     std::shared_ptr<bcos::ws::WsSession> _session) {
