@@ -30,8 +30,9 @@ using namespace jsonrpc;
 void JsonRcpImpl::call(
     const std::string& _group, const std::string& _to, const std::string& _data, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_to);
     params.append(_data);
 
@@ -44,8 +45,9 @@ void JsonRcpImpl::call(
 void JsonRcpImpl::sendTransaction(
     const std::string& _group, const std::string& _data, bool _requireProof, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_data);
     params.append(_requireProof);
 
@@ -58,8 +60,9 @@ void JsonRcpImpl::sendTransaction(
 void JsonRcpImpl::getTransaction(
     const std::string& _group, const std::string& _txHash, bool _requireProof, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_txHash);
     params.append(_requireProof);
 
@@ -72,8 +75,9 @@ void JsonRcpImpl::getTransaction(
 void JsonRcpImpl::getTransactionReceipt(
     const std::string& _group, const std::string& _txHash, bool _requireProof, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_txHash);
     params.append(_requireProof);
 
@@ -86,8 +90,9 @@ void JsonRcpImpl::getTransactionReceipt(
 void JsonRcpImpl::getBlockByHash(const std::string& _group, const std::string& _blockHash,
     bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_blockHash);
     params.append(_onlyHeader);
     params.append(_onlyTxHash);
@@ -101,8 +106,9 @@ void JsonRcpImpl::getBlockByHash(const std::string& _group, const std::string& _
 void JsonRcpImpl::getBlockByNumber(const std::string& _group, int64_t _blockNumber,
     bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_blockNumber);
     params.append(_onlyHeader);
     params.append(_onlyTxHash);
@@ -116,8 +122,9 @@ void JsonRcpImpl::getBlockByNumber(const std::string& _group, int64_t _blockNumb
 void JsonRcpImpl::getBlockHashByNumber(
     const std::string& _group, int64_t _blockNumber, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_blockNumber);
 
     auto request = m_factory->buildRequest("getBlockHashByNumber", params);
@@ -128,8 +135,9 @@ void JsonRcpImpl::getBlockHashByNumber(
 
 void JsonRcpImpl::getBlockNumber(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getBlockNumber", params);
     auto s = request->toString();
@@ -140,8 +148,9 @@ void JsonRcpImpl::getBlockNumber(const std::string& _group, RespFunc _respFunc)
 void JsonRcpImpl::getCode(
     const std::string& _group, const std::string _contractAddress, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_contractAddress);
 
     auto request = m_factory->buildRequest("getCode", params);
@@ -152,8 +161,9 @@ void JsonRcpImpl::getCode(
 
 void JsonRcpImpl::getSealerList(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getSealerList", params);
     auto s = request->toString();
@@ -163,8 +173,9 @@ void JsonRcpImpl::getSealerList(const std::string& _group, RespFunc _respFunc)
 
 void JsonRcpImpl::getObserverList(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getObserverList", params);
     auto s = request->toString();
@@ -174,8 +185,9 @@ void JsonRcpImpl::getObserverList(const std::string& _group, RespFunc _respFunc)
 
 void JsonRcpImpl::getPbftView(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getPbftView", params);
     auto s = request->toString();
@@ -185,8 +197,9 @@ void JsonRcpImpl::getPbftView(const std::string& _group, RespFunc _respFunc)
 
 void JsonRcpImpl::getPendingTxSize(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getPendingTxSize", params);
     auto s = request->toString();
@@ -196,8 +209,9 @@ void JsonRcpImpl::getPendingTxSize(const std::string& _group, RespFunc _respFunc
 
 void JsonRcpImpl::getSyncStatus(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getSyncStatus", params);
     auto s = request->toString();
@@ -208,8 +222,9 @@ void JsonRcpImpl::getSyncStatus(const std::string& _group, RespFunc _respFunc)
 void JsonRcpImpl::getSystemConfigByKey(
     const std::string& _group, const std::string& _keyValue, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
     params.append(_keyValue);
 
     auto request = m_factory->buildRequest("getSystemConfigByKey", params);
@@ -220,8 +235,9 @@ void JsonRcpImpl::getSystemConfigByKey(
 
 void JsonRcpImpl::getTotalTransactionCount(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getTotalTransactionCount", params);
     auto s = request->toString();
@@ -231,8 +247,9 @@ void JsonRcpImpl::getTotalTransactionCount(const std::string& _group, RespFunc _
 
 void JsonRcpImpl::getPeers(const std::string& _group, RespFunc _respFunc)
 {
+    boost::ignore_unused(_group);
     Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_group);
+    // params.append(_group);
 
     auto request = m_factory->buildRequest("getPeers", params);
     auto s = request->toString();

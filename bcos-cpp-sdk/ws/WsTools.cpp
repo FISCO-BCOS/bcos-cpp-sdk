@@ -42,7 +42,7 @@ void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> 
                 return;
             }
 
-            WEBSOCKET_TOOL(DEBUG) << LOG_BADGE("connectToWsServer")
+            WEBSOCKET_TOOL(TRACE) << LOG_BADGE("connectToWsServer")
                                   << LOG_DESC("async_resolve success") << LOG_KV("host", _host)
                                   << LOG_KV("port", _port);
 
@@ -63,7 +63,7 @@ void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> 
                         return;
                     }
 
-                    WEBSOCKET_TOOL(DEBUG)
+                    WEBSOCKET_TOOL(TRACE)
                         << LOG_BADGE("connectToWsServer") << LOG_DESC("async_connect success")
                         << LOG_KV("host", _host) << LOG_KV("port", _port);
 
@@ -96,9 +96,9 @@ void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> 
                                 return;
                             }
 
-                            WEBSOCKET_TOOL(DEBUG) << LOG_BADGE("connectToWsServer")
-                                                  << LOG_DESC("websocket handshake successfully")
-                                                  << LOG_KV("host", _host) << LOG_KV("port", _port);
+                            WEBSOCKET_TOOL(INFO) << LOG_BADGE("connectToWsServer")
+                                                 << LOG_DESC("websocket handshake successfully")
+                                                 << LOG_KV("host", _host) << LOG_KV("port", _port);
                             _callback(stream);
                         });
                 });

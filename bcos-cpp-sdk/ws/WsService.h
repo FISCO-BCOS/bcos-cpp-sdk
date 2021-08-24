@@ -47,8 +47,6 @@ class WsMessageFactory;
 
 
 using WsSessions = std::vector<std::shared_ptr<WsSession>>;
-using WsMsgHandler =
-    std::function<void(bcos::Error::Ptr, std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
 
 class WsService : public std::enable_shared_from_this<WsService>
 {

@@ -28,18 +28,32 @@ namespace bcos
 {
 namespace cppsdk
 {
+struct EndPoint
+{
+    std::string host;
+    uint16_t port;
+
+    bool operator<(const EndPoint& rhs) const
+    {
+        if (host + std::to_string(port) < rhs.host + std::to_string(rhs.port))
+        {
+            return true;
+        }
+        return false;
+    }
+};
 class SdkConfig
 {
 private:
-    std::set<boostssl::net::NodeIPEndpoint> m_peers;
+    std::set<EndPoint> m_peers;
     uint32_t m_reconnectPeriod{10000};
     // uint32_t m_threadPoolSize{4};
 
 public:
     uint32_t reconnectPeriod() const { return m_reconnectPeriod; }
     void setReconnectPeriod(uint32_t _reconnectPeriod) { m_reconnectPeriod = _reconnectPeriod; }
-    const std::set<boostssl::net::NodeIPEndpoint>& peers() { return m_peers; }
-    void setPeers(const std::set<boostssl::net::NodeIPEndpoint> _peers) { m_peers = _peers; }
+    const std::set<EndPoint>& peers() { return m_peers; }
+    void setPeers(const std::set<EndPoint> _peers) { m_peers = _peers; }
 
 public:
     void initConfig(const std::string& _configPath);

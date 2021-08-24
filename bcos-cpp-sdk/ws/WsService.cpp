@@ -75,7 +75,7 @@ void WsService::reconnect()
     auto peers = m_config->peers();
     for (auto const& peer : peers)
     {
-        std::string connectedEndPoint = peer.address() + ":" + std::to_string(peer.port());
+        std::string connectedEndPoint = peer.host + ":" + std::to_string(peer.port);
         auto session = getSession(connectedEndPoint);
         if (session)
         {
@@ -86,8 +86,8 @@ void WsService::reconnect()
         WEBSOCKET_SERVICE(DEBUG) << LOG_BADGE("reconnect") << LOG_DESC("try to connect to peer")
                                  << LOG_KV("connectedEndPoint", connectedEndPoint);
 
-        std::string host = peer.address();
-        uint16_t port = peer.port();
+        std::string host = peer.host;
+        uint16_t port = peer.port;
         auto self = std::weak_ptr<WsService>(shared_from_this());
         m_tools->connectToWsServer(m_resolver, m_ioc, host, port,
             [self, connectedEndPoint](
