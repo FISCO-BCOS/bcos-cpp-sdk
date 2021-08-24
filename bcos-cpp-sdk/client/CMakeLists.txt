@@ -11,3 +11,6 @@ target_link_libraries(sub-client PUBLIC ${WS_SERVICE_TARGET} jsoncpp_lib_static 
 
 add_executable(pub-client pub_client.cpp)
 target_link_libraries(pub-client PUBLIC ${WS_SERVICE_TARGET} jsoncpp_lib_static bcos-framework::utilities)
+
+add_executable(rpc-client rpc_client.cpp)
+target_link_libraries(rpc-client PUBLIC ${CPP_SDK_TARGET} ${WS_SERVICE_TARGET} ${JSON_RPC_TARGET} jsoncpp_lib_static bcos-framework::utilities)

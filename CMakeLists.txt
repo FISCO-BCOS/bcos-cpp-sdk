@@ -71,13 +71,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # install dependencies
 include(InstallBcosFrameworkDependencies)
 
-# set(CPP_SDK_TARGET "bcos-cpp-sdk")
+set(CPP_SDK_TARGET "bcos-cpp-sdk")
 set(WS_SERVICE_TARGET "ws-service")
-set(RPC_CLIENT_TARGET "rpc-client")
+set(JSON_RPC_TARGET "json-rpc-client")
 
-add_subdirectory(bcos-cpp-sdk/ws)
-add_subdirectory(bcos-cpp-sdk/rpc)
-add_subdirectory(bcos-cpp-sdk/client)
+add_subdirectory(bcos-cpp-sdk)
 
 if (TESTS)
     include(InstallBcosCryptoDependencies)
@@ -88,6 +86,15 @@ endif()
 
 # install bcos-cpp-sdk target
 install(
+    TARGETS ${CPP_SDK_TARGET}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
     TARGETS ${WS_SERVICE_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
@@ -97,7 +104,7 @@ install(
 )
 
 install(
-    TARGETS ${RPC_CLIENT_TARGET}
+    TARGETS ${JSON_RPC_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
