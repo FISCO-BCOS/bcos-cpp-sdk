@@ -21,7 +21,9 @@
 
 #include <bcos-framework/libutilities/Error.h>
 #include <bcos-framework/libutilities/Log.h>
+#include <boost/beast/websocket.hpp>
 
+#define WEBSOCKET_TOOL(LEVEL) BCOS_LOG(LEVEL) << "[WS][TOOL]"
 #define WEBSOCKET_VERSION(LEVEL) BCOS_LOG(LEVEL) << "[WS][VERSION]"
 #define WEBSOCKET_SESSION(LEVEL) BCOS_LOG(LEVEL) << "[WS][SESSION]"
 #define WEBSOCKET_MESSAGE(LEVEL) BCOS_LOG(LEVEL) << "[WS][MESSAGE]"
@@ -44,6 +46,7 @@ using WsRecvMessageHandler =
 struct Options
 {
     Options(uint32_t _timeout) : timeout(_timeout) {}
+    Options() : timeout(0) {}
     uint32_t timeout = 0;  ///< The timeout value of async function, in milliseconds.
 };
 

@@ -27,10 +27,6 @@ using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
 
-void JsonRcpImpl::start() {}
-
-void JsonRcpImpl::stop() {}
-
 void JsonRcpImpl::call(
     const std::string& _group, const std::string& _to, const std::string& _data, RespFunc _respFunc)
 {

@@ -42,10 +42,6 @@ public:
     virtual ~JsonRpcInterface() {}
 
 public:
-    virtual void start() = 0;
-    virtual void stop() = 0;
-
-public:
     virtual void call(const std::string& _group, const std::string& _to, const std::string& _data,
         RespFunc _respFunc) = 0;
 
@@ -90,6 +86,8 @@ public:
     virtual void getPeers(const std::string& _group, RespFunc _respFunc) = 0;
 
     virtual void getNodeInfo(RespFunc _respFunc) = 0;
+
+    // TODO: add group manager interface
 };
 
 }  // namespace jsonrpc

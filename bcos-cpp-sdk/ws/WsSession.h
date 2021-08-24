@@ -65,7 +65,8 @@ public:
     // start WsSession
     void run()
     {
-        startHandeshake();
+        // TODO: add handshake logic
+        // startHandeshake();
         asyncRead();
     }
     // async read
@@ -94,6 +95,12 @@ public:
 
     std::string endPoint() const { return m_endPoint; }
     void setEndPoint(const std::string& _endPoint) { m_endPoint = _endPoint; }
+
+    std::string connectedEndPoint() const { return m_connectedEndPoint; }
+    void setConnectedEndPoint(const std::string& _connectedEndPoint)
+    {
+        m_connectedEndPoint = _connectedEndPoint;
+    }
 
     void setAcceptHandler(WsConnectHandler _connectHandler) { m_connectHandler = _connectHandler; }
     WsConnectHandler connectHandler() { return m_connectHandler; }
@@ -146,6 +153,7 @@ private:
     // websocket stream
     boost::beast::websocket::stream<boost::beast::tcp_stream> m_wsStream;
     std::string m_endPoint;
+    std::string m_connectedEndPoint;
 
     // callbacks
     mutable std::shared_mutex x_callback;

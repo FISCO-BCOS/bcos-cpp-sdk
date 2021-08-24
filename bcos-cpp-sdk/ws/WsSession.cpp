@@ -167,6 +167,7 @@ void WsSession::asyncWrite()
  */
 void WsSession::startHandeshake()
 {
+    // TODO:
     //   auto msg = m_messageFactory->buildMessage();
     //   msg->setType(WsMessageType::HANDESHAKE);
 

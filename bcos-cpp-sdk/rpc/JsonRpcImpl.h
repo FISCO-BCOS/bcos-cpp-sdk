@@ -37,9 +37,6 @@ public:
     JsonRcpImpl() = default;
     virtual ~JsonRcpImpl() = default;
 
-    virtual void start() override;
-    virtual void stop() override;
-
 public:
     virtual void call(const std::string& _group, const std::string& _to, const std::string& _data,
         RespFunc _respFunc) override;

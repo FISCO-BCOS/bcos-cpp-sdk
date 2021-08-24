@@ -44,8 +44,8 @@ list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
 #init hunter
 include(HunterGate)
 HunterGate(
-    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/67ea989d75ca1560d6f3139dacda8da1dad0f978.tar.gz"
-    SHA1 "50919176ffd124cdc9a75f258e104a600b8d0368"
+    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/2602eee11f811c631d9f3cb5835675cb12a72d2b.tar.gz"
+    SHA1 "79b0c2a45338ccc05fb89301e05d067ad69d51ba"
     FILEPATH "${CMAKE_SOURCE_DIR}/cmake/config.cmake"
 )
 project(bcos-cpp-sdk VERSION "3.0.0")
@@ -53,6 +53,9 @@ set(VERSION_SUFFIX "")
 
 hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
+
+hunter_add_package(bcos-boostssl)
+find_package(bcos-boostssl CONFIG REQUIRED)
 
 # basic settings
 include(Options)
