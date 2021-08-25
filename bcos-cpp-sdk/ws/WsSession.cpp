@@ -18,6 +18,7 @@
  * @date 2021-07-08
  */
 
+#include <bcos-cpp-sdk/ws/NodeInfo.h>
 #include <bcos-cpp-sdk/ws/WsMessageType.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/interfaces/protocol/CommonError.h>
@@ -70,7 +71,8 @@ void WsSession::onRead(boost::beast::error_code _ec, std::size_t _size)
 {
     if (_ec)
     {
-        WEBSOCKET_SESSION(ERROR) << LOG_BADGE("onRead") << LOG_KV("error", _ec);
+        WEBSOCKET_SESSION(ERROR) << LOG_BADGE("onRead") << LOG_KV("error", _ec)
+                                 << LOG_KV("message", _ec.message());
         return drop();
     }
 
@@ -138,6 +140,8 @@ void WsSession::onWrite(boost::beast::error_code _ec, std::size_t)
 {
     if (_ec)
     {
+        WEBSOCKET_SESSION(ERROR) << LOG_BADGE("onWrite") << LOG_KV("error", _ec)
+                                 << LOG_KV("message", _ec.message());
         return drop();
     }
 
@@ -167,21 +171,42 @@ void WsSession::asyncWrite()
  */
 void WsSession::startHandeshake()
 {
-    // TODO:
-    //   auto msg = m_messageFactory->buildMessage();
-    //   msg->setType(WsMessageType::HANDESHAKE);
+    auto msg = m_messageFactory->buildMessage();
+    msg->setType(WsMessageType::HANDESHAKE);
 
-    //   asyncSendMessage(msg, Options(10000),
-    //                    [](bcos::Error::Ptr _error, std::shared_ptr<WsMessage>
-    //                    _msg,
-    //                       std::shared_ptr<WsSession> _session) {
-    //                      boost::ignore_unused(_error, _msg, _session);
-    //                      // TODO: handle handshake message
-    //                      WEBSOCKET_SESSION(INFO) <<
-    //                      LOG_BADGE("startHandeshake")
-    //                                              << LOG_DESC("callback
-    //                                              response");
-    //                    });
+    auto self = std::weak_ptr<WsSession>(shared_from_this());
+    asyncSendMessage(msg, Options(-1),
+        [self](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+            std::shared_ptr<WsSession> _session) {
+            auto session = self.lock();
+            if (!session)
+            {
+                return;
+            }
+
+            if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
+            {
+                WEBSOCKET_SESSION(ERROR)
+                    << LOG_BADGE("startHandeshake") << LOG_DESC("callback response error")
+                    << LOG_KV("endpoint", _session ? _session->endPoint() : std::string(""))
+                    << LOG_KV("errorCode", _error ? _error->errorCode() : -1)
+                    << LOG_KV("errorMessage", _error ? _error->errorMessage() : std::string(""));
+                session->drop();
+                return;
+            }
+
+            auto nodeInfo = std::make_shared<bcos::ws::NodeInfo>();
+            std::string strResp = std::string(_msg->data()->begin(), _msg->data()->end());
+            if (!nodeInfo->init(strResp))
+            {
+                session->drop();
+                return;
+            }
+
+            // TODO: add handshake logic
+            WEBSOCKET_SESSION(INFO) << LOG_BADGE("startHandeshake") << LOG_DESC("callback response")
+                                    << LOG_KV("nodeInfo", strResp);
+        });
 }
 
 /**
@@ -274,7 +299,6 @@ void WsSession::onRespTimeout(const boost::system::error_code& _error, const std
 
     WEBSOCKET_SESSION(WARNING) << LOG_BADGE("onRespTimeout") << LOG_KV("seq", _seq);
 
-    auto errorPtr = std::make_shared<Error>(bcos::protocol::CommonError::TIMEOUT, "timeout");
-    m_threadPool->enqueue(
-        [callback, errorPtr]() { callback->respCallBack(errorPtr, nullptr, nullptr); });
+    auto error = std::make_shared<Error>(bcos::protocol::CommonError::TIMEOUT, "timeout");
+    m_threadPool->enqueue([callback, error]() { callback->respCallBack(error, nullptr, nullptr); });
 }

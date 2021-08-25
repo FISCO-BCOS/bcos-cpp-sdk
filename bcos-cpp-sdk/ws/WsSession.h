@@ -65,8 +65,7 @@ public:
     // start WsSession
     void run()
     {
-        // TODO: add handshake logic
-        // startHandeshake();
+        startHandeshake();
         asyncRead();
     }
     // async read

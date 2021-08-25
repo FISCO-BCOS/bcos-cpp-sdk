@@ -37,8 +37,10 @@ void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> 
             boost::beast::error_code _ec, boost::asio::ip::tcp::resolver::results_type _results) {
             if (_ec)
             {
-                WEBSOCKET_TOOL(ERROR) << LOG_BADGE("connectToWsServer") << LOG_DESC("async_resolve")
-                                      << LOG_KV("error", _ec.message()) << LOG_KV("host", _host);
+                WEBSOCKET_TOOL(ERROR)
+                    << LOG_BADGE("connectToWsServer") << LOG_DESC("async_resolve")
+                    << LOG_KV("error", _ec) << LOG_KV("errorMessage", _ec.message())
+                    << LOG_KV("host", _host);
                 return;
             }
 
