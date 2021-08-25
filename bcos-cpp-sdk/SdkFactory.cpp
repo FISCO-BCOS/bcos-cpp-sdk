@@ -19,13 +19,16 @@
  */
 
 #include <bcos-cpp-sdk/SdkFactory.h>
+#include <bcos-cpp-sdk/amop/AMOPClient.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <bcos-cpp-sdk/ws/WsTools.h>
+#include <memory>
 
 using namespace bcos;
 using namespace bcos::ws;
 using namespace bcos::cppsdk;
+using namespace bcos::cppsdk::amop;
 using namespace bcos::cppsdk::jsonrpc;
 
 bcos::ws::WsService::Ptr SdkFactory::buildWsService()
@@ -48,10 +51,74 @@ bcos::ws::WsService::Ptr SdkFactory::buildWsService()
     return wsService;
 }
 
-bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr SdkFactory::buildJsonRpc()
+bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr SdkFactory::buildJsonRpc(
+    bcos::ws::WsService::Ptr _wsService)
 {
     auto jsonRpc = std::make_shared<JsonRcpImpl>();
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
+    auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
+    jsonRpc->setSender(
+        [wsServicePtr](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
+            auto wsService = wsServicePtr.lock();
+            if (!wsService)
+            {
+                return;
+            }
+
+            auto data = std::make_shared<bcos::bytes>(_request.begin(), _request.end());
+            auto msg = wsService->messageFactory()->buildMessage();
+            msg->setType(ws::WsMessageType::RPC_REQUEST);
+            msg->setData(data);
+
+            wsService->asyncSendMessage(msg, bcos::ws::Options(-1),
+                [_respFunc](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
+                    std::shared_ptr<bcos::ws::WsSession> _session) {
+                    boost::ignore_unused(_session);
+                    _respFunc(_error, _msg ? _msg->data() : nullptr);
+                });
+        });
     return jsonRpc;
+}
+
+bcos::cppsdk::amop::AMOPClient::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::Ptr _wsService)
+{
+    auto amop = std::make_shared<AMOPClient>();
+    auto topicManager = std::make_shared<TopicManager>();
+    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
+    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
+
+    amop->setTopicManager(topicManager);
+    amop->setRequestFactory(requestFactory);
+    amop->setMessageFactory(messageFactory);
+
+    auto self = std::weak_ptr<AMOPClient>(amop);
+    _wsService->msgType2Method()[WsMessageType::AMOP_REQUEST] =
+        [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto amop = self.lock();
+            if (amop)
+            {
+                amop->onRecvAMOPRequest(_msg, _session);
+            }
+        };
+    _wsService->msgType2Method()[WsMessageType::AMOP_RESPONSE] =
+        [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto amop = self.lock();
+            if (amop)
+            {
+                amop->onRecvAMOPResponse(_msg, _session);
+            }
+        };
+    _wsService->msgType2Method()[WsMessageType::AMOP_BROADCAST] =
+        [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto amop = self.lock();
+            if (amop)
+            {
+                amop->onRecvAMOPBroadcast(_msg, _session);
+            }
+        };
+
+    auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
+    amop->setService(wsServicePtr);
+    return amop;
 }

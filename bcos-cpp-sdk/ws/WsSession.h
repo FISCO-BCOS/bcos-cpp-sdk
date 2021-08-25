@@ -101,7 +101,7 @@ public:
         m_connectedEndPoint = _connectedEndPoint;
     }
 
-    void setAcceptHandler(WsConnectHandler _connectHandler) { m_connectHandler = _connectHandler; }
+    void setConnectHandler(WsConnectHandler _connectHandler) { m_connectHandler = _connectHandler; }
     WsConnectHandler connectHandler() { return m_connectHandler; }
 
     void setDisconnectHandler(WsDisconnectHandler _disconnectHandler)

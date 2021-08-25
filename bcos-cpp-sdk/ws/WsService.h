@@ -84,12 +84,6 @@ public:
     //---------------------------------------------------------
     virtual void onRecvMessage(
         std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
-    virtual void onRecvAMOPRequest(
-        std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
-    virtual void onRecvAMOPResponse(
-        std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
-    virtual void onRecvAMOPBroadcast(
-        std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
     virtual void onRecvBlkNotify(
         std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
 
@@ -97,13 +91,7 @@ public:
     //---------------------------------------------------------
     void asyncSendMessage(std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
         RespCallBack _respFunc = RespCallBack());
-
-    void subscribe(const std::set<std::string> _topics, std::shared_ptr<WsSession> _session);
-    void publish(const std::string& _topic, std::shared_ptr<bcos::bytes> _msg,
-        std::shared_ptr<WsSession> _session,
-        std::function<void(Error::Ptr, std::shared_ptr<bcos::bytes>)> _callback = nullptr);
-    void broadcast(const std::string& _topic, std::shared_ptr<bcos::bytes> _msg,
-        std::shared_ptr<WsSession> _session);
+    void broadcastMessage(std::shared_ptr<WsMessage> _msg);
 
 public:
     std::shared_ptr<AMOPRequestFactory> requestFactory() const { return m_requestFactory; }
@@ -137,6 +125,8 @@ public:
 
     std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
     void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
+
+    auto& msgType2Method() { return m_msgType2Method; }
 
 private:
     bool m_running{false};

@@ -134,30 +134,6 @@ void WsService::initMethod()
             service->onRecvBlkNotify(_msg, _session);
         }
     };
-    m_msgType2Method[WsMessageType::AMOP_REQUEST] = [self](std::shared_ptr<WsMessage> _msg,
-                                                        std::shared_ptr<WsSession> _session) {
-        auto service = self.lock();
-        if (service)
-        {
-            service->onRecvAMOPRequest(_msg, _session);
-        }
-    };
-    m_msgType2Method[WsMessageType::AMOP_RESPONSE] = [self](std::shared_ptr<WsMessage> _msg,
-                                                         std::shared_ptr<WsSession> _session) {
-        auto service = self.lock();
-        if (service)
-        {
-            service->onRecvAMOPResponse(_msg, _session);
-        }
-    };
-    m_msgType2Method[WsMessageType::AMOP_BROADCAST] = [self](std::shared_ptr<WsMessage> _msg,
-                                                          std::shared_ptr<WsSession> _session) {
-        auto service = self.lock();
-        if (service)
-        {
-            service->onRecvAMOPBroadcast(_msg, _session);
-        }
-    };
 
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("initMethod")
                             << LOG_KV("methods", m_msgType2Method.size());
@@ -180,6 +156,11 @@ std::shared_ptr<WsSession> WsService::newSession(
     wsSession->setEndPoint(endPoint);
 
     auto self = std::weak_ptr<bcos::ws::WsService>(shared_from_this());
+
+    wsSession->setConnectHandler([](bcos::Error::Ptr _error, std::shared_ptr<WsSession> _session) {
+        boost::ignore_unused(_error, _session);
+        // TODO: add connect handler logic
+    });
     wsSession->setRecvMessageHandler([self](std::shared_ptr<bcos::ws::WsMessage> _msg,
                                          std::shared_ptr<bcos::ws::WsSession> _session) {
         auto wsService = self.lock();
@@ -291,8 +272,10 @@ void WsService::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<W
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
 
-    WEBSOCKET_SERVICE(TRACE) << LOG_BADGE("onRecvMessage") << LOG_KV("type", _msg->type())
-                             << LOG_KV("seq", seq) << LOG_KV("endpoint", _session->endPoint())
+    WEBSOCKET_SERVICE(TRACE) << LOG_BADGE("onRecvMessage")
+                             << LOG_DESC("receive message from server")
+                             << LOG_KV("type", _msg->type()) << LOG_KV("seq", seq)
+                             << LOG_KV("endpoint", _session->endPoint())
                              << LOG_KV("data size", _msg->data()->size());
 
     auto it = m_msgType2Method.find(_msg->type());
@@ -309,21 +292,6 @@ void WsService::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<W
                                  << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
                                  << LOG_KV("data size", _msg->data()->size());
     }
-}
-
-void WsService::onRecvAMOPRequest(
-    std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
-{
-    auto request = m_requestFactory->buildRequest();
-    request->decode(bytesConstRef(_msg->data()->data(), _msg->data()->size()));
-    auto data = std::string(request->data().begin(), request->data().end());
-    WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPRequest")
-                            << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("message", data);
-
-    _msg->setType(WsMessageType::AMOP_RESPONSE);
-    _msg->setData(std::make_shared<bcos::bytes>(request->data().begin(), request->data().end()));
-    // NOTE: just send the message response
-    _session->asyncSendMessage(_msg);
 }
 
 void WsService::asyncSendMessage(
@@ -390,22 +358,15 @@ void WsService::asyncSendMessage(
                              << LOG_KV("size", size);
 }
 
-void WsService::onRecvAMOPResponse(
-    std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
+void WsService::broadcastMessage(std::shared_ptr<WsMessage> _msg)
 {
-    auto strMsg = std::string(_msg->data()->begin(), _msg->data()->end());
-    WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPResponse")
-                            << LOG_KV("endpoint", _session->endPoint())
-                            << LOG_KV("message", strMsg);
-}
+    auto ss = sessions();
+    for (auto& session : ss)
+    {
+        session->asyncSendMessage(_msg);
+    }
 
-void WsService::onRecvAMOPBroadcast(
-    std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
-{
-    auto strMsg = std::string(_msg->data()->begin(), _msg->data()->end());
-    WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPBroadcast")
-                            << LOG_KV("endpoint", _session->endPoint())
-                            << LOG_KV("message", strMsg);
+    WEBSOCKET_VERSION(DEBUG) << LOG_BADGE("broadcastMessage");
 }
 
 void WsService::onRecvBlkNotify(
@@ -414,65 +375,4 @@ void WsService::onRecvBlkNotify(
     auto jsonValue = std::string(_msg->data()->begin(), _msg->data()->end());
     WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvBlkNotify") << LOG_KV("blockNumber", jsonValue)
                             << LOG_KV("endpoint", _session->endPoint());
-}
-
-void WsService::subscribe(const std::set<std::string> _topics, std::shared_ptr<WsSession> _session)
-{
-    Json::Value jTopics(Json::arrayValue);
-    for (const auto& topic : _topics)
-    {
-        jTopics.append(topic);
-    }
-    Json::Value jReq;
-    jReq["topics"] = jTopics;
-    Json::FastWriter writer;
-    std::string request = writer.write(jReq);
-
-    auto msg = m_messageFactory->buildMessage();
-    msg->setType(bcos::ws::WsMessageType::AMOP_SUBTOPIC);
-    msg->setData(std::make_shared<bcos::bytes>(request.begin(), request.end()));
-
-    WEBSOCKET_VERSION(INFO) << LOG_DESC("subscribe") << LOG_KV("topics", request);
-
-    _session->asyncSendMessage(msg);
-}
-
-void WsService::publish(const std::string& _topic, std::shared_ptr<bcos::bytes> _msg,
-    std::shared_ptr<WsSession> _session,
-    std::function<void(Error::Ptr, std::shared_ptr<bcos::bytes>)> _callback)
-{
-    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
-    auto request = requestFactory->buildRequest();
-    request->setTopic(_topic);
-    request->setData(bytesConstRef(_msg->data(), _msg->size()));
-    auto buffer = std::make_shared<bcos::bytes>();
-    request->encode(*buffer);
-
-    auto message = m_messageFactory->buildMessage();
-    message->setType(bcos::ws::WsMessageType::AMOP_REQUEST);
-    message->setData(buffer);
-
-    _session->asyncSendMessage(message);
-
-    boost::ignore_unused(_callback);
-    //   if (_callback) {
-    //     // TODO:
-    //   }
-}
-
-void WsService::broadcast(const std::string& _topic, std::shared_ptr<bcos::bytes> _msg,
-    std::shared_ptr<WsSession> _session)
-{
-    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
-    auto request = requestFactory->buildRequest();
-    request->setTopic(_topic);
-    request->setData(bytesConstRef(_msg->data(), _msg->size()));
-    auto buffer = std::make_shared<bcos::bytes>();
-    request->encode(*buffer);
-
-    auto message = m_messageFactory->buildMessage();
-    message->setType(bcos::ws::WsMessageType::AMOP_BROADCAST);
-    message->setData(buffer);
-
-    _session->asyncSendMessage(message);
 }
