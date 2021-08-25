@@ -45,11 +45,7 @@ class AMOPClientInterface
 public:
     using Ptr = std::shared_ptr<AMOPClientInterface>;
     virtual ~AMOPClientInterface() {}
-    /*
-    // recv message
-    virtual void onRecvMessage(
-        std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
-    */
+
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) = 0;
     // subscribe topics
