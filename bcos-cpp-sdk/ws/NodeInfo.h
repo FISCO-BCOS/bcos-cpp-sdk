@@ -52,8 +52,8 @@ public:
     bool wasm() const { return m_wasm; }
     void setWasm(bool _wasm) { m_wasm = _wasm; }
 
-    uint32_t wsProtocolVersion() const { return m_wsProtocolVersion; }
-    void setWsProtocolVersion(uint32_t _wsProtocolVersion)
+    uint16_t wsProtocolVersion() const { return m_wsProtocolVersion; }
+    void setWsProtocolVersion(uint16_t _wsProtocolVersion)
     {
         m_wsProtocolVersion = _wsProtocolVersion;
     }
@@ -83,7 +83,7 @@ private:
 
     bool m_smCrypto;
     bool m_wasm;
-    uint32_t m_wsProtocolVersion;
+    uint16_t m_wsProtocolVersion;
 
     std::string m_gitCommit;
     std::string m_buildTime;

@@ -27,8 +27,6 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <atomic>
-#include <iostream>
-#include <memory>
 #include <shared_mutex>
 #include <unordered_map>
 
@@ -65,7 +63,7 @@ public:
     // start WsSession
     void run()
     {
-        startHandeshake();
+        startHandshake();
         asyncRead();
     }
     // async read
@@ -78,7 +76,8 @@ public:
      * @brief: start handshake with node
      * @return void:
      */
-    void startHandeshake();
+    void startHandshake();
+    bool checkHandshakeDone();
     /**
      * @brief: async send message
      * @param _msg: message
@@ -116,6 +115,12 @@ public:
     }
     WsRecvMessageHandler recvMessageHandler() { return m_recvMessageHandler; }
 
+    void setHandlshakeHandler(WsHandlshakeHandler _handlshakeHandler)
+    {
+        m_handlshakeHandler = _handlshakeHandler;
+    }
+    WsHandlshakeHandler handlshakeHandler() { return m_handlshakeHandler; }
+
     std::shared_ptr<WsMessageFactory> messageFactory() { return m_messageFactory; }
     void setMessageFactory(std::shared_ptr<WsMessageFactory> _messageFactory)
     {
@@ -128,8 +133,8 @@ public:
         m_threadPool = _threadPool;
     }
 
-    void setVersion(uint16_t _version) { m_version = _version; }
-    uint16_t version() const { return m_version; }
+    void setVersion(uint16_t _version) { m_version.store(_version); }
+    uint16_t version() const { return m_version.load(); }
 
     struct CallBack
     {
@@ -143,7 +148,7 @@ public:
 
 private:
     // websocket protocol version
-    uint16_t m_version = WsProtocolVersion::current;
+    std::atomic<uint16_t> m_version = WsProtocolVersion::None;
 
     // buffer used to read message
     boost::beast::flat_buffer m_buffer;
@@ -162,6 +167,7 @@ private:
     WsConnectHandler m_connectHandler;
     WsDisconnectHandler m_disconnectHandler;
     WsRecvMessageHandler m_recvMessageHandler;
+    WsHandlshakeHandler m_handlshakeHandler;
 
     // message factory
     std::shared_ptr<WsMessageFactory> m_messageFactory;

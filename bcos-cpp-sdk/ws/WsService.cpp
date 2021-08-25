@@ -101,7 +101,7 @@ void WsService::reconnect()
 
                 auto session = service->newSession(_stream);
                 session->setConnectedEndPoint(connectedEndPoint);
-                service->addSession(session);
+                // service->addSession(session);
             });
     }
 
@@ -156,7 +156,6 @@ std::shared_ptr<WsSession> WsService::newSession(
     wsSession->setEndPoint(endPoint);
 
     auto self = std::weak_ptr<bcos::ws::WsService>(shared_from_this());
-
     wsSession->setConnectHandler([](bcos::Error::Ptr _error, std::shared_ptr<WsSession> _session) {
         boost::ignore_unused(_error, _session);
         // TODO: add connect handler logic
@@ -177,8 +176,17 @@ std::shared_ptr<WsSession> WsService::newSession(
                 wsService->onDisconnect(_error, _session);
             }
         });
+    wsSession->setHandlshakeHandler(
+        [self](bcos::Error::Ptr, std::shared_ptr<ws::WsSession> _session) {
+            auto wsService = self.lock();
+            if (wsService)
+            {
+                wsService->addSession(_session);
+            }
+        });
 
-    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("newSession") << LOG_KV("endPoint", endPoint);
+    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("newSession") << LOG_DESC("start the session")
+                            << LOG_KV("endPoint", endPoint);
     wsSession->run();
     return wsSession;
 }
@@ -198,7 +206,7 @@ void WsService::addSession(std::shared_ptr<WsSession> _session)
         }
     }
 
-    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("addSession")
+    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("addSession") << LOG_DESC("add this session to mapper")
                             << LOG_KV("connectedEndPoint", connectedEndPoint)
                             << LOG_KV("endPoint", endpoint) << LOG_KV("result", ok);
 }
@@ -238,7 +246,7 @@ WsSessions WsService::sessions()
         }
     }
 
-    WEBSOCKET_SERVICE(TRACE) << LOG_BADGE("sessions") << LOG_KV("size", sessions.size());
+    // WEBSOCKET_SERVICE(TRACE) << LOG_BADGE("sessions") << LOG_KV("size", sessions.size());
     return sessions;
 }
 
