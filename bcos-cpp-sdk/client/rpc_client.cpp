@@ -21,6 +21,7 @@
 #include "bcos-cpp-sdk/ws/WsMessageType.h"
 #include <bcos-cpp-sdk/SdkConfig.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
+#include <bcos-cpp-sdk/amop/AMOPClientInterface.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
@@ -30,21 +31,12 @@
 #include <bcos-framework/libutilities/ThreadPool.h>
 #include <boost/core/ignore_unused.hpp>
 #include <memory>
+#include <set>
 #include <string>
 
 
 using namespace bcos;
 using namespace bcos::cppsdk;
-using Handler = std::function<void(boost::beast::websocket::stream<boost::beast::tcp_stream>&&)>;
-
-//------------------------------------------------------------------------------
-
-void fail(boost::beast::error_code ec, char const* what)
-{
-    std::cerr << what << ": " << ec.message() << "\n";
-    std::exit(-1);
-}
-
 //------------------------------------------------------------------------------
 
 void usage()
@@ -70,10 +62,12 @@ int main(int argc, char** argv)
 
     auto config = std::make_shared<bcos::cppsdk::SdkConfig>();
 
-    std::set<boostssl::net::NodeIPEndpoint> peers;
-    boost::asio::ip::address addr = boost::asio::ip::make_address(host);
-    boostssl::net::NodeIPEndpoint nodeIPEndpoint(addr, port);
-    peers.insert(nodeIPEndpoint);
+    bcos::cppsdk::EndPoint endpoint;
+    endpoint.host = host;
+    endpoint.port = port;
+
+    std::set<bcos::cppsdk::EndPoint> peers;
+    peers.insert(endpoint);
     config->setPeers(peers);
 
     auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
@@ -83,28 +77,7 @@ int main(int argc, char** argv)
     factory->setThreadPool(threadPool);
 
     auto wsService = factory->buildWsService();
-    auto jsonRpc = factory->buildJsonRpc();
-    auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(wsService);
-    jsonRpc->setSender(
-        [wsServicePtr](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
-            auto wsService = wsServicePtr.lock();
-            if (!wsService)
-            {
-                return;
-            }
-
-            auto data = std::make_shared<bcos::bytes>(_request.begin(), _request.end());
-            auto msg = wsService->messageFactory()->buildMessage();
-            msg->setType(ws::WsMessageType::RPC_REQUEST);
-            msg->setData(data);
-
-            wsService->asyncSendMessage(msg, bcos::ws::Options(-1),
-                [_respFunc](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
-                    std::shared_ptr<bcos::ws::WsSession> _session) {
-                    boost::ignore_unused(_session);
-                    _respFunc(_error, _msg ? _msg->data() : nullptr);
-                });
-        });
+    auto jsonRpc = factory->buildJsonRpc(wsService);
     wsService->start();
 
     auto ioc = wsService->ioc();
@@ -119,6 +92,7 @@ int main(int argc, char** argv)
 
     while (true)
     {
+        /*
         BCOS_LOG(INFO) << LOG_DESC(" ==> getNodeInfo ");
         jsonRpc->getNodeInfo([](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
             boost::ignore_unused(_error);
@@ -149,6 +123,23 @@ int main(int argc, char** argv)
                                       _error ? _error->errorMessage() : std::string(""))
                                << LOG_KV("resp", strResp);
             });
+
+        BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockByNumber ");
+        jsonRpc->getBlockByNumber(
+            "", 1, false, false, [](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
+                boost::ignore_unused(_error);
+                std::string strResp;
+                if (_resp)
+                {
+                    strResp = std::string(_resp->begin(), _resp->end());
+                }
+                BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockByNumber ")
+                               << LOG_KV("errorCode", _error ? _error->errorCode() : -1)
+                               << LOG_KV("errorMessage",
+                                      _error ? _error->errorMessage() : std::string(""))
+                               << LOG_KV("resp", strResp);
+            });
+            */
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 

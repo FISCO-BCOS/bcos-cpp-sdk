@@ -1,51 +1,41 @@
-//
-// Copyright (c) 2016-2019 Vinnie Falco (vinnie dot falco at gmail dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-// Official repository: https://github.com/boostorg/beast
-//
+/*
+ *  Copyright (C) 2021 FISCO BCOS.
+ *  SPDX-License-Identifier: Apache-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ * @file pub_client.cpp
+ * @author: octopus
+ * @date 2021-08-24
+ */
 
-//------------------------------------------------------------------------------
-//
-// Example: WebSocket client, asynchronous
-//
-//------------------------------------------------------------------------------
-
-#include "bcos-cpp-sdk/ws/Common.h"
+#include "bcos-cpp-sdk/ws/WsMessageType.h"
+#include <bcos-cpp-sdk/SdkConfig.h>
+#include <bcos-cpp-sdk/SdkFactory.h>
+#include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
-#include <json/json.h>
-#include <boost/asio/strand.hpp>
-#include <boost/beast/core.hpp>
-#include <boost/beast/core/buffers_to_string.hpp>
-#include <boost/beast/websocket.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <chrono>
-#include <cstdint>
-#include <cstdlib>
-#include <functional>
-#include <iostream>
 #include <memory>
+#include <set>
 #include <string>
-#include <thread>
-#include <utility>
 
-using Handler = std::function<void(boost::beast::websocket::stream<boost::beast::tcp_stream>&&)>;
-
+using namespace bcos;
+using namespace bcos::cppsdk;
 //------------------------------------------------------------------------------
-
-void fail(boost::beast::error_code ec, char const* what)
-{
-    std::cerr << what << ": " << ec.message() << "\n";
-    std::exit(-1);
-}
-
 //------------------------------------------------------------------------------
 
 void usage()
@@ -56,107 +46,6 @@ void usage()
     std::exit(0);
 }
 
-//------------------------------------------------------------------------------
-bcos::ws::WsService::Ptr buildWsService()
-{
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
-    auto ioc = std::make_shared<boost::asio::io_context>();
-    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
-    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
-
-    auto wsService = std::make_shared<bcos::ws::WsService>();
-    wsService->setIoc(ioc);
-    wsService->setThreadPool(threadPool);
-    wsService->setMessageFactory(messageFactory);
-    wsService->setRequestFactory(requestFactory);
-    wsService->initMethod();
-    return wsService;
-}
-
-class WsSessionInitialize : public std::enable_shared_from_this<WsSessionInitialize>
-{
-private:
-    boost::asio::ip::tcp::resolver m_resolver;
-    boost::beast::websocket::stream<boost::beast::tcp_stream> m_wsStream;
-    std::string m_host;
-    std::function<void(boost::beast::websocket::stream<boost::beast::tcp_stream>&&)> m_handler;
-
-public:
-    // Resolver and socket require an io_context
-    explicit WsSessionInitialize(boost::asio::io_context& ioc)
-      : m_resolver(boost::asio::make_strand(ioc)), m_wsStream(boost::asio::make_strand(ioc))
-    {}
-
-    // Start the asynchronous operation
-    void run(char const* host, char const* port)
-    {
-        // Save these for later
-        m_host = host;
-
-        // Look up the domain name
-        m_resolver.async_resolve(host, port,
-            boost::beast::bind_front_handler(&WsSessionInitialize::on_resolve, shared_from_this()));
-    }
-
-    void on_resolve(
-        boost::beast::error_code ec, boost::asio::ip::tcp::resolver::results_type results)
-    {
-        if (ec)
-            return fail(ec, "resolve");
-
-        // Set the timeout for the operation
-        boost::beast::get_lowest_layer(m_wsStream).expires_after(std::chrono::seconds(30));
-
-        // Make the connection on the IP address we get from a lookup
-        boost::beast::get_lowest_layer(m_wsStream)
-            .async_connect(results, boost::beast::bind_front_handler(
-                                        &WsSessionInitialize::on_connect, shared_from_this()));
-    }
-
-    void on_connect(
-        boost::beast::error_code ec, boost::asio::ip::tcp::resolver::results_type::endpoint_type ep)
-    {
-        if (ec)
-            return fail(ec, "connect");
-
-        // turn off the timeout on the tcp_stream, because
-        // the websocket stream has its own timeout system.
-        boost::beast::get_lowest_layer(m_wsStream).expires_never();
-
-        // set suggested timeout settings for the websocket
-        m_wsStream.set_option(boost::beast::websocket::stream_base::timeout::suggested(
-            boost::beast::role_type::client));
-
-        // set a decorator to change the User-Agent of the handshake
-        m_wsStream.set_option(boost::beast::websocket::stream_base::decorator(
-            [](boost::beast::websocket::request_type& req) {
-                req.set(boost::beast::http::field::user_agent,
-                    std::string(BOOST_BEAST_VERSION_STRING) + " websocket-amop-sample");
-            }));
-
-        m_host += ':' + std::to_string(ep.port());
-
-        // perform the websocket handshake
-        m_wsStream.async_handshake(m_host, "/", [this](boost::beast::error_code _ec) {
-            if (_ec)
-            {
-                fail(_ec, "async_handshake");
-            }
-            this->m_handler(std::move(m_wsStream));
-        });
-    }
-
-    void setHandler(
-        std::function<void(boost::beast::websocket::stream<boost::beast::tcp_stream>&&)> _handler)
-    {
-        m_handler = _handler;
-    }
-
-    std::function<void(boost::beast::websocket::stream<boost::beast::tcp_stream>&&)> handler() const
-    {
-        return m_handler;
-    }
-};
 
 int main(int argc, char** argv)
 {
@@ -166,55 +55,37 @@ int main(int argc, char** argv)
     }
 
     std::string host = argv[1];
-    std::string port = argv[2];
+    uint16_t port = atoi(argv[2]);
     std::string topic = argv[3];
-    std::string message = std::string(1000, '1');
+    std::string msg;
     if (argc > 4)
     {
-        message = argv[4];
+        msg = argv[4];
     }
 
-    BCOS_LOG(INFO) << LOG_DESC("amop pub client sample") << LOG_KV("ip", host)
-                   << LOG_KV("port", port) << LOG_KV("topic", topic);
+    BCOS_LOG(INFO) << LOG_DESC("pub client") << LOG_KV("ip", host) << LOG_KV("port", port)
+                   << LOG_KV("topic", topic);
 
-    auto wsService = buildWsService();
-    auto initialize = std::make_shared<WsSessionInitialize>(*wsService->ioc());
-    initialize->setHandler(
-        [wsService, topic, message](
-            boost::beast::websocket::stream<boost::beast::tcp_stream>&& _wsStream) {
-            auto remoteEndPoint = _wsStream.next_layer().socket().remote_endpoint();
-            std::string s =
-                remoteEndPoint.address().to_string() + ":" + std::to_string(remoteEndPoint.port());
-            auto wsSession = std::make_shared<bcos::ws::WsSession>(std::move(_wsStream));
-            auto _wsServiceWeakPtr = std::weak_ptr<bcos::ws::WsService>(wsService);
-            wsSession->setThreadPool(wsService->threadPool());
-            wsSession->setMessageFactory(wsService->messageFactory());
-            wsSession->setEndPoint(s);
-            wsSession->setRecvMessageHandler(
-                [_wsServiceWeakPtr](std::shared_ptr<bcos::ws::WsMessage> _msg,
-                    std::shared_ptr<bcos::ws::WsSession> _session) {
-                    auto wsService = _wsServiceWeakPtr.lock();
-                    if (wsService)
-                    {
-                        wsService->onRecvMessage(_msg, _session);
-                    }
-                });
-            wsSession->run();
+    auto config = std::make_shared<bcos::cppsdk::SdkConfig>();
 
-            auto pubThread = std::make_shared<std::thread>([wsSession, wsService, topic,
-                                                               message]() {
-                while (true)
-                {
-                    wsService->publish(topic,
-                        std::make_shared<bcos::bytes>(message.begin(), message.end()), wsSession);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                }
-            });
-            pubThread->detach();
-        });
-    initialize->run(host.c_str(), port.c_str());
+    bcos::cppsdk::EndPoint endpoint;
+    endpoint.host = host;
+    endpoint.port = port;
 
-    BCOS_LOG(INFO) << LOG_DESC(" ==> public ") << LOG_KV("topic", topic);
+    std::set<bcos::cppsdk::EndPoint> peers;
+    peers.insert(endpoint);
+    config->setPeers(peers);
+
+    auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
+
+    auto factory = std::make_shared<SdkFactory>();
+    factory->setConfig(config);
+    factory->setThreadPool(threadPool);
+
+    auto wsService = factory->buildWsService();
+    auto amop = factory->buildAMOP(wsService);
+
+    wsService->start();
 
     auto ioc = wsService->ioc();
     std::size_t threadC = 4;
@@ -226,9 +97,31 @@ int main(int argc, char** argv)
         threads->emplace_back([&ioc]() { ioc->run(); });
     }
 
+    auto buffer = std::make_shared<bcos::bytes>(msg.begin(), msg.end());
+    int i = 0;
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("publish ") << LOG_KV("topic", topic)
+                       << LOG_KV("message", msg);
+        amop->publish(topic, buffer, -1,
+            [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
+                std::shared_ptr<bcos::ws::WsSession> _session) {
+                boost::ignore_unused(_error, _session);
+                if (_error)
+                {
+                    BCOS_LOG(ERROR) << LOG_BADGE(" ===>>>> ") << LOG_DESC(" pub client error: ")
+                                    << LOG_KV("error", _error->errorCode())
+                                    << LOG_KV("errorMessage", _error->errorMessage());
+                }
+                else
+                {
+                    BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ")
+                                   << LOG_DESC(" pub client receive response message")
+                                   << LOG_KV("data size", _msg ? _msg->data()->size() : -1);
+                }
+            });
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        i++;
     }
 
     return EXIT_SUCCESS;
