@@ -302,6 +302,22 @@ void WsService::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<W
     }
 }
 
+void WsService::asyncSendMessageByEndPoint(const std::string& _endPoint,
+    std::shared_ptr<WsMessage> _msg, Options _options, RespCallBack _respFunc)
+{
+    std::shared_ptr<WsSession> session = getSession(_endPoint);
+    if (!session)
+    {
+        // TODO: error code define
+        auto error = std::make_shared<Error>(
+            bcos::protocol::CommonError::TIMEOUT, "the remote endpoint not exist");
+        _respFunc(error, nullptr, nullptr);
+        return;
+    }
+
+    session->asyncSendMessage(_msg, _options, _respFunc);
+}
+
 void WsService::asyncSendMessage(
     std::shared_ptr<WsMessage> _msg, Options _options, RespCallBack _respFunc)
 {

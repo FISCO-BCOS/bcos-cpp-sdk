@@ -91,6 +91,9 @@ public:
     //---------------------------------------------------------
     void asyncSendMessage(std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
         RespCallBack _respFunc = RespCallBack());
+    void asyncSendMessageByEndPoint(const std::string& _endPoint, std::shared_ptr<WsMessage> _msg,
+        Options _options = Options(-1), RespCallBack _respFunc = RespCallBack());
+
     void broadcastMessage(std::shared_ptr<WsMessage> _msg);
 
 public:
