@@ -31,6 +31,9 @@ using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
 using namespace bcos::cppsdk::jsonrpc;
 
+#define AMOP_MODULE (1000)
+#define EVENTPUSH_MODULE (1001)
+
 bcos::ws::WsService::Ptr SdkFactory::buildWsService()
 {
     auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
@@ -93,30 +96,46 @@ bcos::cppsdk::amop::AMOPClient::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::P
     amop->setMessageFactory(messageFactory);
 
     auto self = std::weak_ptr<AMOPClient>(amop);
-    _wsService->msgType2Method()[WsMessageType::AMOP_REQUEST] =
+    _wsService->registerMsgHandler(WsMessageType::AMOP_REQUEST,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = self.lock();
             if (amop)
             {
                 amop->onRecvAMOPRequest(_msg, _session);
             }
-        };
-    _wsService->msgType2Method()[WsMessageType::AMOP_RESPONSE] =
+        });
+    _wsService->registerMsgHandler(WsMessageType::AMOP_RESPONSE,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = self.lock();
             if (amop)
             {
                 amop->onRecvAMOPResponse(_msg, _session);
             }
-        };
-    _wsService->msgType2Method()[WsMessageType::AMOP_BROADCAST] =
+        });
+    _wsService->registerMsgHandler(WsMessageType::AMOP_BROADCAST,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = self.lock();
             if (amop)
             {
                 amop->onRecvAMOPBroadcast(_msg, _session);
             }
-        };
+        });
+
+    auto amopWeakPtr = std::weak_ptr<AMOPClient>(amop);
+    _wsService->registerModConnectHandler(
+        AMOP_MODULE, [amopWeakPtr](std::shared_ptr<WsSession> _session) {
+            auto amop = amopWeakPtr.lock();
+            if (amop)
+            {
+                amop->updateTopicsToRemote(_session);
+            }
+        });
+    /*
+    _wsService->registerModDisconnectHandler(
+        AMOP_MODULE, [amopWeakPtr](std::shared_ptr<WsSession> _session) {
+
+        });
+    */
 
     auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
     amop->setService(wsServicePtr);

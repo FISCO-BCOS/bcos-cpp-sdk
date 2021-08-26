@@ -101,7 +101,6 @@ void WsService::reconnect()
 
                 auto session = service->newSession(_stream);
                 session->setConnectedEndPoint(connectedEndPoint);
-                // service->addSession(session);
             });
     }
 
@@ -156,10 +155,12 @@ std::shared_ptr<WsSession> WsService::newSession(
     wsSession->setEndPoint(endPoint);
 
     auto self = std::weak_ptr<bcos::ws::WsService>(shared_from_this());
+    /*
     wsSession->setConnectHandler([](bcos::Error::Ptr _error, std::shared_ptr<WsSession> _session) {
         boost::ignore_unused(_error, _session);
         // TODO: add connect handler logic
     });
+    */
     wsSession->setRecvMessageHandler([self](std::shared_ptr<bcos::ws::WsMessage> _msg,
                                          std::shared_ptr<bcos::ws::WsSession> _session) {
         auto wsService = self.lock();
@@ -204,6 +205,12 @@ void WsService::addSession(std::shared_ptr<WsSession> _session)
             m_sessions[connectedEndPoint] = _session;
             ok = true;
         }
+    }
+
+    //
+    for (auto& conHandler : m_connectHandlers)
+    {
+        conHandler.second(_session);
     }
 
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("addSession") << LOG_DESC("add this session to mapper")
@@ -270,7 +277,11 @@ void WsService::onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _sess
 
     // clear the session
     removeSession(connectedEndPoint);
-    // Add additional disconnect logic
+
+    for (auto& disHandler : m_disconnectHandlers)
+    {
+        disHandler.second(_session);
+    }
 
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("onDisconnect") << LOG_KV("endpoint", endpoint)
                             << LOG_KV("connectedEndPoint", connectedEndPoint);

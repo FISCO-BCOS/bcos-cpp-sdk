@@ -47,6 +47,9 @@ class WsMessageFactory;
 
 
 using WsSessions = std::vector<std::shared_ptr<WsSession>>;
+using MsgHandler = std::function<void(std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
+using ConnectHandler = std::function<void(std::shared_ptr<WsSession>)>;
+using DisconnectHandler = std::function<void(std::shared_ptr<WsSession>)>;
 
 class WsService : public std::enable_shared_from_this<WsService>
 {
@@ -129,7 +132,20 @@ public:
     std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
     void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
 
-    auto& msgType2Method() { return m_msgType2Method; }
+    void registerMsgHandler(uint32_t _msgType, MsgHandler _msgHandler)
+    {
+        m_msgType2Method[_msgType] = _msgHandler;
+    }
+
+    void registerModConnectHandler(uint32_t _module, ConnectHandler _connectHandler)
+    {
+        m_connectHandlers[_module] = _connectHandler;
+    }
+
+    void registerModDisconnectHandler(uint32_t _module, DisconnectHandler _disconnectHandler)
+    {
+        m_connectHandlers[_module] = _disconnectHandler;
+    }
 
 private:
     bool m_running{false};
@@ -157,9 +173,9 @@ private:
     // all active sessions
     std::unordered_map<std::string, std::shared_ptr<WsSession>> m_sessions;
     // type => handler
-    std::unordered_map<uint32_t,
-        std::function<void(std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>>
-        m_msgType2Method;
+    std::unordered_map<uint32_t, MsgHandler> m_msgType2Method;
+    std::unordered_map<uint32_t, ConnectHandler> m_connectHandlers;
+    std::unordered_map<uint32_t, DisconnectHandler> m_disconnectHandlers;
 };
 
 }  // namespace ws
