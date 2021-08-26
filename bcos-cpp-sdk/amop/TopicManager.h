@@ -35,33 +35,12 @@ class TopicManager
 public:
     using Ptr = std::shared_ptr<TopicManager>;
 
-    void addTopic(const std::string& _topic)
-    {
-        std::unique_lock lock(x_topics);
-        m_topics.insert(_topic);
-    }
-    void addTopics(const std::set<std::string>& _topics)
-    {
-        std::unique_lock lock(x_topics);
-        m_topics.insert(_topics.begin(), _topics.end());
-    }
-    void removeTopic(const std::string& _topic)
-    {
-        std::unique_lock lock(x_topics);
-        m_topics.erase(_topic);
-    }
-    void removeTopics(const std::set<std::string>& _topics)
-    {
-        for (auto& topic : _topics)
-        {
-            removeTopic(topic);
-        }
-    }
-    std::set<std::string> topics() const
-    {
-        std::shared_lock lock(x_topics);
-        return m_topics;
-    }
+    void addTopic(const std::string& _topic);
+    void addTopics(const std::set<std::string>& _topics);
+    void removeTopic(const std::string& _topic);
+    void removeTopics(const std::set<std::string>& _topics);
+    std::set<std::string> topics() const;
+    std::string topicsToJsonString();
 
 private:
     // mutex for m_sessions

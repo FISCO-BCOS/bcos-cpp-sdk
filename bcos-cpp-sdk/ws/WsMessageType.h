@@ -25,15 +25,15 @@ namespace ws
 {
 enum WsMessageType
 {
-    HANDESHAKE = 0x100,
-    BLOCK_NOTIFY = 0x101,
-    RPC_REQUEST = 0x102,
+    HANDESHAKE = 0x100,    // 256
+    BLOCK_NOTIFY = 0x101,  // 257
+    RPC_REQUEST = 0x102,   // 258
 
     // ------------AMOP begin ---------
-    AMOP_SUBTOPIC = 0x110,
-    AMOP_REQUEST = 0x111,
-    AMOP_BROADCAST = 0x112,
-    AMOP_RESPONSE = 0x113
+    AMOP_SUBTOPIC = 0x110,   // 272
+    AMOP_REQUEST = 0x111,    // 273
+    AMOP_BROADCAST = 0x112,  // 274
+    AMOP_RESPONSE = 0x113    // 275
     // ------------AMOP end ---------
 };
 }

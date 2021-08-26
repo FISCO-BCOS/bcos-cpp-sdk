@@ -107,8 +107,8 @@ void WsSession::onRead(boost::beast::error_code _ec, std::size_t _size)
     {
         WEBSOCKET_SESSION(ERROR)
             << LOG_BADGE("onRead")
-            << LOG_DESC("session unable to handle message until handleshake with server")
-            << LOG_KV("seq", seq) << LOG_KV("type", message->type())
+            << LOG_DESC("session unable to handle message until handshake with server")
+            << LOG_KV("version", version()) << LOG_KV("seq", seq) << LOG_KV("type", message->type())
             << LOG_KV("status", message->status()) << LOG_KV("data size", _size)
             << LOG_KV("data", *toHexString(data, data + size));
         return drop();
@@ -221,7 +221,7 @@ void WsSession::startHandshake()
 bool WsSession::checkHandshakeDone()
 {
     auto version = m_version.load();
-    return version == WsProtocolVersion::None;
+    return version != WsProtocolVersion::None;
 }
 
 /**

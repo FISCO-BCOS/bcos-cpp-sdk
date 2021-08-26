@@ -38,7 +38,7 @@ void AMOPClient::subscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager and update topics to server
     m_topicManager->addTopics(_topics);
-    updateTopicsToServer();
+    updateTopicsToRemote();
 }
 
 // subscribe topics
@@ -46,7 +46,7 @@ void AMOPClient::unsubscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager
     m_topicManager->removeTopics(_topics);
-    updateTopicsToServer();
+    updateTopicsToRemote();
 }
 
 // query all subscribed topics
@@ -61,7 +61,7 @@ void AMOPClient::subscribe(const std::string& _topic, AMOPCallback _callback)
 {
     m_topicManager->addTopic(_topic);
     addTopicCallback(_topic, _callback);
-    updateTopicsToServer();
+    updateTopicsToRemote();
     AMOP_CLIENT(INFO) << LOG_BADGE("subscribe") << LOG_DESC("subscribe topic with callback")
                       << LOG_KV("topic", _topic);
 }
@@ -125,32 +125,33 @@ void AMOPClient::setCallback(AMOPCallback _callback)
     m_callback = _callback;
 }
 
-void AMOPClient::updateTopicsToServer()
+void AMOPClient::updateTopicsToRemote()
 {
-    auto totalTopics = m_topicManager->topics();
-    Json::Value jTopics(Json::arrayValue);
-    for (const auto& topic : totalTopics)
+    auto service = m_service.lock();
+    if (!service)
     {
-        jTopics.append(topic);
+        return;
     }
-    Json::Value jReq;
-    jReq["topics"] = jTopics;
-    Json::FastWriter writer;
-    std::string request = writer.write(jReq);
 
+    auto ss = service->sessions();
+    for (auto session : ss)
+    {
+        updateTopicsToRemote(session);
+    }
+}
+
+void AMOPClient::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
+{
+    std::string request = m_topicManager->topicsToJsonString();
     auto msg = m_messageFactory->buildMessage();
     msg->setType(bcos::ws::WsMessageType::AMOP_SUBTOPIC);
     msg->setData(std::make_shared<bcos::bytes>(request.begin(), request.end()));
 
-    AMOP_CLIENT(INFO) << LOG_BADGE("updateTopicsToServer")
-                      << LOG_DESC("send subscribe message to ws server")
-                      << LOG_KV("topics size", totalTopics.size()) << LOG_KV("topics", request);
+    _session->asyncSendMessage(msg);
 
-    auto service = m_service.lock();
-    if (service)
-    {
-        service->broadcastMessage(msg);
-    }
+    AMOP_CLIENT(INFO) << LOG_BADGE("updateTopicsToRemote")
+                      << LOG_DESC("send subscribe message to ws server")
+                      << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("topics", request);
 }
 
 void AMOPClient::onRecvAMOPRequest(
@@ -165,20 +166,21 @@ void AMOPClient::onRecvAMOPRequest(
                             << LOG_KV("endpoint", _session->endPoint())
                             << LOG_KV("data size", data->size());
 
-    auto callback = getCallbackByTopic(topic);
+    AMOPCallback callback = getCallbackByTopic(topic);
+    if (!callback && m_callback)
+    {
+        callback = m_callback;
+    }
+
     if (callback)
     {
         callback(nullptr, _msg, _session);
     }
-    else if (m_callback)
-    {
-        m_callback(nullptr, _msg, _session);
-    }
     else
     {
-        WEBSOCKET_VERSION(WARNING)
-            << LOG_BADGE("onRecvAMOPRequest")
-            << LOG_DESC("there has no callback register for the topic") << LOG_KV("topic", topic);
+        WEBSOCKET_VERSION(ERROR) << LOG_BADGE("onRecvAMOPRequest")
+                                 << LOG_DESC("there has no callback register for the topic")
+                                 << LOG_KV("topic", topic);
     }
 }
 
@@ -203,19 +205,20 @@ void AMOPClient::onRecvAMOPBroadcast(
                             << LOG_KV("endpoint", _session->endPoint())
                             << LOG_KV("data size", data->size());
 
-    auto callback = getCallbackByTopic(topic);
+    AMOPCallback callback = getCallbackByTopic(topic);
+    if (!callback && m_callback)
+    {
+        callback = m_callback;
+    }
+
     if (callback)
     {
         callback(nullptr, _msg, _session);
     }
-    else if (m_callback)
-    {
-        m_callback(nullptr, _msg, _session);
-    }
     else
     {
-        WEBSOCKET_VERSION(WARNING)
-            << LOG_BADGE("onRecvAMOPBroadcast")
-            << LOG_DESC("there has no callback register for the topic") << LOG_KV("topic", topic);
+        WEBSOCKET_VERSION(ERROR) << LOG_BADGE("onRecvAMOPBroadcast")
+                                 << LOG_DESC("there has no callback register for the topic")
+                                 << LOG_KV("topic", topic);
     }
 }

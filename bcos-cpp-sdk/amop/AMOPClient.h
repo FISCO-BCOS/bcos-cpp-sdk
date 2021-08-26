@@ -61,7 +61,8 @@ public:
     // query all subscribed topics
     virtual void querySubTopics(std::set<std::string>& _topics) override;
 
-    void updateTopicsToServer();
+    void updateTopicsToRemote();
+    void updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session);
 
 public:
     void onRecvAMOPRequest(

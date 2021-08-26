@@ -103,6 +103,7 @@ int main(int argc, char** argv)
     {
         BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("publish ") << LOG_KV("topic", topic)
                        << LOG_KV("message", msg);
+
         amop->publish(topic, buffer, -1,
             [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
                 std::shared_ptr<bcos::ws::WsSession> _session) {

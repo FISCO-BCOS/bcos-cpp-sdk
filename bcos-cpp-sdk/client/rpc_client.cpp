@@ -108,39 +108,43 @@ int main(int argc, char** argv)
                            << LOG_KV("resp", strResp);
         });
 
-        BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockNumber ");
-        jsonRpc->getBlockNumber(
-            "", [](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
-                boost::ignore_unused(_error);
-                std::string strResp;
-                if (_resp)
-                {
-                    strResp = std::string(_resp->begin(), _resp->end());
-                }
-                BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockNumber ")
-                               << LOG_KV("errorCode", _error ? _error->errorCode() : -1)
-                               << LOG_KV("errorMessage",
-                                      _error ? _error->errorMessage() : std::string(""))
-                               << LOG_KV("resp", strResp);
-            });
 
-        BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockByNumber ");
-        jsonRpc->getBlockByNumber(
-            "", 1, false, false, [](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
-                boost::ignore_unused(_error);
-                std::string strResp;
-                if (_resp)
-                {
-                    strResp = std::string(_resp->begin(), _resp->end());
-                }
-                BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockByNumber ")
-                               << LOG_KV("errorCode", _error ? _error->errorCode() : -1)
-                               << LOG_KV("errorMessage",
-                                      _error ? _error->errorMessage() : std::string(""))
-                               << LOG_KV("resp", strResp);
-            });
-            */
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+               BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockNumber ");
+               jsonRpc->getBlockNumber(
+                   "", [](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
+                       boost::ignore_unused(_error);
+                       std::string strResp;
+                       if (_resp)
+                       {
+                           strResp = std::string(_resp->begin(), _resp->end());
+                       }
+                       BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockNumber ")
+                                      << LOG_KV("errorCode", _error ? _error->errorCode() : -1)
+                                      << LOG_KV("errorMessage",
+                                             _error ? _error->errorMessage() : std::string(""))
+                                      << LOG_KV("resp", strResp);
+                   });
+
+
+                       BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockByNumber ");
+
+                       jsonRpc->getBlockByNumber(
+                           "", 1, false, false, [](bcos::Error::Ptr _error,
+           std::shared_ptr<bcos::bytes> _resp) { boost::ignore_unused(_error); std::string strResp;
+           if (_resp)
+                               {
+                                   strResp = std::string(_resp->begin(), _resp->end());
+                               }
+                               BCOS_LOG(INFO) << LOG_DESC(" ==> getBlockByNumber ")
+                                              << LOG_KV("errorCode", _error ? _error->errorCode() :
+           -1)
+                                              << LOG_KV("errorMessage",
+                                                     _error ? _error->errorMessage() :
+           std::string(""))
+                                              << LOG_KV("resp", strResp);
+                           });
+                           */
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
 
     return EXIT_SUCCESS;
