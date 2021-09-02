@@ -36,14 +36,14 @@ enum WsMessageType
     AMOP_SUBTOPIC = 0x110,   // 272
     AMOP_REQUEST = 0x111,    // 273
     AMOP_BROADCAST = 0x112,  // 274
-    AMOP_RESPONSE = 0x113,    // 275
+    AMOP_RESPONSE = 0x113,   // 275
     // ------------AMOP end ---------
 
-    // ------------EventPush begin ---------
+    // ------------event begin ---------
     EVENT_SUBSCRIBE = 0x120,    // 288
     EVENT_UNSUBSCRIBE = 0x121,  // 289
     EVENT_LOG_PUSH = 0x122,     // 290
-    // ------------EventPush end ---------
+    // ------------event end ---------
 };
 }  // namespace ws
 }  // namespace bcos
