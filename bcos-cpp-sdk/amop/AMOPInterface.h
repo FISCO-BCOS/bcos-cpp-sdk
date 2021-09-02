@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file AMOPClientInterface.h
+ * @file AMOPInterface.h
  * @author: octopus
  * @date 2021-08-23
  */
@@ -40,11 +40,11 @@ namespace amop
 {
 using AMOPCallback = std::function<void(
     bcos::Error::Ptr, std::shared_ptr<bcos::ws::WsMessage>, std::shared_ptr<bcos::ws::WsSession>)>;
-class AMOPClientInterface
+class AMOPInterface
 {
 public:
-    using Ptr = std::shared_ptr<AMOPClientInterface>;
-    virtual ~AMOPClientInterface() {}
+    using Ptr = std::shared_ptr<AMOPInterface>;
+    virtual ~AMOPInterface() {}
 
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) = 0;

@@ -19,7 +19,7 @@
  */
 #pragma once
 #include <bcos-cpp-sdk/SdkConfig.h>
-#include <bcos-cpp-sdk/amop/AMOPClient.h>
+#include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
@@ -36,7 +36,7 @@ public:
 public:
     bcos::ws::WsService::Ptr buildWsService();
     bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr buildJsonRpc(bcos::ws::WsService::Ptr _wsService);
-    bcos::cppsdk::amop::AMOPClient::Ptr buildAMOP(bcos::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::ws::WsService::Ptr _wsService);
 
 public:
     std::shared_ptr<bcos::ThreadPool> threadPool() const { return m_threadPool; }

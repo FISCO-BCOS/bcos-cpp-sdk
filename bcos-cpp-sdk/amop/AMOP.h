@@ -13,14 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file AMOPClient.h
+ * @file AMOP.h
  * @author: octopus
  * @date 2021-08-23
  */
 #pragma once
 
 #include "bcos-cpp-sdk/ws/Common.h"
-#include <bcos-cpp-sdk/amop/AMOPClientInterface.h>
+#include <bcos-cpp-sdk/amop/AMOPInterface.h>
 #include <bcos-cpp-sdk/amop/TopicManager.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <memory>
@@ -39,11 +39,11 @@ namespace cppsdk
 {
 namespace amop
 {
-class AMOPClient : public AMOPClientInterface, public std::enable_shared_from_this<AMOPClient>
+class AMOP : public AMOPInterface, public std::enable_shared_from_this<AMOP>
 {
 public:
-    using Ptr = std::shared_ptr<AMOPClient>;
-    virtual ~AMOPClient() {}
+    using Ptr = std::shared_ptr<AMOP>;
+    virtual ~AMOP() {}
 
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) override;

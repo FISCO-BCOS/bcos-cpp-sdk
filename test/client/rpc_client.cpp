@@ -21,7 +21,7 @@
 #include "bcos-cpp-sdk/ws/WsMessageType.h"
 #include <bcos-cpp-sdk/SdkConfig.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
-#include <bcos-cpp-sdk/amop/AMOPClientInterface.h>
+#include <bcos-cpp-sdk/amop/AMOPInterface.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
