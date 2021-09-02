@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file AMOPClient.cpp
+ * @file AMOP.cpp
  * @author: octopus
  * @date 2021-08-23
  */
-#include <bcos-cpp-sdk/amop/AMOPClient.h>
+#include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/Common.h>
 #include <bcos-cpp-sdk/ws/WsMessageType.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
@@ -34,7 +34,7 @@ using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
 
 // subscribe topics
-void AMOPClient::subscribe(const std::set<std::string>& _topics)
+void AMOP::subscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager and update topics to server
     m_topicManager->addTopics(_topics);
@@ -42,7 +42,7 @@ void AMOPClient::subscribe(const std::set<std::string>& _topics)
 }
 
 // subscribe topics
-void AMOPClient::unsubscribe(const std::set<std::string>& _topics)
+void AMOP::unsubscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager
     m_topicManager->removeTopics(_topics);
@@ -50,14 +50,14 @@ void AMOPClient::unsubscribe(const std::set<std::string>& _topics)
 }
 
 // query all subscribed topics
-void AMOPClient::querySubTopics(std::set<std::string>& _topics)
+void AMOP::querySubTopics(std::set<std::string>& _topics)
 {
     _topics = m_topicManager->topics();
     AMOP_CLIENT(INFO) << LOG_BADGE("querySubTopics") << LOG_KV("topics size", _topics.size());
 }
 
 // subscribe topic with callback
-void AMOPClient::subscribe(const std::string& _topic, AMOPCallback _callback)
+void AMOP::subscribe(const std::string& _topic, AMOPCallback _callback)
 {
     m_topicManager->addTopic(_topic);
     addTopicCallback(_topic, _callback);
@@ -67,8 +67,8 @@ void AMOPClient::subscribe(const std::string& _topic, AMOPCallback _callback)
 }
 
 // publish message
-void AMOPClient::publish(const std::string& _topic, std::shared_ptr<bcos::bytes>& _msg,
-    uint32_t timeout, AMOPCallback _callback)
+void AMOP::publish(const std::string& _topic, std::shared_ptr<bcos::bytes>& _msg, uint32_t timeout,
+    AMOPCallback _callback)
 {
     auto request = m_requestFactory->buildRequest();
     request->setTopic(_topic);
@@ -87,7 +87,7 @@ void AMOPClient::publish(const std::string& _topic, std::shared_ptr<bcos::bytes>
     auto service = m_service.lock();
     if (service)
     {
-        AMOP_CLIENT(INFO) << LOG_BADGE("publish") << LOG_DESC("publish message to topic")
+        AMOP_CLIENT(INFO) << LOG_BADGE("publish") << LOG_DESC("publish message")
                           << LOG_KV("topic", _topic);
         service->asyncSendMessage(sendMsg, ws::Options(timeout),
             [_callback](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
@@ -96,7 +96,7 @@ void AMOPClient::publish(const std::string& _topic, std::shared_ptr<bcos::bytes>
 }
 
 // broadcast message
-void AMOPClient::broadcast(const std::string& _topic, std::shared_ptr<bcos::bytes>& _msg)
+void AMOP::broadcast(const std::string& _topic, std::shared_ptr<bcos::bytes>& _msg)
 {
     auto request = m_requestFactory->buildRequest();
     request->setTopic(_topic);
@@ -120,12 +120,12 @@ void AMOPClient::broadcast(const std::string& _topic, std::shared_ptr<bcos::byte
 }
 
 // set default callback
-void AMOPClient::setCallback(AMOPCallback _callback)
+void AMOP::setCallback(AMOPCallback _callback)
 {
     m_callback = _callback;
 }
 
-void AMOPClient::updateTopicsToRemote()
+void AMOP::updateTopicsToRemote()
 {
     auto service = m_service.lock();
     if (!service)
@@ -140,7 +140,7 @@ void AMOPClient::updateTopicsToRemote()
     }
 }
 
-void AMOPClient::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
+void AMOP::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
 {
     std::string request = m_topicManager->topicsToJsonString();
     auto msg = m_messageFactory->buildMessage();
@@ -154,7 +154,7 @@ void AMOPClient::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
                       << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("topics", request);
 }
 
-void AMOPClient::onRecvAMOPRequest(
+void AMOP::onRecvAMOPRequest(
     std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
 {
     auto request = m_requestFactory->buildRequest();
@@ -162,9 +162,9 @@ void AMOPClient::onRecvAMOPRequest(
     auto topic = request->topic();
     auto data = std::make_shared<bcos::bytes>(request->data().begin(), request->data().end());
 
-    WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPRequest")
-                            << LOG_KV("endpoint", _session->endPoint())
-                            << LOG_KV("data size", data->size());
+    // WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPRequest")
+    //                         << LOG_KV("endpoint", _session->endPoint())
+    //                         << LOG_KV("data size", data->size());
 
     AMOPCallback callback = getCallbackByTopic(topic);
     if (!callback && m_callback)
@@ -184,7 +184,7 @@ void AMOPClient::onRecvAMOPRequest(
     }
 }
 
-void AMOPClient::onRecvAMOPResponse(
+void AMOP::onRecvAMOPResponse(
     std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
@@ -193,7 +193,7 @@ void AMOPClient::onRecvAMOPResponse(
                                << LOG_KV("endpoint", _session->endPoint());
 }
 
-void AMOPClient::onRecvAMOPBroadcast(
+void AMOP::onRecvAMOPBroadcast(
     std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
 {
     auto request = m_requestFactory->buildRequest();

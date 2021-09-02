@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file pub_client.cpp
+ * @file sub_client.cpp
  * @author: octopus
  * @date 2021-08-24
  */
@@ -36,20 +36,19 @@
 using namespace bcos;
 using namespace bcos::cppsdk;
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 
 void usage()
 {
-    std::cerr << "Usage: broadcast-client <host> <port> <topic>\n"
+    std::cerr << "Usage: sub-client <host> <port> <topic>\n"
               << "Example:\n"
-              << "    ./broadcast-client 127.0.0.1 20200 topic\n";
+              << "    ./sub-client 127.0.0.1 20200 topic\n";
     std::exit(0);
 }
 
-
+//------------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-    if (argc < 4)
+    if (argc != 4)
     {
         usage();
     }
@@ -57,14 +56,10 @@ int main(int argc, char** argv)
     std::string host = argv[1];
     uint16_t port = atoi(argv[2]);
     std::string topic = argv[3];
-    std::string msg;
-    if (argc > 4)
-    {
-        msg = argv[4];
-    }
 
-    BCOS_LOG(INFO) << LOG_DESC("broadcast client") << LOG_KV("ip", host) << LOG_KV("port", port)
-                   << LOG_KV("topic", topic);
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" subscribe ") << LOG_KV("ip", host)
+                   << LOG_KV("port", port) << LOG_KV("topic", topic);
+
 
     auto config = std::make_shared<bcos::cppsdk::SdkConfig>();
 
@@ -97,13 +92,45 @@ int main(int argc, char** argv)
         threads->emplace_back([&ioc]() { ioc->run(); });
     }
 
-    auto buffer = std::make_shared<bcos::bytes>(msg.begin(), msg.end());
+    while (wsService->sessions().empty())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
+
+    amop->subscribe(topic, [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
+                               std::shared_ptr<bcos::ws::WsSession> _session) {
+        if (_error)
+        {
+            BCOS_LOG(ERROR) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("subscribe callback error")
+                            << LOG_KV("errorCode", _error->errorCode())
+                            << LOG_KV("errorMessage", _error->errorMessage());
+            return;
+        }
+        else
+        {
+            auto factory = std::make_shared<bcos::ws::AMOPRequestFactory>();
+            auto request = factory->buildRequest();
+            request->decode(bytesConstRef(_msg->data()->data(), _msg->data()->size()));
+            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
+                           << LOG_KV("msg",
+                                  std::string(request->data().begin(), request->data().end()));
+
+            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ")
+                           << LOG_DESC(" send message back to publisher... ");
+
+            _msg->setType(bcos::ws::WsMessageType::AMOP_RESPONSE);
+            _msg->setData(
+                std::make_shared<bcos::bytes>(request->data().begin(), request->data().end()));
+        }
+
+        _session->asyncSendMessage(_msg);
+    });
+
     int i = 0;
     while (true)
     {
-        BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("broadcast ") << LOG_KV("topic", topic)
-                       << LOG_KV("message", msg);
-        amop->broadcast(topic, buffer);
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         i++;
     }

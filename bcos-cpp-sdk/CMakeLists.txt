@@ -4,7 +4,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSTATICLIB")
 file(GLOB SRC_LIST "*.cpp")
 file(GLOB HEADERS "*.h")
 
-add_subdirectory(client)
 add_subdirectory(rpc)
 add_subdirectory(ws)
 add_subdirectory(amop)
