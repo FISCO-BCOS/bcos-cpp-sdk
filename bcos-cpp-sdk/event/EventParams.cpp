@@ -13,18 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Common.h
+ * @file EvenParams.cpp
  * @author: octopus
- * @date 2021-09-01
+ * @date 2021-09-02
  */
 
-#pragma once
+#include <bcos-cpp-sdk/event/EventParams.h>
+#include <string>
 
-// The largest number of topic in one event log
-<<<<<<< HEAD
-#define EVENT_LOG_TOPICS_MAX_INDEX (4)
-#define EVENT_REQUEST(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][REQUEST]"
-#define EVENT_IMPL(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][IMPL]"
-=======
-#define EVENT_LOG_TOPICS_MAX_INDEX (4)
->>>>>>> 8e0a31c (add event impl)
+using namespace bcos;
+using namespace bcos::cppsdk;
+using namespace bcos::cppsdk::event;
+
+bool EventParams::verify()
+{
+    return true;
+}
+
+std::string EventParams::toJson()
+{
+    return std::string("");
+}

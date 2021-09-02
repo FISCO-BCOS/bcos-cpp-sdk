@@ -13,18 +13,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Common.h
+ * @file EvenPushInterface.h
  * @author: octopus
  * @date 2021-09-01
  */
 
 #pragma once
+#include <bcos-cpp-sdk/event/EventParams.h>
+#include <bcos-framework/libutilities/Common.h>
+#include <bcos-framework/libutilities/Error.h>
 
-// The largest number of topic in one event log
-<<<<<<< HEAD
-#define EVENT_LOG_TOPICS_MAX_INDEX (4)
-#define EVENT_REQUEST(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][REQUEST]"
-#define EVENT_IMPL(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][IMPL]"
-=======
-#define EVENT_LOG_TOPICS_MAX_INDEX (4)
->>>>>>> 8e0a31c (add event impl)
+namespace bcos
+{
+namespace cppsdk
+{
+namespace event
+{
+using Callback = std::function<void(bcos::Error::Ptr)>;
+
+class EventPushInterface
+{
+public:
+    using Ptr = std::shared_ptr<EventPushInterface>;
+
+    virtual ~EventPushInterface() {}
+
+public:
+    virtual void start() = 0;
+    virtual void stop() = 0;
+
+public:
+    virtual void subscribeEvent(EventParams::Ptr _params, Callback _callback) = 0;
+    virtual void unsubscribeEvent(const std::string& _id) = 0;
+};
+}  // namespace event
+}  // namespace cppsdk
+}  // namespace bcos

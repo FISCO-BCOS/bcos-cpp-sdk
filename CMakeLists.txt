@@ -75,6 +75,7 @@ set(CPP_SDK_TARGET "bcos-cpp-sdk")
 set(WS_SERVICE_TARGET "ws-service")
 set(JSON_RPC_TARGET "json-rpc-client")
 set(AMOP_TARGET "amop-client")
+set(EVENT_TARGET "event-client")
 
 add_subdirectory(bcos-cpp-sdk)
 
