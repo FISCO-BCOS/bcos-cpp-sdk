@@ -87,7 +87,7 @@ void AMOP::publish(const std::string& _topic, std::shared_ptr<bcos::bytes>& _msg
     auto service = m_service.lock();
     if (service)
     {
-        AMOP_CLIENT(INFO) << LOG_BADGE("publish") << LOG_DESC("publish message to topic")
+        AMOP_CLIENT(INFO) << LOG_BADGE("publish") << LOG_DESC("publish message")
                           << LOG_KV("topic", _topic);
         service->asyncSendMessage(sendMsg, ws::Options(timeout),
             [_callback](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
@@ -162,9 +162,9 @@ void AMOP::onRecvAMOPRequest(
     auto topic = request->topic();
     auto data = std::make_shared<bcos::bytes>(request->data().begin(), request->data().end());
 
-    WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPRequest")
-                            << LOG_KV("endpoint", _session->endPoint())
-                            << LOG_KV("data size", data->size());
+    // WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvAMOPRequest")
+    //                         << LOG_KV("endpoint", _session->endPoint())
+    //                         << LOG_KV("data size", data->size());
 
     AMOPCallback callback = getCallbackByTopic(topic);
     if (!callback && m_callback)

@@ -40,7 +40,7 @@ using namespace bcos::cppsdk;
 
 void usage()
 {
-    std::cerr << "Usage: pub-client <host> <port> <topic>\n"
+    std::cerr << "Usage: pub-client <host> <port> <topic> <message>\n"
               << "Example:\n"
               << "    ./pub-client 127.0.0.1 20200 topic\n";
     std::exit(0);
@@ -63,8 +63,8 @@ int main(int argc, char** argv)
         msg = argv[4];
     }
 
-    BCOS_LOG(INFO) << LOG_DESC("pub client") << LOG_KV("ip", host) << LOG_KV("port", port)
-                   << LOG_KV("topic", topic);
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ") << LOG_KV("ip", host)
+                   << LOG_KV("port", port) << LOG_KV("topic", topic);
 
     auto config = std::make_shared<bcos::cppsdk::SdkConfig>();
 
@@ -101,27 +101,28 @@ int main(int argc, char** argv)
     int i = 0;
     while (true)
     {
-        BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("publish ") << LOG_KV("topic", topic)
-                       << LOG_KV("message", msg);
+        BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ")
+                       << LOG_KV("topic", topic) << LOG_KV("message", msg);
 
         amop->publish(topic, buffer, -1,
             [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
                 std::shared_ptr<bcos::ws::WsSession> _session) {
-                boost::ignore_unused(_error, _session);
+                boost::ignore_unused(_session);
                 if (_error)
                 {
-                    BCOS_LOG(ERROR) << LOG_BADGE(" ===>>>> ") << LOG_DESC(" pub client error: ")
-                                    << LOG_KV("error", _error->errorCode())
-                                    << LOG_KV("errorMessage", _error->errorMessage());
+                    BCOS_LOG(ERROR)
+                        << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish callback error ")
+                        << LOG_KV("errorCode", _error->errorCode())
+                        << LOG_KV("errorMessage", _error->errorMessage());
                 }
                 else
                 {
-                    BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ")
-                                   << LOG_DESC(" pub client receive response message")
-                                   << LOG_KV("data size", _msg ? _msg->data()->size() : -1);
+                    BCOS_LOG(INFO)
+                        << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive response message")
+                        << LOG_KV("msg", std::string(_msg->data()->begin(), _msg->data()->end()));
                 }
             });
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;
     }
 

@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     uint16_t port = atoi(argv[2]);
     std::string topic = argv[3];
 
-    BCOS_LOG(INFO) << LOG_DESC("amop sub client sample") << LOG_KV("ip", host)
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" subscribe ") << LOG_KV("ip", host)
                    << LOG_KV("port", port) << LOG_KV("topic", topic);
 
 
@@ -97,14 +97,34 @@ int main(int argc, char** argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("connect to server successfully!");
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
 
     amop->subscribe(topic, [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
                                std::shared_ptr<bcos::ws::WsSession> _session) {
-        boost::ignore_unused(_error);
-        BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ")
-                       << LOG_DESC(" receive message and send response back")
-                       << LOG_KV("msg size", _msg ? _msg->data()->size() : -1);
+        if (_error)
+        {
+            BCOS_LOG(ERROR) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("subscribe callback error")
+                            << LOG_KV("errorCode", _error->errorCode())
+                            << LOG_KV("errorMessage", _error->errorMessage());
+            return;
+        }
+        else
+        {
+            auto factory = std::make_shared<bcos::ws::AMOPRequestFactory>();
+            auto request = factory->buildRequest();
+            request->decode(bytesConstRef(_msg->data()->data(), _msg->data()->size()));
+            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
+                           << LOG_KV("msg",
+                                  std::string(request->data().begin(), request->data().end()));
+
+            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ")
+                           << LOG_DESC(" send message back to publisher... ");
+
+            _msg->setType(bcos::ws::WsMessageType::AMOP_RESPONSE);
+            _msg->setData(
+                std::make_shared<bcos::bytes>(request->data().begin(), request->data().end()));
+        }
+
         _session->asyncSendMessage(_msg);
     });
 

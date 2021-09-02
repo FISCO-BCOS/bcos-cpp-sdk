@@ -40,7 +40,7 @@ using namespace bcos::cppsdk;
 
 void usage()
 {
-    std::cerr << "Usage: broadcast-client <host> <port> <topic>\n"
+    std::cerr << "Usage: broadcast-client <host> <port> <topic> <message>\n"
               << "Example:\n"
               << "    ./broadcast-client 127.0.0.1 20200 topic\n";
     std::exit(0);
@@ -101,10 +101,10 @@ int main(int argc, char** argv)
     int i = 0;
     while (true)
     {
-        BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("broadcast ") << LOG_KV("topic", topic)
-                       << LOG_KV("message", msg);
+        BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" broadcast ")
+                       << LOG_KV("topic", topic) << LOG_KV("message", msg);
         amop->broadcast(topic, buffer);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;
     }
 
