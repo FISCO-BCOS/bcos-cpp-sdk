@@ -97,13 +97,12 @@ int main(int argc, char** argv)
         threads->emplace_back([&ioc]() { ioc->run(); });
     }
 
-    auto buffer = std::make_shared<bcos::bytes>(msg.begin(), msg.end());
     int i = 0;
     while (true)
     {
         BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" broadcast ")
                        << LOG_KV("topic", topic) << LOG_KV("message", msg);
-        amop->broadcast(topic, buffer);
+        amop->broadcast(topic, bytesConstRef((bcos::byte*)msg.data(), msg.size()));
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;
     }

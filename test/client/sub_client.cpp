@@ -98,9 +98,11 @@ int main(int argc, char** argv)
     }
 
     BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
-
-    amop->subscribe(topic, [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
+    auto self = std::weak_ptr(amop);
+    amop->subscribe(topic, [self](bcos::Error::Ptr _error, const std::string& _client,
+                               const std::string& _seq, bytesConstRef _data,
                                std::shared_ptr<bcos::ws::WsSession> _session) {
+        boost::ignore_unused(_session);
         if (_error)
         {
             BCOS_LOG(ERROR) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("subscribe callback error")
@@ -110,22 +112,18 @@ int main(int argc, char** argv)
         }
         else
         {
-            auto factory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
-            auto request = factory->buildRequest();
-            request->decode(bytesConstRef(_msg->data()->data(), _msg->data()->size()));
             BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
-                           << LOG_KV("msg",
-                                  std::string(request->data().begin(), request->data().end()));
+                           << LOG_KV("client", _client)
+                           << LOG_KV("msg", std::string(_data.begin(), _data.end()));
 
             BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ")
                            << LOG_DESC(" send message back to publisher... ");
-
-            _msg->setType(bcos::ws::WsMessageType::AMOP_RESPONSE);
-            _msg->setData(
-                std::make_shared<bcos::bytes>(request->data().begin(), request->data().end()));
+            auto amop = self.lock();
+            if (amop)
+            {
+                amop->sendResponse(_client, _seq, _data);
+            }
         }
-
-        _session->asyncSendMessage(_msg);
     });
 
     int i = 0;
