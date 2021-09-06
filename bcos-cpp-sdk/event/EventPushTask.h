@@ -21,7 +21,9 @@
 #pragma once
 
 #include <bcos-cpp-sdk/event/EventParams.h>
+#include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
+#include <memory>
 namespace bcos
 {
 namespace ws
@@ -33,6 +35,22 @@ namespace cppsdk
 {
 namespace event
 {
+class EventPushTaskState
+{
+public:
+    using Ptr = std::shared_ptr<EventPushTaskState>;
+
+public:
+    int64_t currentBlockNumber() const { return m_currentBlockNumber; }
+    void setCurrentBlockNumber(int64_t _currentBlockNumber)
+    {
+        m_currentBlockNumber = _currentBlockNumber;
+    }
+
+private:
+    int64_t m_currentBlockNumber;
+};
+
 class EventPushTask
 {
 public:
@@ -48,10 +66,18 @@ public:
     void setParams(std::shared_ptr<EventParams> _params) { m_params = _params; }
     std::shared_ptr<EventParams> params() const { return m_params; }
 
+    void setState(std::shared_ptr<EventPushTaskState> _state) { m_state = _state; }
+    std::shared_ptr<EventPushTaskState> state() const { return m_state; }
+
+    void setCallback(Callback _callback) { m_callback = _callback; }
+    Callback callback() const { return m_callback; }
+
 private:
     std::string m_id;
+    Callback m_callback;
     std::shared_ptr<ws::WsSession> m_session;
     std::shared_ptr<EventParams> m_params;
+    std::shared_ptr<EventPushTaskState> m_state;
 };
 }  // namespace event
 }  // namespace cppsdk

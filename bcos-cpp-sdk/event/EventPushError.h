@@ -13,38 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EvenPushInterface.h
+ * @file EventPushError.h
  * @author: octopus
  * @date 2021-09-01
  */
 
 #pragma once
-#include <bcos-cpp-sdk/event/EventParams.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/Error.h>
-
 namespace bcos
 {
 namespace cppsdk
 {
 namespace event
 {
-using Callback = std::function<void(bcos::Error::Ptr, const std::string&)>;
-
-class EventPushInterface
+enum ErrorCode
 {
-public:
-    using Ptr = std::shared_ptr<EventPushInterface>;
-
-    virtual ~EventPushInterface() {}
-
-public:
-    virtual void start() = 0;
-    virtual void stop() = 0;
-
-public:
-    virtual void subscribeEvent(EventParams::Ptr _params, Callback _callback) = 0;
-    virtual void unsubscribeEvent(const std::string& _id, Callback _callback) = 0;
+    Ok = 0,
+    EndOfPush = 1,  // push completed
 };
 }  // namespace event
 }  // namespace cppsdk

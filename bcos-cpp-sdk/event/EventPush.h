@@ -22,7 +22,6 @@
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/event/EventPushTask.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
-#include <memory>
 #include <shared_mutex>
 #include <utility>
 
@@ -44,13 +43,21 @@ public:
     virtual void stop() override;
 
     virtual void subscribeEvent(EventParams::Ptr _params, Callback _callback) override;
-    virtual void unsubscribeEvent(const std::string& _id) override;
+    virtual void unsubscribeEvent(const std::string& _id, Callback _callback) override;
     virtual void doLoop();
+
+public:
+    void onRecvEventPushMessage(
+        std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
+    void onRecvSubEventRespMessage(const std::string& _id, std::shared_ptr<ws::WsMessage> _msg,
+        std::shared_ptr<ws::WsSession> _session);
 
 public:
     void addTask(const std::string& _id, EventPushTask::Ptr _task);
     void removeTask(const std::string& _id);
     EventPushTask::Ptr getTask(const std::string& _id);
+    EventPushTask::Ptr getTaskAndRemove(const std::string& _id);
+    void endOfPush(const std::string& _id);
 
     void interruptTasks(std::shared_ptr<ws::WsSession> _session);
 
