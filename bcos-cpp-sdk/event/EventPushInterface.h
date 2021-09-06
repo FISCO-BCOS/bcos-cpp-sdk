@@ -43,7 +43,8 @@ public:
     virtual void stop() = 0;
 
 public:
-    virtual void subscribeEvent(EventParams::Ptr _params, Callback _callback) = 0;
+    virtual void subscribeEvent(
+        const std::string& _group, EventParams::Ptr _params, Callback _callback) = 0;
     virtual void unsubscribeEvent(const std::string& _id, Callback _callback) = 0;
 };
 }  // namespace event

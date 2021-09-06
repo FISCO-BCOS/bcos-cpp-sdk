@@ -191,7 +191,7 @@ void EventPush::onRecvSubEventRespMessage(const std::string& _id,
 
         if (root.isMember("result"))
         {
-            int result = root["result"].asInt();
+            // int result = root["result"].asInt();
         }
 
         EVENT_IMPL(ERROR) << LOG_BADGE("onRecvSubEventRespMessage") << LOG_KV("id", _id);
@@ -202,12 +202,15 @@ void EventPush::onRecvSubEventRespMessage(const std::string& _id,
     }
 }
 
-void EventPush::subscribeEvent(EventParams::Ptr _params, Callback _callback)
+void EventPush::subscribeEvent(
+    const std::string& _group, EventParams::Ptr _params, Callback _callback)
 {
-    auto request = std::make_shared<EventRequest>();
     auto id = m_factory->newSeq();
+
+    auto request = std::make_shared<EventRequest>();
     request->setId(id);
     request->setParams(_params);
+    request->setGroup(_group);
     auto jsonReq = request->generateJson();
 
     auto message = m_factory->buildMessage();
@@ -215,7 +218,7 @@ void EventPush::subscribeEvent(EventParams::Ptr _params, Callback _callback)
     message->setData(std::make_shared<bcos::bytes>(jsonReq.begin(), jsonReq.end()));
 
     EVENT_IMPL(INFO) << LOG_BADGE("subscribeEvent") << LOG_DESC("subscribe event push")
-                     << LOG_KV("id", id) << LOG_KV("request", jsonReq);
+                     << LOG_KV("id", id) << LOG_KV("group", _group) << LOG_KV("request", jsonReq);
 
     auto self = std::weak_ptr<EventPush>(shared_from_this());
     m_wsService->asyncSendMessage(message, ws::Options(-1),

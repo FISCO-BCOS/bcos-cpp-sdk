@@ -38,13 +38,11 @@ public:
 public:
     int64_t fromBlock() const { return m_fromBlock; }
     int64_t toBlock() const { return m_toBlock; }
-    std::string group() const { return m_group; }
     const std::vector<std::string>& addresses() const { return m_addresses; }
     std::vector<std::string>& addresses() { return m_addresses; }
     const std::vector<std::vector<std::string>>& topics() const { return m_topics; }
     std::vector<std::vector<std::string>>& topics() { return m_topics; }
 
-    void setGroup(const std::string& _group) { m_group = _group; }
     void setFromBlock(int64_t _fromBlock) { m_fromBlock = _fromBlock; }
     void setToBlock(int64_t _toBlock) { m_toBlock = _toBlock; }
     void addAddress(const std::string& _address) { m_addresses.push_back(_address); }
@@ -71,7 +69,6 @@ private:
     int64_t m_toBlock = -1;
     std::vector<std::string> m_addresses;
     std::vector<std::vector<std::string>> m_topics;
-    std::string m_group;
 };
 
 }  // namespace event
