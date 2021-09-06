@@ -213,7 +213,7 @@ void WsService::addSession(std::shared_ptr<WsSession> _session)
         conHandler(_session);
     }
 
-    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("addSession") << LOG_DESC("add this session to mapper")
+    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("addSession") << LOG_DESC("add session to mapping")
                             << LOG_KV("connectedEndPoint", connectedEndPoint)
                             << LOG_KV("endPoint", endpoint) << LOG_KV("result", ok);
 }
