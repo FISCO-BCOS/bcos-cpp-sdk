@@ -34,6 +34,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <unordered_map>
+#include <vector>
 
 namespace bcos
 {
@@ -132,14 +133,14 @@ public:
         m_msgType2Method[_msgType] = _msgHandler;
     }
 
-    void registerModConnectHandler(uint32_t _module, ConnectHandler _connectHandler)
+    void registerConnectHandler(ConnectHandler _connectHandler)
     {
-        m_connectHandlers[_module] = _connectHandler;
+        m_connectHandlers.push_back(_connectHandler);
     }
 
-    void registerModDisconnectHandler(uint32_t _module, DisconnectHandler _disconnectHandler)
+    void registerDisconnectHandler(DisconnectHandler _disconnectHandler)
     {
-        m_connectHandlers[_module] = _disconnectHandler;
+        m_disconnectHandlers.push_back(_disconnectHandler);
     }
 
 private:
@@ -167,8 +168,8 @@ private:
     std::unordered_map<std::string, std::shared_ptr<WsSession>> m_sessions;
     // type => handler
     std::unordered_map<uint32_t, MsgHandler> m_msgType2Method;
-    std::unordered_map<uint32_t, ConnectHandler> m_connectHandlers;
-    std::unordered_map<uint32_t, DisconnectHandler> m_disconnectHandlers;
+    std::vector<ConnectHandler> m_connectHandlers;
+    std::vector<DisconnectHandler> m_disconnectHandlers;
 };
 
 }  // namespace ws

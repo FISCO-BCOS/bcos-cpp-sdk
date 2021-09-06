@@ -122,20 +122,13 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::Ptr _ws
         });
 
     auto amopWeakPtr = std::weak_ptr<AMOP>(amop);
-    _wsService->registerModConnectHandler(
-        AMOP_MODULE, [amopWeakPtr](std::shared_ptr<WsSession> _session) {
-            auto amop = amopWeakPtr.lock();
-            if (amop)
-            {
-                amop->updateTopicsToRemote(_session);
-            }
-        });
-    /*
-    _wsService->registerModDisconnectHandler(
-        AMOP_MODULE, [amopWeakPtr](std::shared_ptr<WsSession> _session) {
-
-        });
-    */
+    _wsService->registerConnectHandler([amopWeakPtr](std::shared_ptr<WsSession> _session) {
+        auto amop = amopWeakPtr.lock();
+        if (amop)
+        {
+            amop->updateTopicsToRemote(_session);
+        }
+    });
 
     auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
     amop->setService(wsServicePtr);

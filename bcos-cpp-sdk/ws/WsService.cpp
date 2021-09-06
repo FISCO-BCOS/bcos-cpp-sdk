@@ -210,7 +210,7 @@ void WsService::addSession(std::shared_ptr<WsSession> _session)
     //
     for (auto& conHandler : m_connectHandlers)
     {
-        conHandler.second(_session);
+        conHandler(_session);
     }
 
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("addSession") << LOG_DESC("add this session to mapper")
@@ -280,7 +280,7 @@ void WsService::onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _sess
 
     for (auto& disHandler : m_disconnectHandlers)
     {
-        disHandler.second(_session);
+        disHandler(_session);
     }
 
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("onDisconnect") << LOG_KV("endpoint", endpoint)
