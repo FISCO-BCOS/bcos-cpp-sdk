@@ -89,7 +89,7 @@ void WsService::reconnect()
         std::string host = peer.host;
         uint16_t port = peer.port;
         auto self = std::weak_ptr<WsService>(shared_from_this());
-        m_tools->connectToWsServer(m_resolver, m_ioc, host, port,
+        m_tools->connectToWsServer(host, port,
             [self, connectedEndPoint](
                 std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>
                     _stream) {

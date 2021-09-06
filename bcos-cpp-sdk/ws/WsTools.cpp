@@ -26,14 +26,14 @@
 using namespace bcos;
 using namespace bcos::ws;
 
-void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
-    std::shared_ptr<boost::asio::io_context> _ioc, const std::string& _host, uint16_t _port,
+void WsTools::connectToWsServer(const std::string& _host, uint16_t _port,
     std::function<void(std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
         _callback)
 {
+    auto ioc = m_ioc;
     // resolve host
-    _resolver->async_resolve(_host.c_str(), std::to_string(_port).c_str(),
-        [_host, _port, _callback, _ioc](
+    m_resolver->async_resolve(_host.c_str(), std::to_string(_port).c_str(),
+        [_host, _port, _callback, ioc](
             boost::beast::error_code _ec, boost::asio::ip::tcp::resolver::results_type _results) {
             if (_ec)
             {
@@ -49,7 +49,7 @@ void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> 
                                   << LOG_KV("port", _port);
 
             auto stream =
-                std::make_shared<boost::beast::websocket::stream<boost::beast::tcp_stream>>(*_ioc);
+                std::make_shared<boost::beast::websocket::stream<boost::beast::tcp_stream>>(*ioc);
             boost::beast::get_lowest_layer(*stream).expires_after(std::chrono::seconds(30));
 
             // async connect

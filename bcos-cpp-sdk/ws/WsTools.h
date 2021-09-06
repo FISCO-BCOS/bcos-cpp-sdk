@@ -29,11 +29,32 @@ namespace ws
 class WsTools
 {
 public:
+    using Ptr = WsTools;
+    WsTools(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
+        std::shared_ptr<boost::asio::io_context> _ioc)
+      : m_resolver(_resolver), m_ioc(_ioc)
+    {}
+
+public:
     void connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
         std::shared_ptr<boost::asio::io_context> _ioc, const std::string& _host, uint16_t _port,
         std::function<void(
             std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
             _callback);
+
+public:
+    void setResolver(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver)
+    {
+        m_resolver = _resolver;
+    }
+    std::shared_ptr<boost::asio::ip::tcp::resolver> resolver() const { return m_resolver; }
+
+    void setIoc(std::shared_ptr<boost::asio::io_context> _ioc) { m_ioc = _ioc; }
+    std::shared_ptr<boost::asio::io_context> ioc() const { return m_ioc; }
+
+private:
+    std::shared_ptr<boost::asio::ip::tcp::resolver> m_resolver;
+    std::shared_ptr<boost::asio::io_context> m_ioc;
 };
 }  // namespace ws
 }  // namespace bcos

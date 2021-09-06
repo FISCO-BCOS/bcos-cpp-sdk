@@ -40,7 +40,7 @@ bcos::ws::WsService::Ptr SdkFactory::buildWsService()
     auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
     auto ioc = std::make_shared<boost::asio::io_context>();
     auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*ioc);
-    auto tools = std::make_shared<WsTools>();
+    auto tools = std::make_shared<WsTools>(resolver, ioc);
 
     auto wsService = std::make_shared<bcos::ws::WsService>();
     wsService->setConfig(m_config);
