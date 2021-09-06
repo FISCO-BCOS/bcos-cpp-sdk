@@ -110,7 +110,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            auto factory = std::make_shared<bcos::ws::AMOPRequestFactory>();
+            auto factory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
             auto request = factory->buildRequest();
             request->decode(bytesConstRef(_msg->data()->data(), _msg->data()->size()));
             BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")

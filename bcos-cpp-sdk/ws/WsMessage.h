@@ -72,29 +72,7 @@ private:
     std::shared_ptr<bcos::bytes> m_data;
 };
 
-class AMOPRequest
-{
-public:
-    // topic field length
-    const static size_t TOPIC_MAX_LENGTH = 65535;
-    const static size_t MESSAGE_MIN_LENGTH = 2;
-    AMOPRequest() { m_data = bytesConstRef(); }
-    using Ptr = std::shared_ptr<AMOPRequest>;
 
-public:
-    std::string topic() const { return m_topic; }
-    void setTopic(const std::string& _topic) { m_topic = _topic; }
-    void setData(bytesConstRef _data) { m_data = _data; }
-    bytesConstRef data() const { return m_data; }
-
-public:
-    bool encode(bcos::bytes& _buffer);
-    ssize_t decode(bytesConstRef _data);
-
-private:
-    std::string m_topic;
-    bytesConstRef m_data;
-};
 class WsMessageFactory
 {
 public:
@@ -126,17 +104,5 @@ public:
     }
 };
 
-class AMOPRequestFactory
-{
-public:
-    using Ptr = std::shared_ptr<AMOPRequestFactory>;
-
-public:
-    std::shared_ptr<AMOPRequest> buildRequest()
-    {
-        auto msg = std::make_shared<AMOPRequest>();
-        return msg;
-    }
-};
 }  // namespace ws
 }  // namespace bcos

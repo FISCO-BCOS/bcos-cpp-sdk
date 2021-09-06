@@ -21,6 +21,7 @@
 
 #include "bcos-cpp-sdk/ws/Common.h"
 #include <bcos-cpp-sdk/amop/AMOPInterface.h>
+#include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/TopicManager.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <memory>
@@ -81,11 +82,11 @@ public:
         m_messageFactory = _messageFactory;
     }
 
-    std::shared_ptr<bcos::ws::AMOPRequestFactory> requestFactory() const
+    std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> requestFactory() const
     {
         return m_requestFactory;
     }
-    void setRequestFactory(std::shared_ptr<bcos::ws::AMOPRequestFactory> _requestFactory)
+    void setRequestFactory(std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> _requestFactory)
     {
         m_requestFactory = _requestFactory;
     }
@@ -120,7 +121,7 @@ private:
     AMOPCallback m_callback;
     std::shared_ptr<TopicManager> m_topicManager;
     std::shared_ptr<bcos::ws::WsMessageFactory> m_messageFactory;
-    std::shared_ptr<bcos::ws::AMOPRequestFactory> m_requestFactory;
+    std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> m_requestFactory;
 
     mutable std::shared_mutex x_topicToCallback;
     std::unordered_map<std::string, AMOPCallback> m_topicToCallback;

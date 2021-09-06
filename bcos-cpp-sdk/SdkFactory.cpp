@@ -20,6 +20,7 @@
 
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
+#include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <bcos-cpp-sdk/ws/WsTools.h>
@@ -37,7 +38,7 @@ using namespace bcos::cppsdk::jsonrpc;
 bcos::ws::WsService::Ptr SdkFactory::buildWsService()
 {
     auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
-    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
+    auto requestFactory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
     auto ioc = std::make_shared<boost::asio::io_context>();
     auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*ioc);
     auto tools = std::make_shared<WsTools>(resolver, ioc);
@@ -49,7 +50,6 @@ bcos::ws::WsService::Ptr SdkFactory::buildWsService()
     wsService->setResolver(resolver);
     wsService->setTools(tools);
     wsService->setMessageFactory(messageFactory);
-    wsService->setRequestFactory(requestFactory);
     wsService->initMethod();
     return wsService;
 }
@@ -88,7 +88,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::Ptr _ws
 {
     auto amop = std::make_shared<AMOP>();
     auto topicManager = std::make_shared<TopicManager>();
-    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
+    auto requestFactory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
     auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
 
     amop->setTopicManager(topicManager);

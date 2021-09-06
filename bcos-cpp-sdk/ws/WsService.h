@@ -100,11 +100,6 @@ public:
     void broadcastMessage(std::shared_ptr<WsMessage> _msg);
 
 public:
-    std::shared_ptr<AMOPRequestFactory> requestFactory() const { return m_requestFactory; }
-    void setRequestFactory(std::shared_ptr<AMOPRequestFactory> _requestFactory)
-    {
-        m_requestFactory = _requestFactory;
-    }
     std::shared_ptr<WsMessageFactory> messageFactory() { return m_messageFactory; }
     void setMessageFactory(std::shared_ptr<WsMessageFactory> _messageFactory)
     {
@@ -149,8 +144,6 @@ public:
 
 private:
     bool m_running{false};
-    // AMOPRequestFactory
-    std::shared_ptr<AMOPRequestFactory> m_requestFactory;
     // WsMessageFactory
     std::shared_ptr<WsMessageFactory> m_messageFactory;
     // ThreadPool
