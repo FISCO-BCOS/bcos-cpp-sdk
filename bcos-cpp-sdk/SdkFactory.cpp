@@ -22,8 +22,8 @@
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
+#include <bcos-cpp-sdk/ws/WsConnector.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
-#include <bcos-cpp-sdk/ws/WsTools.h>
 #include <memory>
 
 using namespace bcos;
@@ -41,7 +41,7 @@ bcos::ws::WsService::Ptr SdkFactory::buildWsService()
     auto requestFactory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
     auto ioc = std::make_shared<boost::asio::io_context>();
     auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*ioc);
-    auto tools = std::make_shared<WsTools>(resolver, ioc);
+    auto tools = std::make_shared<WsConnector>(resolver, ioc);
 
     auto wsService = std::make_shared<bcos::ws::WsService>();
     wsService->setConfig(m_config);

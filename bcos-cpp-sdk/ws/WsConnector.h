@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  m_limitations under the License.
  *
- * @file WsTools.h
+ * @file WsConnector.h
  * @author: octopus
  * @date 2021-08-23
  */
@@ -26,18 +26,17 @@ namespace bcos
 {
 namespace ws
 {
-class WsTools
+class WsConnector
 {
 public:
-    using Ptr = WsTools;
-    WsTools(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
+    using Ptr = WsConnector;
+    WsConnector(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
         std::shared_ptr<boost::asio::io_context> _ioc)
       : m_resolver(_resolver), m_ioc(_ioc)
     {}
 
 public:
-    void connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
-        std::shared_ptr<boost::asio::io_context> _ioc, const std::string& _host, uint16_t _port,
+    void connectToWsServer(const std::string& _host, uint16_t _port,
         std::function<void(
             std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
             _callback);

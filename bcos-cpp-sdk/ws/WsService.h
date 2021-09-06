@@ -21,7 +21,7 @@
 
 #include <bcos-cpp-sdk/SdkConfig.h>
 #include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/WsTools.h>
+#include <bcos-cpp-sdk/ws/WsConnector.h>
 #include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <boost/asio/deadline_timer.hpp>
@@ -122,8 +122,8 @@ public:
         m_resolver = _resolver;
     }
 
-    std::shared_ptr<WsTools> tools() const { return m_tools; }
-    void setTools(std::shared_ptr<WsTools> _tools) { m_tools = _tools; }
+    std::shared_ptr<WsConnector> tools() const { return m_tools; }
+    void setTools(std::shared_ptr<WsConnector> _tools) { m_tools = _tools; }
 
     std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
     void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
@@ -153,7 +153,7 @@ private:
     // sdk config
     std::shared_ptr<bcos::cppsdk::SdkConfig> m_config;
     // ws tools
-    std::shared_ptr<WsTools> m_tools;
+    std::shared_ptr<WsConnector> m_tools;
     // io context
     std::shared_ptr<boost::asio::io_context> m_ioc;
     // resolver
