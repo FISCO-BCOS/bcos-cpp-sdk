@@ -21,10 +21,6 @@
 #pragma once
 
 // The largest number of topic in one event log
-<<<<<<< HEAD
 #define EVENT_LOG_TOPICS_MAX_INDEX (4)
 #define EVENT_REQUEST(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][REQUEST]"
 #define EVENT_IMPL(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][IMPL]"
-=======
-#define EVENT_LOG_TOPICS_MAX_INDEX (4)
->>>>>>> 8e0a31c (add event impl)

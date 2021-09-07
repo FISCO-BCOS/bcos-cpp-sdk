@@ -19,7 +19,7 @@
  */
 
 #pragma once
-#include <bcos-cpp-sdk/event/EventParams.h>
+#include <bcos-cpp-sdk/event/EventPushParams.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Error.h>
 
@@ -44,7 +44,7 @@ public:
 
 public:
     virtual void subscribeEvent(
-        const std::string& _group, EventParams::Ptr _params, Callback _callback) = 0;
+        const std::string& _group, EventPushParams::Ptr _params, Callback _callback) = 0;
     virtual void unsubscribeEvent(const std::string& _id, Callback _callback) = 0;
 };
 }  // namespace event

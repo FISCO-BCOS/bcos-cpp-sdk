@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EvenParams.h
+ * @file EvenPushParams.h
  * @author: octopus
  * @date 2021-09-01
  */
@@ -30,10 +30,10 @@ namespace cppsdk
 {
 namespace event
 {
-class EventParams
+class EventPushParams
 {
 public:
-    using Ptr = std::shared_ptr<EventParams>;
+    using Ptr = std::shared_ptr<EventPushParams>;
 
 public:
     int64_t fromBlock() const { return m_fromBlock; }
@@ -61,12 +61,6 @@ public:
 private:
     bcos::protocol::BlockNumber m_fromBlock = -1;
     bcos::protocol::BlockNumber m_toBlock = -1;
-    std::vector<std::string> m_addresses;
-    std::vector<std::vector<std::string>> m_topics;
-
-private:
-    int64_t m_fromBlock = -1;
-    int64_t m_toBlock = -1;
     std::vector<std::string> m_addresses;
     std::vector<std::vector<std::string>> m_topics;
 };

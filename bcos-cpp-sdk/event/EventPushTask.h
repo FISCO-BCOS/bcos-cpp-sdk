@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <bcos-cpp-sdk/event/EventParams.h>
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
+#include <bcos-cpp-sdk/event/EventPushParams.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
 #include <memory>
 namespace bcos
@@ -63,8 +63,8 @@ public:
     void setId(const std::string& _id) { m_id = _id; }
     std::string id() const { return m_id; }
 
-    void setParams(std::shared_ptr<EventParams> _params) { m_params = _params; }
-    std::shared_ptr<EventParams> params() const { return m_params; }
+    void setParams(std::shared_ptr<EventPushParams> _params) { m_params = _params; }
+    std::shared_ptr<EventPushParams> params() const { return m_params; }
 
     void setState(std::shared_ptr<EventPushTaskState> _state) { m_state = _state; }
     std::shared_ptr<EventPushTaskState> state() const { return m_state; }
@@ -76,7 +76,7 @@ private:
     std::string m_id;
     Callback m_callback;
     std::shared_ptr<ws::WsSession> m_session;
-    std::shared_ptr<EventParams> m_params;
+    std::shared_ptr<EventPushParams> m_params;
     std::shared_ptr<EventPushTaskState> m_state;
 };
 }  // namespace event

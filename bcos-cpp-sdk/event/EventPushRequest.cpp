@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EvenRequest.cpp
+ * @file EvenPushRequest.cpp
  * @author: octopus
  * @date 2021-09-03
  */
 
 #include <bcos-cpp-sdk/event/Common.h>
-#include <bcos-cpp-sdk/event/EventRequest.h>
+#include <bcos-cpp-sdk/event/EventPushRequest.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <json/json.h>
 #include <exception>
@@ -29,7 +29,7 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
-std::string EventRequest::generateJson() const
+std::string EventPushRequest::generateJson() const
 {
     /*
     {
@@ -86,11 +86,11 @@ std::string EventRequest::generateJson() const
     return result;
 }
 
-bool EventRequest::initFromJson(const std::string& _request)
+bool EventPushRequest::initFromJson(const std::string& _request)
 {
     std::string id;
     std::string group;
-    EventParams::Ptr params = std::make_shared<EventParams>();
+    EventPushParams::Ptr params = std::make_shared<EventPushParams>();
 
     try
     {

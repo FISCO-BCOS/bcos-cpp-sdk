@@ -20,7 +20,7 @@
 
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventPush.h>
-#include <bcos-cpp-sdk/event/EventRequest.h>
+#include <bcos-cpp-sdk/event/EventPushRequest.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-framework/interfaces/protocol/CommonError.h>
 #include <bcos-framework/libutilities/Common.h>
@@ -203,11 +203,11 @@ void EventPush::onRecvSubEventRespMessage(const std::string& _id,
 }
 
 void EventPush::subscribeEvent(
-    const std::string& _group, EventParams::Ptr _params, Callback _callback)
+    const std::string& _group, EventPushParams::Ptr _params, Callback _callback)
 {
     auto id = m_factory->newSeq();
 
-    auto request = std::make_shared<EventRequest>();
+    auto request = std::make_shared<EventPushRequest>();
     request->setId(id);
     request->setParams(_params);
     request->setGroup(_group);
