@@ -57,7 +57,7 @@ public:
     virtual void subscribe(const std::string& _topic, SubCallback _callback) = 0;
     //
     virtual void sendResponse(
-        const std::string& _client, const std::string& _seq, bytesConstRef _data) = 0;
+        const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) = 0;
     // publish message
     virtual void publish(const std::string& _topic, bytesConstRef _data, uint32_t timeout,
         PubCallback _callback) = 0;
@@ -65,7 +65,6 @@ public:
     virtual void broadcast(const std::string& _topic, bytesConstRef _data) = 0;
     // query all subscribed topics
     virtual void querySubTopics(std::set<std::string>& _topics) = 0;
-
     // set default callback
     virtual void setSubCallback(SubCallback _callback) = 0;
 };

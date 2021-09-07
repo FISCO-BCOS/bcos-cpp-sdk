@@ -194,7 +194,7 @@ void WsSession::startHandshake()
     auto msg = m_messageFactory->buildMessage();
     msg->setType(WsMessageType::HANDESHAKE);
     auto session = shared_from_this();
-    asyncSendMessage(msg, Options(10000),
+    asyncSendMessage(msg, Options(-1),
         [session](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)

@@ -37,18 +37,17 @@ using namespace bcos::cppsdk::jsonrpc;
 
 bcos::ws::WsService::Ptr SdkFactory::buildWsService()
 {
-    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
-    auto requestFactory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
     auto ioc = std::make_shared<boost::asio::io_context>();
     auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*ioc);
-    auto tools = std::make_shared<WsConnector>(resolver, ioc);
-
+    auto connector = std::make_shared<WsConnector>(resolver, ioc);
+    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
     auto wsService = std::make_shared<bcos::ws::WsService>();
+    auto threadPool = std::make_shared<bcos::ThreadPool>("t_cppsdk", m_config->threadPoolSize());
+
     wsService->setConfig(m_config);
-    wsService->setThreadPool(m_threadPool);
+    wsService->setThreadPool(threadPool);
     wsService->setIoc(ioc);
-    wsService->setResolver(resolver);
-    wsService->setTools(tools);
+    wsService->setConnector(connector);
     wsService->setMessageFactory(messageFactory);
     wsService->initMethod();
     return wsService;

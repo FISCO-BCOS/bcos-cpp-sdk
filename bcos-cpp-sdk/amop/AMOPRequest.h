@@ -56,9 +56,10 @@ class AMOPRequestFactory
 {
 public:
     using Ptr = std::shared_ptr<AMOPRequestFactory>;
+    virtual ~AMOPRequestFactory() {}
 
 public:
-    std::shared_ptr<AMOPRequest> buildRequest()
+    virtual std::shared_ptr<AMOPRequest> buildRequest()
     {
         auto msg = std::make_shared<AMOPRequest>();
         return msg;

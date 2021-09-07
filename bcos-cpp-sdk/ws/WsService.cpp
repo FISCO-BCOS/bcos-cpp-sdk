@@ -73,7 +73,7 @@ void WsService::reconnect()
 {
     auto ss = sessions();
     auto peers = m_config->peers();
-    for (auto const& peer : peers)
+    for (auto const& peer : *peers)
     {
         std::string connectedEndPoint = peer.host + ":" + std::to_string(peer.port);
         auto session = getSession(connectedEndPoint);
@@ -89,7 +89,7 @@ void WsService::reconnect()
         std::string host = peer.host;
         uint16_t port = peer.port;
         auto self = std::weak_ptr<WsService>(shared_from_this());
-        m_tools->connectToWsServer(host, port,
+        m_connector->connectToWsServer(host, port,
             [self, connectedEndPoint](
                 std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>
                     _stream) {
@@ -107,8 +107,9 @@ void WsService::reconnect()
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("heartbeat") << LOG_DESC("connected server")
                             << LOG_KV("count", ss.size());
 
-    m_reconnect = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
+    // TODO: make periodic task time to configuration
+    m_reconnect = std::make_shared<boost::asio::deadline_timer>(
+        boost::asio::make_strand(*m_ioc), boost::posix_time::milliseconds(5000));
     auto self = std::weak_ptr<WsService>(shared_from_this());
     m_reconnect->async_wait([self](const boost::system::error_code&) {
         auto service = self.lock();
@@ -207,7 +208,7 @@ void WsService::addSession(std::shared_ptr<WsSession> _session)
         }
     }
 
-    //
+    // thread pool
     for (auto& conHandler : m_connectHandlers)
     {
         conHandler(_session);
@@ -258,10 +259,9 @@ WsSessions WsService::sessions()
 }
 
 /**
- * @brief: websocket session disconnect
- * @param _msg: received message
- * @param _error:
- * @param _session: websocket session
+ * @brief: session disconnect
+ * @param _error: the reason of disconnection
+ * @param _session: session
  * @return void:
  */
 void WsService::onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _session)
@@ -320,8 +320,7 @@ void WsService::asyncSendMessageByEndPoint(const std::string& _endPoint,
     if (!session)
     {
         // TODO: error code define
-        auto error = std::make_shared<Error>(
-            bcos::protocol::CommonError::TIMEOUT, "the remote endpoint not exist");
+        auto error = std::make_shared<Error>(-1, "the remote endpoint not exist");
         _respFunc(error, nullptr, nullptr);
         return;
     }
@@ -348,8 +347,7 @@ void WsService::asyncSendMessage(
             if (ss.empty())
             {
                 // TODO: error code define
-                auto error = std::make_shared<Error>(
-                    bcos::protocol::CommonError::TIMEOUT, "send message to server failed");
+                auto error = std::make_shared<Error>(-1, "send message to server failed");
                 respFunc(error, nullptr, nullptr);
                 return;
             }
@@ -407,6 +405,7 @@ void WsService::broadcastMessage(std::shared_ptr<WsMessage> _msg)
 void WsService::onRecvBlkNotify(
     std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
 {
+    // TODO:
     auto jsonValue = std::string(_msg->data()->begin(), _msg->data()->end());
     WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvBlkNotify") << LOG_KV("blockNumber", jsonValue)
                             << LOG_KV("endpoint", _session->endPoint());

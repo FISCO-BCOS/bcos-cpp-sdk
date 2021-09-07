@@ -30,6 +30,7 @@ namespace cppsdk
 {
 namespace amop
 {
+// manage the topics user subscribed
 class TopicManager
 {
 public:

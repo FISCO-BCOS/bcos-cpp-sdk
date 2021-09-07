@@ -67,15 +67,13 @@ int main(int argc, char** argv)
     endpoint.host = host;
     endpoint.port = port;
 
-    std::set<bcos::cppsdk::EndPoint> peers;
-    peers.insert(endpoint);
+    auto peers = std::make_shared<EndPoints>();
+    peers->push_back(endpoint);
     config->setPeers(peers);
-
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
+    config->setThreadPoolSize(4);
 
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
-    factory->setThreadPool(threadPool);
 
     auto wsService = factory->buildWsService();
     auto amop = factory->buildAMOP(wsService);
@@ -99,7 +97,7 @@ int main(int argc, char** argv)
 
     BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
     auto self = std::weak_ptr(amop);
-    amop->subscribe(topic, [self](bcos::Error::Ptr _error, const std::string& _client,
+    amop->subscribe(topic, [self](bcos::Error::Ptr _error, const std::string& _endPoint,
                                const std::string& _seq, bytesConstRef _data,
                                std::shared_ptr<bcos::ws::WsSession> _session) {
         boost::ignore_unused(_session);
@@ -113,7 +111,7 @@ int main(int argc, char** argv)
         else
         {
             BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
-                           << LOG_KV("client", _client)
+                           << LOG_KV("endPoint", _endPoint)
                            << LOG_KV("msg", std::string(_data.begin(), _data.end()));
 
             BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ")
@@ -121,7 +119,7 @@ int main(int argc, char** argv)
             auto amop = self.lock();
             if (amop)
             {
-                amop->sendResponse(_client, _seq, _data);
+                amop->sendResponse(_endPoint, _seq, _data);
             }
         }
     });

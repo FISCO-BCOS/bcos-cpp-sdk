@@ -26,7 +26,7 @@ using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
 
-std::string JsonRpcRequest::toString()
+std::string JsonRpcRequest::toJsonString()
 {
     Json::Value jReq;
     jReq["jsonrpc"] = m_jsonrpc;
@@ -36,6 +36,13 @@ std::string JsonRpcRequest::toString()
 
     Json::FastWriter writer;
     std::string s = writer.write(jReq);
-    RPCREQ_LOG(DEBUG) << LOG_BADGE("toString") << LOG_KV("request", s);
+    RPCREQ_LOG(TRACE) << LOG_BADGE("toString") << LOG_KV("request", s);
     return s;
+}
+
+bool JsonRpcRequest::fromJsonString(const std::string& _json)
+{
+    (void)_json;
+    // TODO:
+    return true;
 }

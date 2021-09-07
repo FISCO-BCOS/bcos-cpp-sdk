@@ -52,14 +52,14 @@ public:
     virtual void unsubscribe(const std::set<std::string>& _topics) override;
     // subscribe topic with callback
     virtual void subscribe(const std::string& _topic, SubCallback _callback) override;
-    //
-    virtual void sendResponse(
-        const std::string& _client, const std::string& _seq, bytesConstRef _data) override;
     // publish message
     virtual void publish(const std::string& _topic, bytesConstRef _data, uint32_t timeout,
         PubCallback _callback) override;
     // broadcast message
     virtual void broadcast(const std::string& _topic, bytesConstRef _data) override;
+    //
+    virtual void sendResponse(
+        const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) override;
     // set default callback
     virtual void setSubCallback(SubCallback _callback) override;
     // query all subscribed topics
@@ -78,7 +78,7 @@ public:
         std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
 
 public:
-    SubCallback callback() const { return m_callback; }
+    SubCallback subCallback() const { return m_callback; }
 
     std::shared_ptr<bcos::ws::WsMessageFactory> messageFactory() const { return m_messageFactory; }
     void setMessageFactory(std::shared_ptr<bcos::ws::WsMessageFactory> _messageFactory)
@@ -106,15 +106,15 @@ public:
 
     void addTopicCallback(const std::string& _topic, SubCallback _callback)
     {
-        std::unique_lock lock(x_topicToCallback);
-        m_topicToCallback[_topic] = _callback;
+        std::unique_lock lock(x_topic2Callback);
+        m_topic2Callback[_topic] = _callback;
     }
 
     SubCallback getCallbackByTopic(const std::string& _topic)
     {
-        std::shared_lock lock(x_topicToCallback);
-        auto it = m_topicToCallback.find(_topic);
-        if (it == m_topicToCallback.end())
+        std::shared_lock lock(x_topic2Callback);
+        auto it = m_topic2Callback.find(_topic);
+        if (it == m_topic2Callback.end())
         {
             return nullptr;
         }
@@ -127,8 +127,8 @@ private:
     std::shared_ptr<bcos::ws::WsMessageFactory> m_messageFactory;
     std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> m_requestFactory;
 
-    mutable std::shared_mutex x_topicToCallback;
-    std::unordered_map<std::string, SubCallback> m_topicToCallback;
+    mutable std::shared_mutex x_topic2Callback;
+    std::unordered_map<std::string, SubCallback> m_topic2Callback;
 
     std::weak_ptr<bcos::ws::WsService> m_service;
 };

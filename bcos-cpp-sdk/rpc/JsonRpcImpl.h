@@ -80,7 +80,7 @@ public:
     virtual void getTotalTransactionCount(const std::string& _group, RespFunc _respFunc) override;
 
     virtual void getPeers(const std::string& _group, RespFunc _respFunc) override;
-
+    // TODO: fit to multi group
     virtual void getNodeInfo(RespFunc _respFunc) override;
 
 public:

@@ -72,15 +72,13 @@ int main(int argc, char** argv)
     endpoint.host = host;
     endpoint.port = port;
 
-    std::set<bcos::cppsdk::EndPoint> peers;
-    peers.insert(endpoint);
+    auto peers = std::make_shared<EndPoints>();
+    peers->push_back(endpoint);
     config->setPeers(peers);
-
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
+    config->setThreadPoolSize(4);
 
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
-    factory->setThreadPool(threadPool);
 
     auto wsService = factory->buildWsService();
     auto amop = factory->buildAMOP(wsService);

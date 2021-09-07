@@ -21,7 +21,8 @@
 
 #include <bcos-framework/libutilities/Log.h>
 #include <boost/asio/ip/tcp.hpp>
-#include <set>
+#include <memory>
+#include <vector>
 
 #include <bcos-boostssl/network/Common.h>
 namespace bcos
@@ -32,31 +33,35 @@ struct EndPoint
 {
     std::string host;
     uint16_t port;
-
-    bool operator<(const EndPoint& rhs) const
-    {
-        if (host + std::to_string(port) < rhs.host + std::to_string(rhs.port))
-        {
-            return true;
-        }
-        return false;
-    }
 };
+
+using EndPoints = std::vector<EndPoint>;
+using EndPointsPtr = std::shared_ptr<std::vector<EndPoint>>;
+using EndPointsConstPtr = std::shared_ptr<const std::vector<EndPoint>>;
+
+// cppsdk configuration items
 class SdkConfig
 {
 private:
-    std::set<EndPoint> m_peers;
+    // list of connected server nodes
+    EndPointsConstPtr m_peers;
+    // time interval for reconnection
     uint32_t m_reconnectPeriod{10000};
-    // uint32_t m_threadPoolSize{4};
+    // thread pool size
+    uint32_t m_threadPoolSize{4};
 
 public:
     uint32_t reconnectPeriod() const { return m_reconnectPeriod; }
     void setReconnectPeriod(uint32_t _reconnectPeriod) { m_reconnectPeriod = _reconnectPeriod; }
-    const std::set<EndPoint>& peers() { return m_peers; }
-    void setPeers(const std::set<EndPoint> _peers) { m_peers = _peers; }
+
+    uint32_t threadPoolSize() const { return m_threadPoolSize; }
+    void setThreadPoolSize(uint32_t _threadPoolSize) { m_threadPoolSize = _threadPoolSize; }
+
+    EndPointsConstPtr peers() { return m_peers; }
+    void setPeers(EndPointsConstPtr _peers) { m_peers = _peers; }
 
 public:
-    void initConfig(const std::string& _configPath);
+    // void initConfig(const std::string& _configPath);
 };
 
 }  // namespace cppsdk

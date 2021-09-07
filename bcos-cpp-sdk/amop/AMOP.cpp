@@ -70,7 +70,7 @@ void AMOP::subscribe(const std::string& _topic, SubCallback _callback)
 }
 
 //
-void AMOP::sendResponse(const std::string& _client, const std::string& _seq, bytesConstRef _data)
+void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq, bytesConstRef _data)
 {
     auto msg = m_messageFactory->buildMessage();
     msg->setSeq(std::make_shared<bcos::bytes>(_seq.begin(), _seq.end()));
@@ -80,7 +80,7 @@ void AMOP::sendResponse(const std::string& _client, const std::string& _seq, byt
     auto service = m_service.lock();
     if (service)
     {
-        service->asyncSendMessageByEndPoint(_client, msg);
+        service->asyncSendMessageByEndPoint(_endPoint, msg);
     }
 }
 

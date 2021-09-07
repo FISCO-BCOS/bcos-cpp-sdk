@@ -36,6 +36,13 @@ public:
     {}
 
 public:
+    /**
+     * @brief:
+     * @param _host: the remote server host, support ipv4, ipv6, domain name
+     * @param _port: the remote server port
+     * @param _callback:
+     * @return void:
+     */
     void connectToWsServer(const std::string& _host, uint16_t _port,
         std::function<void(
             std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>

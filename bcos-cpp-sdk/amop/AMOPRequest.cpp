@@ -20,6 +20,7 @@
 
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <boost/asio/detail/socket_ops.hpp>
+#include <exception>
 
 // check offset length overflow when decode message
 #define OFFSET_CHECK(offset, step, length)                                                  \
@@ -57,15 +58,12 @@ bool AMOPRequest::encode(bcos::bytes& _buffer)
 
 ssize_t AMOPRequest::decode(bytesConstRef _data)
 {
-    if (_data.size() < MESSAGE_MIN_LENGTH)
-    {
-        return -1;
-    }
-
     try
     {
         std::size_t length = _data.size();
         std::size_t offset = 0;
+
+        OFFSET_CHECK(offset, MESSAGE_MIN_LENGTH, length);
 
         OFFSET_CHECK(offset, 2, length);
         uint16_t topicLen =
@@ -79,7 +77,7 @@ ssize_t AMOPRequest::decode(bytesConstRef _data)
         m_data = _data.getCroppedData(offset);
         return _data.size();
     }
-    catch (const std::string& _e)
+    catch (const std::exception& _e)
     {
         return -1;
     }
