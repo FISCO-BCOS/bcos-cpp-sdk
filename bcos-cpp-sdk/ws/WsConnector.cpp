@@ -13,43 +13,50 @@
  *  See the License for the specific language governing permissions and
  *  m_limitations under the License.
  *
- * @file WsTools.cpp
+ * @file WsConnector.cpp
  * @author: octopus
  * @date 2021-08-23
  */
 
 #include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/WsTools.h>
+#include <bcos-cpp-sdk/ws/WsConnector.h>
 #include <memory>
 #include <utility>
 
 using namespace bcos;
 using namespace bcos::ws;
 
-void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
-    std::shared_ptr<boost::asio::io_context> _ioc, const std::string& _host, uint16_t _port,
+/**
+ * @brief:
+ * @param _host: the remote server host, support ipv4, ipv6, domain name
+ * @param _port: the remote server port
+ * @param _callback:
+ * @return void:
+ */
+void WsConnector::connectToWsServer(const std::string& _host, uint16_t _port,
     std::function<void(std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
         _callback)
 {
+    auto ioc = m_ioc;
     // resolve host
-    _resolver->async_resolve(_host.c_str(), std::to_string(_port).c_str(),
-        [_host, _port, _callback, _ioc](
+    m_resolver->async_resolve(_host.c_str(), std::to_string(_port).c_str(),
+        [_host, _port, _callback, ioc](
             boost::beast::error_code _ec, boost::asio::ip::tcp::resolver::results_type _results) {
             if (_ec)
             {
-                WEBSOCKET_TOOL(ERROR)
+                WEBSOCKET_CONNECTOR(ERROR)
                     << LOG_BADGE("connectToWsServer") << LOG_DESC("async_resolve")
                     << LOG_KV("error", _ec) << LOG_KV("errorMessage", _ec.message())
                     << LOG_KV("host", _host);
                 return;
             }
 
-            WEBSOCKET_TOOL(TRACE) << LOG_BADGE("connectToWsServer")
-                                  << LOG_DESC("async_resolve success") << LOG_KV("host", _host)
-                                  << LOG_KV("port", _port);
+            WEBSOCKET_CONNECTOR(TRACE)
+                << LOG_BADGE("connectToWsServer") << LOG_DESC("async_resolve success")
+                << LOG_KV("host", _host) << LOG_KV("port", _port);
 
             auto stream =
-                std::make_shared<boost::beast::websocket::stream<boost::beast::tcp_stream>>(*_ioc);
+                std::make_shared<boost::beast::websocket::stream<boost::beast::tcp_stream>>(*ioc);
             boost::beast::get_lowest_layer(*stream).expires_after(std::chrono::seconds(30));
 
             // async connect
@@ -58,14 +65,14 @@ void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> 
                     boost::asio::ip::tcp::resolver::results_type::endpoint_type _ep) mutable {
                     if (_ec)
                     {
-                        WEBSOCKET_TOOL(ERROR)
+                        WEBSOCKET_CONNECTOR(ERROR)
                             << LOG_BADGE("connectToWsServer") << LOG_DESC("async_connect")
                             << LOG_KV("error", _ec.message()) << LOG_KV("host", _host)
                             << LOG_KV("port", _port);
                         return;
                     }
 
-                    WEBSOCKET_TOOL(TRACE)
+                    WEBSOCKET_CONNECTOR(TRACE)
                         << LOG_BADGE("connectToWsServer") << LOG_DESC("async_connect success")
                         << LOG_KV("host", _host) << LOG_KV("port", _port);
 
@@ -91,16 +98,17 @@ void WsTools::connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> 
                         [_host, _port, stream, _callback](boost::beast::error_code _ec) mutable {
                             if (_ec)
                             {
-                                WEBSOCKET_TOOL(ERROR)
+                                WEBSOCKET_CONNECTOR(ERROR)
                                     << LOG_BADGE("connectToWsServer") << LOG_DESC("async_handshake")
                                     << LOG_KV("error", _ec.message()) << LOG_KV("host", _host)
                                     << LOG_KV("port", _port);
                                 return;
                             }
 
-                            WEBSOCKET_TOOL(INFO) << LOG_BADGE("connectToWsServer")
-                                                 << LOG_DESC("websocket handshake successfully")
-                                                 << LOG_KV("host", _host) << LOG_KV("port", _port);
+                            WEBSOCKET_CONNECTOR(INFO)
+                                << LOG_BADGE("connectToWsServer")
+                                << LOG_DESC("websocket handshake successfully")
+                                << LOG_KV("host", _host) << LOG_KV("port", _port);
                             _callback(stream);
                         });
                 });

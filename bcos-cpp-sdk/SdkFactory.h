@@ -19,7 +19,7 @@
  */
 #pragma once
 #include <bcos-cpp-sdk/SdkConfig.h>
-#include <bcos-cpp-sdk/amop/AMOPClient.h>
+#include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
@@ -34,21 +34,17 @@ public:
     using Ptr = std::shared_ptr<SdkFactory>;
 
 public:
+    // construct WsService object
     bcos::ws::WsService::Ptr buildWsService();
-    bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr buildJsonRpc(bcos::ws::WsService::Ptr _wsService);
-    bcos::cppsdk::amop::AMOPClient::Ptr buildAMOP(bcos::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(bcos::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::ws::WsService::Ptr _wsService);
+    // bcos::cppsdk::event::EventPush buildEventPush(bcos::ws::WsService::Ptr _wsService);
 
 public:
-    std::shared_ptr<bcos::ThreadPool> threadPool() const { return m_threadPool; }
-    void setThreadPool(std::shared_ptr<bcos::ThreadPool> _threadPool)
-    {
-        m_threadPool = _threadPool;
-    }
     std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
     void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
 
 private:
-    std::shared_ptr<bcos::ThreadPool> m_threadPool;
     std::shared_ptr<bcos::cppsdk::SdkConfig> m_config;
 };
 }  // namespace cppsdk

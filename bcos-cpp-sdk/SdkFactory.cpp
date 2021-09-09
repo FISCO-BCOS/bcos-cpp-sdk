@@ -19,10 +19,11 @@
  */
 
 #include <bcos-cpp-sdk/SdkFactory.h>
-#include <bcos-cpp-sdk/amop/AMOPClient.h>
+#include <bcos-cpp-sdk/amop/AMOP.h>
+#include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
+#include <bcos-cpp-sdk/ws/WsConnector.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
-#include <bcos-cpp-sdk/ws/WsTools.h>
 #include <memory>
 
 using namespace bcos;
@@ -36,28 +37,26 @@ using namespace bcos::cppsdk::jsonrpc;
 
 bcos::ws::WsService::Ptr SdkFactory::buildWsService()
 {
-    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
-    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
     auto ioc = std::make_shared<boost::asio::io_context>();
     auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*ioc);
-    auto tools = std::make_shared<WsTools>();
-
+    auto connector = std::make_shared<WsConnector>(resolver, ioc);
+    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
     auto wsService = std::make_shared<bcos::ws::WsService>();
+    auto threadPool = std::make_shared<bcos::ThreadPool>("t_cppsdk", m_config->threadPoolSize());
+
     wsService->setConfig(m_config);
-    wsService->setThreadPool(m_threadPool);
+    wsService->setThreadPool(threadPool);
     wsService->setIoc(ioc);
-    wsService->setResolver(resolver);
-    wsService->setTools(tools);
+    wsService->setConnector(connector);
     wsService->setMessageFactory(messageFactory);
-    wsService->setRequestFactory(requestFactory);
     wsService->initMethod();
     return wsService;
 }
 
-bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr SdkFactory::buildJsonRpc(
+bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
     bcos::ws::WsService::Ptr _wsService)
 {
-    auto jsonRpc = std::make_shared<JsonRcpImpl>();
+    auto jsonRpc = std::make_shared<JsonRpcImpl>();
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
     auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
@@ -84,18 +83,18 @@ bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr SdkFactory::buildJsonRpc(
     return jsonRpc;
 }
 
-bcos::cppsdk::amop::AMOPClient::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::Ptr _wsService)
+bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::Ptr _wsService)
 {
-    auto amop = std::make_shared<AMOPClient>();
+    auto amop = std::make_shared<AMOP>();
     auto topicManager = std::make_shared<TopicManager>();
-    auto requestFactory = std::make_shared<bcos::ws::AMOPRequestFactory>();
+    auto requestFactory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
     auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
 
     amop->setTopicManager(topicManager);
     amop->setRequestFactory(requestFactory);
     amop->setMessageFactory(messageFactory);
 
-    auto self = std::weak_ptr<AMOPClient>(amop);
+    auto self = std::weak_ptr<AMOP>(amop);
     _wsService->registerMsgHandler(WsMessageType::AMOP_REQUEST,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = self.lock();
@@ -121,21 +120,14 @@ bcos::cppsdk::amop::AMOPClient::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::P
             }
         });
 
-    auto amopWeakPtr = std::weak_ptr<AMOPClient>(amop);
-    _wsService->registerModConnectHandler(
-        AMOP_MODULE, [amopWeakPtr](std::shared_ptr<WsSession> _session) {
-            auto amop = amopWeakPtr.lock();
-            if (amop)
-            {
-                amop->updateTopicsToRemote(_session);
-            }
-        });
-    /*
-    _wsService->registerModDisconnectHandler(
-        AMOP_MODULE, [amopWeakPtr](std::shared_ptr<WsSession> _session) {
-
-        });
-    */
+    auto amopWeakPtr = std::weak_ptr<AMOP>(amop);
+    _wsService->registerConnectHandler([amopWeakPtr](std::shared_ptr<WsSession> _session) {
+        auto amop = amopWeakPtr.lock();
+        if (amop)
+        {
+            amop->updateTopicsToRemote(_session);
+        }
+    });
 
     auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
     amop->setService(wsServicePtr);

@@ -71,8 +71,17 @@ void WsSession::onRead(boost::beast::error_code _ec, std::size_t _size)
 {
     if (_ec)
     {
-        WEBSOCKET_SESSION(ERROR) << LOG_BADGE("onRead") << LOG_KV("error", _ec)
-                                 << LOG_KV("message", _ec.message());
+        if (_ec.value() == boost::asio::error::eof)
+        {
+            WEBSOCKET_SESSION(INFO)
+                << LOG_BADGE("onRead") << LOG_DESC(" the peer close the connection");
+        }
+        else
+        {
+            WEBSOCKET_SESSION(ERROR)
+                << LOG_BADGE("onRead") << LOG_KV("error", _ec) << LOG_KV("message", _ec.message());
+        }
+
         return drop();
     }
 
@@ -185,7 +194,7 @@ void WsSession::startHandshake()
     auto msg = m_messageFactory->buildMessage();
     msg->setType(WsMessageType::HANDESHAKE);
     auto session = shared_from_this();
-    asyncSendMessage(msg, Options(10000),
+    asyncSendMessage(msg, Options(-1),
         [session](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)

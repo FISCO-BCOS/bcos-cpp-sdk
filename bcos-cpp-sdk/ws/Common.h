@@ -23,7 +23,7 @@
 #include <bcos-framework/libutilities/Log.h>
 #include <boost/beast/websocket.hpp>
 
-#define WEBSOCKET_TOOL(LEVEL) BCOS_LOG(LEVEL) << "[WS][TOOL]"
+#define WEBSOCKET_CONNECTOR(LEVEL) BCOS_LOG(LEVEL) << "[WS][CONNECTOR]"
 #define WEBSOCKET_VERSION(LEVEL) BCOS_LOG(LEVEL) << "[WS][VERSION]"
 #define WEBSOCKET_SESSION(LEVEL) BCOS_LOG(LEVEL) << "[WS][SESSION]"
 #define WEBSOCKET_MESSAGE(LEVEL) BCOS_LOG(LEVEL) << "[WS][MESSAGE]"
@@ -42,7 +42,7 @@ using RespCallBack =
 
 using WsConnectHandler = std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
 using WsDisconnectHandler = std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
-using WsHandlshakeHandler = std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
+using WsHandshakeHandler = std::function<void(bcos::Error::Ptr, std::shared_ptr<WsSession>)>;
 using WsRecvMessageHandler =
     std::function<void(std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
 

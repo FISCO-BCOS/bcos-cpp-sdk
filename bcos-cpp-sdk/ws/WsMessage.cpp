@@ -28,26 +28,10 @@
 using namespace bcos;
 using namespace bcos::ws;
 
-// topic max length
-const size_t AMOPRequest::TOPIC_MAX_LENGTH;
-// amop message min length
-const size_t AMOPRequest::MESSAGE_MIN_LENGTH;
 // seq field length
 const size_t WsMessage::SEQ_LENGTH;
 /// type(2) + error(2) + seq(32) + data(N)
 const size_t WsMessage::MESSAGE_MIN_LENGTH;
-
-// check offset length overflow when decode message
-#define OFFSET_CHECK(offset, step, length)                                                  \
-    do                                                                                      \
-    {                                                                                       \
-        if (offset + step > length)                                                         \
-        {                                                                                   \
-            throw std::runtime_error("offset overflow, offset: " + std::to_string(offset) + \
-                                     ",step: " + std::to_string(step) +                     \
-                                     " ,length: " + std::to_string(length));                \
-        }                                                                                   \
-    } while (0)
 
 bool WsMessage::encode(bcos::bytes& _buffer)
 {
@@ -105,49 +89,4 @@ ssize_t WsMessage::decode(const bcos::byte* _buffer, std::size_t _size)
     m_data->insert(m_data->begin(), p, _buffer + _size);
 
     return _size;
-}
-
-bool AMOPRequest::encode(bcos::bytes& _buffer)
-{
-    if (m_topic.size() > TOPIC_MAX_LENGTH)
-    {
-        return false;
-    }
-
-    uint16_t length =
-        boost::asio::detail::socket_ops::host_to_network_short((uint16_t)m_topic.size());
-    _buffer.insert(_buffer.end(), (byte*)&length, (byte*)&length + 2);
-    _buffer.insert(_buffer.end(), m_topic.begin(), m_topic.end());
-    _buffer.insert(_buffer.end(), m_data.begin(), m_data.end());
-    return true;
-}
-
-ssize_t AMOPRequest::decode(bytesConstRef _data)
-{
-    if (_data.size() < MESSAGE_MIN_LENGTH)
-    {
-        return -1;
-    }
-
-    try
-    {
-        std::size_t length = _data.size();
-        std::size_t offset = 0;
-
-        OFFSET_CHECK(offset, 2, length);
-        uint16_t topicLen =
-            boost::asio::detail::socket_ops::network_to_host_short(*((uint16_t*)_data.data()));
-        offset += 2;
-        OFFSET_CHECK(offset, topicLen, length);
-        // topic
-        m_topic = std::string(_data.data() + offset, _data.data() + offset + topicLen);
-        offset += topicLen;
-        // data
-        m_data = _data.getCroppedData(offset);
-        return _data.size();
-    }
-    catch (const std::string& _e)
-    {
-        return -1;
-    }
 }

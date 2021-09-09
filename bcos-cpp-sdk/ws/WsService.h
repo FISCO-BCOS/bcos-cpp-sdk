@@ -21,7 +21,7 @@
 
 #include <bcos-cpp-sdk/SdkConfig.h>
 #include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/WsTools.h>
+#include <bcos-cpp-sdk/ws/WsConnector.h>
 #include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <boost/asio/deadline_timer.hpp>
@@ -34,6 +34,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <unordered_map>
+#include <vector>
 
 namespace bcos
 {
@@ -50,7 +51,6 @@ using WsSessions = std::vector<std::shared_ptr<WsSession>>;
 using MsgHandler = std::function<void(std::shared_ptr<WsMessage>, std::shared_ptr<WsSession>)>;
 using ConnectHandler = std::function<void(std::shared_ptr<WsSession>)>;
 using DisconnectHandler = std::function<void(std::shared_ptr<WsSession>)>;
-
 class WsService : public std::enable_shared_from_this<WsService>
 {
 public:
@@ -74,37 +74,26 @@ public:
 
 public:
     /**
-     * @brief: websocket session disconnect
-     * @param _msg: received message
-     * @param _error:
-     * @param _session: websocket session
+     * @brief: session disconnect
+     * @param _error: the reason of disconnection
+     * @param _session: session
      * @return void:
      */
     virtual void onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _session);
 
-    //---------------------------------------------------------
-    //-------------- message begin
-    //---------------------------------------------------------
     virtual void onRecvMessage(
         std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
     virtual void onRecvBlkNotify(
         std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
 
-    //-------------- message end
-    //---------------------------------------------------------
-    void asyncSendMessage(std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
+    virtual void asyncSendMessage(std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
         RespCallBack _respFunc = RespCallBack());
-    void asyncSendMessageByEndPoint(const std::string& _endPoint, std::shared_ptr<WsMessage> _msg,
-        Options _options = Options(-1), RespCallBack _respFunc = RespCallBack());
-
-    void broadcastMessage(std::shared_ptr<WsMessage> _msg);
+    virtual void asyncSendMessageByEndPoint(const std::string& _endPoint,
+        std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
+        RespCallBack _respFunc = RespCallBack());
+    virtual void broadcastMessage(std::shared_ptr<WsMessage> _msg);
 
 public:
-    std::shared_ptr<AMOPRequestFactory> requestFactory() const { return m_requestFactory; }
-    void setRequestFactory(std::shared_ptr<AMOPRequestFactory> _requestFactory)
-    {
-        m_requestFactory = _requestFactory;
-    }
     std::shared_ptr<WsMessageFactory> messageFactory() { return m_messageFactory; }
     void setMessageFactory(std::shared_ptr<WsMessageFactory> _messageFactory)
     {
@@ -120,14 +109,8 @@ public:
     std::shared_ptr<boost::asio::io_context> ioc() const { return m_ioc; }
     void setIoc(std::shared_ptr<boost::asio::io_context> _ioc) { m_ioc = _ioc; }
 
-    std::shared_ptr<boost::asio::ip::tcp::resolver> resolver() const { return m_resolver; }
-    void setResolver(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver)
-    {
-        m_resolver = _resolver;
-    }
-
-    std::shared_ptr<WsTools> tools() const { return m_tools; }
-    void setTools(std::shared_ptr<WsTools> _tools) { m_tools = _tools; }
+    std::shared_ptr<WsConnector> connector() const { return m_connector; }
+    void setConnector(std::shared_ptr<WsConnector> _connector) { m_connector = _connector; }
 
     std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
     void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
@@ -137,20 +120,18 @@ public:
         m_msgType2Method[_msgType] = _msgHandler;
     }
 
-    void registerModConnectHandler(uint32_t _module, ConnectHandler _connectHandler)
+    void registerConnectHandler(ConnectHandler _connectHandler)
     {
-        m_connectHandlers[_module] = _connectHandler;
+        m_connectHandlers.push_back(_connectHandler);
     }
 
-    void registerModDisconnectHandler(uint32_t _module, DisconnectHandler _disconnectHandler)
+    void registerDisconnectHandler(DisconnectHandler _disconnectHandler)
     {
-        m_connectHandlers[_module] = _disconnectHandler;
+        m_disconnectHandlers.push_back(_disconnectHandler);
     }
 
 private:
     bool m_running{false};
-    // AMOPRequestFactory
-    std::shared_ptr<AMOPRequestFactory> m_requestFactory;
     // WsMessageFactory
     std::shared_ptr<WsMessageFactory> m_messageFactory;
     // ThreadPool
@@ -158,12 +139,10 @@ private:
 
     // sdk config
     std::shared_ptr<bcos::cppsdk::SdkConfig> m_config;
-    // ws tools
-    std::shared_ptr<WsTools> m_tools;
+    // ws connector
+    std::shared_ptr<WsConnector> m_connector;
     // io context
     std::shared_ptr<boost::asio::io_context> m_ioc;
-    // resolver
-    std::shared_ptr<boost::asio::ip::tcp::resolver> m_resolver;
     // reconnect timer
     std::shared_ptr<boost::asio::deadline_timer> m_reconnect;
 
@@ -174,8 +153,10 @@ private:
     std::unordered_map<std::string, std::shared_ptr<WsSession>> m_sessions;
     // type => handler
     std::unordered_map<uint32_t, MsgHandler> m_msgType2Method;
-    std::unordered_map<uint32_t, ConnectHandler> m_connectHandlers;
-    std::unordered_map<uint32_t, DisconnectHandler> m_disconnectHandlers;
+    // connected handlers, the handers will be called after ws protocol handshake is complete
+    std::vector<ConnectHandler> m_connectHandlers;
+    // disconnected handlers, the handers will be called when ws session disconnected
+    std::vector<DisconnectHandler> m_disconnectHandlers;
 };
 
 }  // namespace ws

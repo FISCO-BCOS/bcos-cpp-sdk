@@ -11,29 +11,16 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  m_limitations under the License.
+ *  limitations under the License.
  *
- * @file WsTools.h
+ * @file Common.h
  * @author: octopus
- * @date 2021-08-23
+ * @date 2021-09-01
  */
-#pragma once
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <functional>
 
-namespace bcos
-{
-namespace ws
-{
-class WsTools
-{
-public:
-    void connectToWsServer(std::shared_ptr<boost::asio::ip::tcp::resolver> _resolver,
-        std::shared_ptr<boost::asio::io_context> _ioc, const std::string& _host, uint16_t _port,
-        std::function<void(
-            std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
-            _callback);
-};
-}  // namespace ws
-}  // namespace bcos
+#pragma once
+
+// The largest number of topic in one event log
+#define EVENT_LOG_TOPICS_MAX_INDEX (4)
+#define EVENT_REQUEST(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][REQUEST]"
+#define EVENT_IMPL(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][IMPL]"

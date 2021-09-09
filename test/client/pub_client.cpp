@@ -40,9 +40,9 @@ using namespace bcos::cppsdk;
 
 void usage()
 {
-    std::cerr << "Usage: broadcast-client <host> <port> <topic>\n"
+    std::cerr << "Usage: pub-client <host> <port> <topic> <message>\n"
               << "Example:\n"
-              << "    ./broadcast-client 127.0.0.1 20200 topic\n";
+              << "    ./pub-client 127.0.0.1 20200 topic\n";
     std::exit(0);
 }
 
@@ -63,8 +63,8 @@ int main(int argc, char** argv)
         msg = argv[4];
     }
 
-    BCOS_LOG(INFO) << LOG_DESC("broadcast client") << LOG_KV("ip", host) << LOG_KV("port", port)
-                   << LOG_KV("topic", topic);
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ") << LOG_KV("ip", host)
+                   << LOG_KV("port", port) << LOG_KV("topic", topic);
 
     auto config = std::make_shared<bcos::cppsdk::SdkConfig>();
 
@@ -72,15 +72,13 @@ int main(int argc, char** argv)
     endpoint.host = host;
     endpoint.port = port;
 
-    std::set<bcos::cppsdk::EndPoint> peers;
-    peers.insert(endpoint);
+    auto peers = std::make_shared<EndPoints>();
+    peers->push_back(endpoint);
     config->setPeers(peers);
-
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
+    config->setThreadPoolSize(4);
 
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
-    factory->setThreadPool(threadPool);
 
     auto wsService = factory->buildWsService();
     auto amop = factory->buildAMOP(wsService);
@@ -97,14 +95,31 @@ int main(int argc, char** argv)
         threads->emplace_back([&ioc]() { ioc->run(); });
     }
 
-    auto buffer = std::make_shared<bcos::bytes>(msg.begin(), msg.end());
     int i = 0;
     while (true)
     {
-        BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("broadcast ") << LOG_KV("topic", topic)
-                       << LOG_KV("message", msg);
-        amop->broadcast(topic, buffer);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ")
+                       << LOG_KV("topic", topic) << LOG_KV("message", msg);
+
+        amop->publish(topic, bytesConstRef((bcos::byte*)msg.data(), msg.size()), -1,
+            [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
+                std::shared_ptr<bcos::ws::WsSession> _session) {
+                boost::ignore_unused(_session);
+                if (_error)
+                {
+                    BCOS_LOG(ERROR)
+                        << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish callback error ")
+                        << LOG_KV("errorCode", _error->errorCode())
+                        << LOG_KV("errorMessage", _error->errorMessage());
+                }
+                else
+                {
+                    BCOS_LOG(INFO)
+                        << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive response message")
+                        << LOG_KV("msg", std::string(_msg->data()->begin(), _msg->data()->end()));
+                }
+            });
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;
     }
 

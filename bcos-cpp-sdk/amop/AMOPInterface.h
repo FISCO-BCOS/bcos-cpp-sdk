@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file AMOPClientInterface.h
+ * @file AMOPInterface.h
  * @author: octopus
  * @date 2021-08-23
  */
@@ -24,6 +24,7 @@
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Error.h>
 #include <functional>
+#include <memory>
 #include <set>
 
 namespace bcos
@@ -38,30 +39,34 @@ namespace cppsdk
 {
 namespace amop
 {
-using AMOPCallback = std::function<void(
+using SubCallback = std::function<void(bcos::Error::Ptr, const std::string&, const std::string&,
+    bytesConstRef, std::shared_ptr<bcos::ws::WsSession>)>;
+using PubCallback = std::function<void(
     bcos::Error::Ptr, std::shared_ptr<bcos::ws::WsMessage>, std::shared_ptr<bcos::ws::WsSession>)>;
-class AMOPClientInterface
+class AMOPInterface
 {
 public:
-    using Ptr = std::shared_ptr<AMOPClientInterface>;
-    virtual ~AMOPClientInterface() {}
+    using Ptr = std::shared_ptr<AMOPInterface>;
+    virtual ~AMOPInterface() {}
 
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) = 0;
     // subscribe topics
     virtual void unsubscribe(const std::set<std::string>& _topics) = 0;
     // subscribe topic with callback
-    virtual void subscribe(const std::string& _topic, AMOPCallback _callback) = 0;
+    virtual void subscribe(const std::string& _topic, SubCallback _callback) = 0;
+    //
+    virtual void sendResponse(
+        const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) = 0;
     // publish message
-    virtual void publish(const std::string& _topic, std::shared_ptr<bcos::bytes>& _msg,
-        uint32_t timeout, AMOPCallback _callback) = 0;
+    virtual void publish(const std::string& _topic, bytesConstRef _data, uint32_t timeout,
+        PubCallback _callback) = 0;
     // broadcast message
-    virtual void broadcast(const std::string& _topic, std::shared_ptr<bcos::bytes>& _msg) = 0;
+    virtual void broadcast(const std::string& _topic, bytesConstRef _data) = 0;
     // query all subscribed topics
     virtual void querySubTopics(std::set<std::string>& _topics) = 0;
-
     // set default callback
-    virtual void setCallback(AMOPCallback _callback) = 0;
+    virtual void setSubCallback(SubCallback _callback) = 0;
 };
 
 }  // namespace amop

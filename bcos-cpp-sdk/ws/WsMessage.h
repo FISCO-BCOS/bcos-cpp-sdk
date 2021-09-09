@@ -32,14 +32,14 @@ namespace bcos
 {
 namespace ws
 {
-// websocket message
+// the message format for ws protocol
 class WsMessage
 {
 public:
     using Ptr = std::shared_ptr<WsMessage>;
     // seq field length
     const static size_t SEQ_LENGTH = 32;
-    /// type(2) + error(2) + seq(32) + data(N)
+    /// type(2) + status(2) + seq(32) + data(N)
     const static size_t MESSAGE_MIN_LENGTH = 36;
 
 public:
@@ -72,33 +72,13 @@ private:
     std::shared_ptr<bcos::bytes> m_data;
 };
 
-class AMOPRequest
-{
-public:
-    // topic field length
-    const static size_t TOPIC_MAX_LENGTH = 65535;
-    const static size_t MESSAGE_MIN_LENGTH = 2;
-    AMOPRequest() { m_data = bytesConstRef(); }
-    using Ptr = std::shared_ptr<AMOPRequest>;
 
-public:
-    std::string topic() const { return m_topic; }
-    void setTopic(const std::string& _topic) { m_topic = _topic; }
-    void setData(bytesConstRef _data) { m_data = _data; }
-    bytesConstRef data() const { return m_data; }
-
-public:
-    bool encode(bcos::bytes& _buffer);
-    ssize_t decode(bytesConstRef _data);
-
-private:
-    std::string m_topic;
-    bytesConstRef m_data;
-};
 class WsMessageFactory
 {
 public:
     using Ptr = std::shared_ptr<WsMessageFactory>;
+    WsMessageFactory() = default;
+    virtual ~WsMessageFactory() = default;
 
 public:
     std::string newSeq()
@@ -107,7 +87,7 @@ public:
         seq.erase(std::remove(seq.begin(), seq.end(), '-'), seq.end());
         return seq;
     }
-    std::shared_ptr<WsMessage> buildMessage()
+    virtual std::shared_ptr<WsMessage> buildMessage()
     {
         auto msg = std::make_shared<WsMessage>();
         auto seq = newSeq();
@@ -115,7 +95,8 @@ public:
         return msg;
     }
 
-    std::shared_ptr<WsMessage> buildMessage(uint16_t _type, std::shared_ptr<bcos::bytes> _data)
+    virtual std::shared_ptr<WsMessage> buildMessage(
+        uint16_t _type, std::shared_ptr<bcos::bytes> _data)
     {
         auto msg = std::make_shared<WsMessage>();
         auto seq = newSeq();
@@ -126,17 +107,5 @@ public:
     }
 };
 
-class AMOPRequestFactory
-{
-public:
-    using Ptr = std::shared_ptr<AMOPRequestFactory>;
-
-public:
-    std::shared_ptr<AMOPRequest> buildRequest()
-    {
-        auto msg = std::make_shared<AMOPRequest>();
-        return msg;
-    }
-};
 }  // namespace ws
 }  // namespace bcos

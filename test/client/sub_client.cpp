@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     uint16_t port = atoi(argv[2]);
     std::string topic = argv[3];
 
-    BCOS_LOG(INFO) << LOG_DESC("amop sub client sample") << LOG_KV("ip", host)
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" subscribe ") << LOG_KV("ip", host)
                    << LOG_KV("port", port) << LOG_KV("topic", topic);
 
 
@@ -67,15 +67,13 @@ int main(int argc, char** argv)
     endpoint.host = host;
     endpoint.port = port;
 
-    std::set<bcos::cppsdk::EndPoint> peers;
-    peers.insert(endpoint);
+    auto peers = std::make_shared<EndPoints>();
+    peers->push_back(endpoint);
     config->setPeers(peers);
-
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
+    config->setThreadPoolSize(4);
 
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
-    factory->setThreadPool(threadPool);
 
     auto wsService = factory->buildWsService();
     auto amop = factory->buildAMOP(wsService);
@@ -97,15 +95,33 @@ int main(int argc, char** argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ") << LOG_DESC("connect to server successfully!");
-
-    amop->subscribe(topic, [](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
+    auto self = std::weak_ptr(amop);
+    amop->subscribe(topic, [self](bcos::Error::Ptr _error, const std::string& _endPoint,
+                               const std::string& _seq, bytesConstRef _data,
                                std::shared_ptr<bcos::ws::WsSession> _session) {
-        boost::ignore_unused(_error);
-        BCOS_LOG(INFO) << LOG_BADGE(" ===>>>> ")
-                       << LOG_DESC(" receive message and send response back")
-                       << LOG_KV("msg size", _msg ? _msg->data()->size() : -1);
-        _session->asyncSendMessage(_msg);
+        boost::ignore_unused(_session);
+        if (_error)
+        {
+            BCOS_LOG(ERROR) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("subscribe callback error")
+                            << LOG_KV("errorCode", _error->errorCode())
+                            << LOG_KV("errorMessage", _error->errorMessage());
+            return;
+        }
+        else
+        {
+            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
+                           << LOG_KV("endPoint", _endPoint)
+                           << LOG_KV("msg", std::string(_data.begin(), _data.end()));
+
+            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ")
+                           << LOG_DESC(" send message back to publisher... ");
+            auto amop = self.lock();
+            if (amop)
+            {
+                amop->sendResponse(_endPoint, _seq, _data);
+            }
+        }
     });
 
     int i = 0;

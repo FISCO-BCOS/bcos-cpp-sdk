@@ -50,7 +50,8 @@ public:
     void setParams(const Json::Value& _params) { m_params = _params; }
 
 public:
-    std::string toString();
+    std::string toJsonString();
+    bool fromJsonString(const std::string& _json);
 
 private:
     std::string m_jsonrpc = "2.0";
