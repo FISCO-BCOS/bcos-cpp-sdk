@@ -29,13 +29,13 @@ namespace cppsdk
 {
 namespace jsonrpc
 {
-class JsonRcpImpl : public JsonRpcInterface
+class JsonRpcImpl : public JsonRpcInterface
 {
 public:
-    using Ptr = std::shared_ptr<JsonRcpImpl>;
+    using Ptr = std::shared_ptr<JsonRpcImpl>;
 
-    JsonRcpImpl() = default;
-    virtual ~JsonRcpImpl() = default;
+    JsonRpcImpl() = default;
+    virtual ~JsonRpcImpl() = default;
 
 public:
     virtual void call(const std::string& _group, const std::string& _to, const std::string& _data,

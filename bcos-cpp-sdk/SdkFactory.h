@@ -36,7 +36,7 @@ public:
 public:
     // construct WsService object
     bcos::ws::WsService::Ptr buildWsService();
-    bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr buildJsonRpc(bcos::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(bcos::ws::WsService::Ptr _wsService);
     bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::ws::WsService::Ptr _wsService);
     // bcos::cppsdk::event::EventPush buildEventPush(bcos::ws::WsService::Ptr _wsService);
 

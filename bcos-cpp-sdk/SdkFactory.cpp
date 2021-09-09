@@ -53,10 +53,10 @@ bcos::ws::WsService::Ptr SdkFactory::buildWsService()
     return wsService;
 }
 
-bcos::cppsdk::jsonrpc::JsonRcpImpl::Ptr SdkFactory::buildJsonRpc(
+bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
     bcos::ws::WsService::Ptr _wsService)
 {
-    auto jsonRpc = std::make_shared<JsonRcpImpl>();
+    auto jsonRpc = std::make_shared<JsonRpcImpl>();
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
     auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
