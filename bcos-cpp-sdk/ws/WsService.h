@@ -57,7 +57,6 @@ public:
     using Ptr = std::shared_ptr<WsService>;
     WsService() = default;
     virtual ~WsService() { stop(); }
-    void initMethod();
 
 public:
     virtual void start();
@@ -74,6 +73,13 @@ public:
 
 public:
     /**
+     * @brief: session connect
+     * @param _error:
+     * @param _session: session
+     * @return void:
+     */
+    virtual void onConnect(Error::Ptr _error, std::shared_ptr<WsSession> _session);
+    /**
      * @brief: session disconnect
      * @param _error: the reason of disconnection
      * @param _session: session
@@ -82,8 +88,6 @@ public:
     virtual void onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _session);
 
     virtual void onRecvMessage(
-        std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
-    virtual void onRecvBlkNotify(
         std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session);
 
     virtual void asyncSendMessage(std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
@@ -115,10 +119,8 @@ public:
     std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
     void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
 
-    void registerMsgHandler(uint32_t _msgType, MsgHandler _msgHandler)
-    {
-        m_msgType2Method[_msgType] = _msgHandler;
-    }
+    bool registerMsgHandler(uint32_t _msgType, MsgHandler _msgHandler);
+    void listMsgHandler();
 
     void registerConnectHandler(ConnectHandler _connectHandler)
     {

@@ -49,7 +49,7 @@ bcos::ws::WsService::Ptr SdkFactory::buildWsService()
     wsService->setIoc(ioc);
     wsService->setConnector(connector);
     wsService->setMessageFactory(messageFactory);
-    wsService->initMethod();
+    // wsService->listMsgHandler();
     return wsService;
 }
 

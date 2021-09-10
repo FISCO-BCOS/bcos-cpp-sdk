@@ -121,10 +121,22 @@ void WsService::reconnect()
     });
 }
 
-void WsService::initMethod()
+bool WsService::registerMsgHandler(uint32_t _msgType, MsgHandler _msgHandler)
 {
-    m_msgType2Method.clear();
+    auto it = m_msgType2Method.find(_msgType);
+    if (it == m_msgType2Method.end())
+    {
+        m_msgType2Method[_msgType] = _msgHandler;
+        return true;
+    }
+    return false;
+}
 
+void WsService::listMsgHandler()
+{
+    // TODO: add register message handler for block notify
+    /*
+    m_msgType2Method.clear();
     auto self = std::weak_ptr<WsService>(shared_from_this());
     m_msgType2Method[WsMessageType::BLOCK_NOTIFY] = [self](std::shared_ptr<WsMessage> _msg,
                                                         std::shared_ptr<WsSession> _session) {
@@ -134,12 +146,13 @@ void WsService::initMethod()
             service->onRecvBlkNotify(_msg, _session);
         }
     };
+    */
 
-    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("initMethod")
-                            << LOG_KV("methods", m_msgType2Method.size());
+    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("listMsgHandler")
+                            << LOG_KV("msg handler size", m_msgType2Method.size());
     for (const auto& method : m_msgType2Method)
     {
-        WEBSOCKET_SERVICE(INFO) << LOG_BADGE("initMethod") << LOG_KV("type", method.first);
+        WEBSOCKET_SERVICE(INFO) << LOG_BADGE("listMsgHandler") << LOG_KV("type", method.first);
     }
 }
 
@@ -156,20 +169,15 @@ std::shared_ptr<WsSession> WsService::newSession(
     wsSession->setEndPoint(endPoint);
 
     auto self = std::weak_ptr<bcos::ws::WsService>(shared_from_this());
-    /*
-    wsSession->setConnectHandler([](bcos::Error::Ptr _error, std::shared_ptr<WsSession> _session) {
-        boost::ignore_unused(_error, _session);
-        // TODO: add connect handler logic
-    });
-    */
-    wsSession->setRecvMessageHandler([self](std::shared_ptr<bcos::ws::WsMessage> _msg,
-                                         std::shared_ptr<bcos::ws::WsSession> _session) {
-        auto wsService = self.lock();
-        if (wsService)
-        {
-            wsService->onRecvMessage(_msg, _session);
-        }
-    });
+
+    wsSession->setConnectHandler(
+        [self](bcos::Error::Ptr _error, std::shared_ptr<WsSession> _session) {
+            auto wsService = self.lock();
+            if (wsService)
+            {
+                wsService->onConnect(_error, _session);
+            }
+        });
     wsSession->setDisconnectHandler(
         [self](bcos::Error::Ptr _error, std::shared_ptr<ws::WsSession> _session) {
             auto wsService = self.lock();
@@ -178,6 +186,14 @@ std::shared_ptr<WsSession> WsService::newSession(
                 wsService->onDisconnect(_error, _session);
             }
         });
+    wsSession->setRecvMessageHandler([self](std::shared_ptr<bcos::ws::WsMessage> _msg,
+                                         std::shared_ptr<bcos::ws::WsSession> _session) {
+        auto wsService = self.lock();
+        if (wsService)
+        {
+            wsService->onRecvMessage(_msg, _session);
+        }
+    });
     wsSession->setHandlshakeHandler(
         [self](bcos::Error::Ptr, std::shared_ptr<ws::WsSession> _session) {
             auto wsService = self.lock();
@@ -256,6 +272,27 @@ WsSessions WsService::sessions()
 
     // WEBSOCKET_SERVICE(TRACE) << LOG_BADGE("sessions") << LOG_KV("size", sessions.size());
     return sessions;
+}
+
+/**
+ * @brief: session connect
+ * @param _error:
+ * @param _session: session
+ * @return void:
+ */
+void WsService::onConnect(Error::Ptr _error, std::shared_ptr<WsSession> _session)
+{
+    boost::ignore_unused(_error);
+    std::string endpoint = "";
+    std::string connectedEndPoint = "";
+    if (_session)
+    {
+        endpoint = _session->endPoint();
+        connectedEndPoint = _session->connectedEndPoint();
+    }
+
+    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("onConnect") << LOG_KV("endpoint", endpoint)
+                            << LOG_KV("connectedEndPoint", connectedEndPoint);
 }
 
 /**
@@ -400,13 +437,4 @@ void WsService::broadcastMessage(std::shared_ptr<WsMessage> _msg)
     }
 
     WEBSOCKET_VERSION(DEBUG) << LOG_BADGE("broadcastMessage");
-}
-
-void WsService::onRecvBlkNotify(
-    std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
-{
-    // TODO:
-    auto jsonValue = std::string(_msg->data()->begin(), _msg->data()->end());
-    WEBSOCKET_VERSION(INFO) << LOG_DESC("onRecvBlkNotify") << LOG_KV("blockNumber", jsonValue)
-                            << LOG_KV("endpoint", _session->endPoint());
 }
