@@ -20,6 +20,8 @@
 
 #pragma once
 #include <bcos-cpp-sdk/event/EventPushParams.h>
+#include <bcos-cpp-sdk/event/EventPushTask.h>
+#include <memory>
 
 namespace bcos
 {
@@ -42,13 +44,17 @@ public:
     void setParams(std::shared_ptr<EventPushParams> _params) { m_params = _params; }
     std::shared_ptr<EventPushParams> params() const { return m_params; }
 
+    void setState(std::shared_ptr<EventPushTaskState> _state) { m_state = _state; }
+    std::shared_ptr<EventPushTaskState> state() const { return m_state; }
+
     std::string generateJson() const;
-    bool initFromJson(const std::string& _request);
+    bool fromJson(const std::string& _request);
 
 private:
     std::string m_id;
     std::string m_group;
     std::shared_ptr<EventPushParams> m_params;
+    std::shared_ptr<EventPushTaskState> m_state;
 };
 
 }  // namespace event

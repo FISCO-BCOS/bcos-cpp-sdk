@@ -20,7 +20,7 @@
 
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventPushRequest.h>
-#include <bcos-framework/libutilities/Log.h>
+
 #include <json/json.h>
 #include <exception>
 #include <memory>
@@ -31,6 +31,12 @@ using namespace bcos::cppsdk::event;
 
 std::string EventPushRequest::generateJson() const
 {
+    /*
+    {
+    "id": "",
+    "group": ""
+    }
+    */
     /*
     {
     "id": "",
@@ -48,9 +54,23 @@ std::string EventPushRequest::generateJson() const
     }
     */
 
+    Json::Value jResult;
+    // id
+    jResult["id"] = m_id;
+    // group
+    jResult["group"] = m_group;
+
+    if (!m_params)
+    {
+        Json::FastWriter writer;
+        std::string result = writer.write(jResult);
+        return result;
+    }
+
     Json::Value jParams;
     // fromBlock
-    jParams["fromBlock"] = m_params->fromBlock();
+    jParams["fromBlock"] =
+        m_state->currentBlockNumber() > 0 ? m_state->currentBlockNumber() : m_params->fromBlock();
     // toBlock
     jParams["toBlock"] = m_params->toBlock();
     // addresses
@@ -64,20 +84,22 @@ std::string EventPushRequest::generateJson() const
     Json::Value jTopics(Json::arrayValue);
     for (const auto& inTopics : m_params->topics())
     {
-        Json::Value jInTopics(Json::arrayValue);
-        for (const auto& topic : inTopics)
+        if (!inTopics.empty())
         {
-            jInTopics.append(topic);
+            Json::Value jInTopics(Json::arrayValue);
+            for (const auto& topic : inTopics)
+            {
+                jInTopics.append(topic);
+            }
+            jTopics.append(jInTopics);
         }
-        jTopics.append(jInTopics);
+        else
+        {
+            Json::Value jInTopics(Json::nullValue);
+            jTopics.append(jInTopics);
+        }
     }
     jParams["topics"] = jTopics;
-
-    Json::Value jResult;
-    // id
-    jResult["id"] = m_id;
-    // group
-    jResult["group"] = m_group;
     // params
     jResult["params"] = jParams;
 
@@ -86,7 +108,7 @@ std::string EventPushRequest::generateJson() const
     return result;
 }
 
-bool EventPushRequest::initFromJson(const std::string& _request)
+bool EventPushRequest::fromJson(const std::string& _request)
 {
     std::string id;
     std::string group;
@@ -153,6 +175,11 @@ bool EventPushRequest::initFromJson(const std::string& _request)
                 for (Json::Value::ArrayIndex index = 0; index < jTopics.size(); ++index)
                 {
                     auto& jIndex = jParams[index];
+                    if (jIndex.isNull())
+                    {
+                        continue;
+                    }
+
                     if (jIndex.isArray())
                     {  // array topics
                         for (Json::Value::ArrayIndex innerIndex = 0; innerIndex < jIndex.size();
@@ -172,7 +199,7 @@ bool EventPushRequest::initFromJson(const std::string& _request)
             m_group = group;
             m_params = params;
 
-            EVENT_REQUEST(INFO) << LOG_BADGE("initFromJson")
+            EVENT_REQUEST(INFO) << LOG_BADGE("fromJson")
                                 << LOG_DESC("parse event push request success")
                                 << LOG_KV("group", m_group) << LOG_KV("id", m_id);
 
@@ -180,12 +207,12 @@ bool EventPushRequest::initFromJson(const std::string& _request)
 
         } while (0);
 
-        EVENT_REQUEST(ERROR) << LOG_BADGE("initFromJson") << LOG_DESC("invalid event push request")
+        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid event push request")
                              << LOG_KV("request", _request) << LOG_KV("errorMessage", errorMessage);
     }
     catch (const std::exception& e)
     {
-        EVENT_REQUEST(ERROR) << LOG_BADGE("initFromJson") << LOG_DESC("invalid json object")
+        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
 
                              << LOG_KV("request", _request)
                              << LOG_KV("error", std::string(e.what()));
