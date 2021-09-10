@@ -40,16 +40,22 @@ using namespace bcos::cppsdk::amop;
 void AMOP::subscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager and update topics to server
-    m_topicManager->addTopics(_topics);
-    updateTopicsToRemote();
+    auto result = m_topicManager->addTopics(_topics);
+    if (result)
+    {
+        updateTopicsToRemote();
+    }
 }
 
 // subscribe topics
 void AMOP::unsubscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager
-    m_topicManager->removeTopics(_topics);
-    updateTopicsToRemote();
+    auto result = m_topicManager->removeTopics(_topics);
+    if (result)
+    {
+        updateTopicsToRemote();
+    }
 }
 
 // query all subscribed topics

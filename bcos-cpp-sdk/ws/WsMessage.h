@@ -55,7 +55,7 @@ public:
     virtual uint16_t type() { return m_type; }
     virtual void setType(uint16_t _type) { m_type = _type; }
     virtual uint16_t status() { return m_status; }
-    virtual void setStauts(uint16_t _status) { m_status = _status; }
+    virtual void setStatus(uint16_t _status) { m_status = _status; }
     virtual std::shared_ptr<bcos::bytes> seq() { return m_seq; }
     virtual void setSeq(std::shared_ptr<bcos::bytes> _seq) { m_seq = _seq; }
     virtual std::shared_ptr<bcos::bytes> data() { return m_data; }

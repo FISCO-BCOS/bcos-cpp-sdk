@@ -25,27 +25,34 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
 
-void TopicManager::addTopic(const std::string& _topic)
+bool TopicManager::addTopic(const std::string& _topic)
 {
     std::unique_lock lock(x_topics);
-    m_topics.insert(_topic);
+    auto result = m_topics.insert(_topic);
+    return result.second;
 }
-void TopicManager::addTopics(const std::set<std::string>& _topics)
+bool TopicManager::addTopics(const std::set<std::string>& _topics)
 {
     std::unique_lock lock(x_topics);
+    auto oldSize = m_topics.size();
     m_topics.insert(_topics.begin(), _topics.end());
+    return m_topics.size() > oldSize;
 }
-void TopicManager::removeTopic(const std::string& _topic)
+bool TopicManager::removeTopic(const std::string& _topic)
 {
     std::unique_lock lock(x_topics);
-    m_topics.erase(_topic);
+    auto result = m_topics.erase(_topic);
+    return result > 0;
 }
-void TopicManager::removeTopics(const std::set<std::string>& _topics)
+bool TopicManager::removeTopics(const std::set<std::string>& _topics)
 {
+    size_t removeCount = 0;
     for (auto& topic : _topics)
     {
-        removeTopic(topic);
+        auto r = removeTopic(topic);
+        removeCount += (r ? 1 : 0);
     }
+    return removeCount > 0;
 }
 std::set<std::string> TopicManager::topics() const
 {
