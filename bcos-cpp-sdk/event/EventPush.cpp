@@ -357,16 +357,20 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     auto task = getTaskAndRemove(_id);
     if (task == nullptr)
     {
-        // TODO: task not exist
-        _callback(nullptr, "");
+        // TODO: error code define
+        auto error = std::make_shared<Error>(-1, "event push task not found");
+        _callback(error, "event push task not found");
+        EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event push task not found")
+                          << LOG_KV("id", _id);
         return;
     }
 
     auto session = task->session();
     if (!session)
     {
-        // TODO: remove success
-        _callback(nullptr, "");
+        _callback(nullptr, "unsubscribe event successfully(task is suspend)");
+        EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("task is suspend")
+                         << LOG_KV("id", _id);
         return;
     }
 
