@@ -23,7 +23,7 @@
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/event/EventPushParams.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
-#include <memory>
+
 namespace bcos
 {
 namespace ws
@@ -48,7 +48,7 @@ public:
     }
 
 private:
-    int64_t m_currentBlockNumber;
+    int64_t m_currentBlockNumber = -1;
 };
 
 class EventPushTask
@@ -79,6 +79,8 @@ private:
     std::shared_ptr<EventPushParams> m_params;
     std::shared_ptr<EventPushTaskState> m_state;
 };
+
+using EventPushTaskPtrs = std::vector<EventPushTask::Ptr>;
 }  // namespace event
 }  // namespace cppsdk
 }  // namespace bcos

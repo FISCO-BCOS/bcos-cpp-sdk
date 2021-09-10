@@ -25,9 +25,9 @@ namespace cppsdk
 {
 namespace event
 {
-enum ErrorCode
+enum StatusCode
 {
-    Ok = 0,
+    Success = 0,
     EndOfPush = 1,  // push completed
 };
 }  // namespace event
