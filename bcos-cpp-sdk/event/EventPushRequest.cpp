@@ -133,8 +133,8 @@ std::string EventPushSubRequest::generateJson() const
 
     Json::Value jParams;
     // fromBlock
-    jParams["fromBlock"] =
-        m_state->currentBlockNumber() > 0 ? m_state->currentBlockNumber() : m_params->fromBlock();
+    jParams["fromBlock"] = m_state->currentBlockNumber() > 0 ? m_state->currentBlockNumber() + 1 :
+                                                               m_params->fromBlock();
     // toBlock
     jParams["toBlock"] = m_params->toBlock();
     // addresses
@@ -148,23 +148,22 @@ std::string EventPushSubRequest::generateJson() const
     Json::Value jTopics(Json::arrayValue);
     for (const auto& inTopics : m_params->topics())
     {
-        if (!inTopics.empty())
-        {
-            Json::Value jInTopics(Json::arrayValue);
-            for (const auto& topic : inTopics)
-            {
-                jInTopics.append(topic);
-            }
-            jTopics.append(jInTopics);
-        }
-        else
+        if (inTopics.empty())
         {
             Json::Value jInTopics(Json::nullValue);
             jTopics.append(jInTopics);
+            continue;
         }
+
+        Json::Value jInTopics(Json::arrayValue);
+        for (const auto& topic : inTopics)
+        {
+            jInTopics.append(topic);
+        }
+        jTopics.append(jInTopics);
     }
+
     jParams["topics"] = jTopics;
-    // params
     jResult["params"] = jParams;
 
     Json::FastWriter writer;

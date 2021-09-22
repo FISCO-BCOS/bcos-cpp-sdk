@@ -25,6 +25,7 @@
 #include <bcos-cpp-sdk/event/EventPushParams.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/libutilities/Log.h>
+#include <atomic>
 
 namespace bcos
 {
@@ -43,14 +44,14 @@ public:
     using Ptr = std::shared_ptr<EventPushTaskState>;
 
 public:
-    int64_t currentBlockNumber() const { return m_currentBlockNumber; }
+    int64_t currentBlockNumber() const { return m_currentBlockNumber.load(); }
     void setCurrentBlockNumber(int64_t _currentBlockNumber)
     {
-        m_currentBlockNumber = _currentBlockNumber;
+        m_currentBlockNumber.store(_currentBlockNumber);
     }
 
 private:
-    int64_t m_currentBlockNumber = -1;
+    std::atomic<int64_t> m_currentBlockNumber = -1;
 };
 
 class EventPushTask
