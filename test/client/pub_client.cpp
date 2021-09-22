@@ -97,6 +97,13 @@ int main(int argc, char** argv)
         threads->emplace_back([&ioc]() { ioc->run(); });
     }
 
+    while (wsService->sessions().empty())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
+
     auto buffer = std::make_shared<bcos::bytes>(msg.begin(), msg.end());
     int i = 0;
     while (true)
