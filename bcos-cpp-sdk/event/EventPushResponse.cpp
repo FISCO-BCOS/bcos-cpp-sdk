@@ -30,14 +30,14 @@ std::string EventPushResponse::generateJson()
     /*
         {
         "id": "",
-        "result": 0
+        "status": 0
         }
     */
     Json::Value jResult;
     // id
     jResult["id"] = m_id;
-    // group
-    jResult["result"] = m_result;
+    // status
+    jResult["status"] = m_status;
 
     Json::FastWriter writer;
     std::string result = writer.write(jResult);
@@ -47,7 +47,7 @@ std::string EventPushResponse::generateJson()
 bool EventPushResponse::fromJson(const std::string& _response)
 {
     std::string id;
-    int result;
+    int status;
 
     try
     {
@@ -69,28 +69,27 @@ bool EventPushResponse::fromJson(const std::string& _response)
             }
             id = root["id"].asString();
 
-            if (!root.isMember("result"))
+            if (!root.isMember("status"))
             {
                 // group field not exist
-                errorMessage = "\'result\' field not exist";
+                errorMessage = "\'status\' field not exist";
                 break;
             }
-            result = root["result"].asInt();
+            status = root["status"].asInt();
 
             m_id = id;
-            m_result = result;
+            m_status = status;
 
             EVENT_RESPONSE(INFO) << LOG_BADGE("fromJson")
                                  << LOG_DESC("parse event push response success")
-                                 << LOG_KV("id", m_id) << LOG_KV("result", m_result);
+                                 << LOG_KV("id", m_id) << LOG_KV("status", m_status);
 
             return true;
 
         } while (0);
 
         EVENT_RESPONSE(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid event push reponse")
-                              << LOG_KV("response", _response)
-                              << LOG_KV("errorMessage", errorMessage);
+                              << LOG_KV("response", _response) << LOG_KV("error", errorMessage);
     }
     catch (const std::exception& e)
     {

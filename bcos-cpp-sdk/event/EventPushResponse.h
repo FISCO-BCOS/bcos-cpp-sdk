@@ -36,8 +36,8 @@ public:
 public:
     std::string id() const { return m_id; }
     void setId(const std::string& _id) { m_id = _id; }
-    int result() const { return m_result; }
-    void setResult(int _result) { m_result = _result; }
+    int status() const { return m_status; }
+    void setStatus(int _status) { m_status = _status; }
 
 public:
     std::string generateJson();
@@ -45,7 +45,7 @@ public:
 
 private:
     std::string m_id;
-    int m_result;
+    int m_status;
 };
 }  // namespace event
 }  // namespace cppsdk

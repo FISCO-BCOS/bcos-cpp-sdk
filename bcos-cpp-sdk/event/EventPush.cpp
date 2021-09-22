@@ -242,13 +242,15 @@ void EventPush::onRecvEventPushMessage(
     /*
     {
         "id": "",
-        "result": 0,
-        "blockNumber": 111,
-        "events": [
-            {},
-            {},
-            {}
-        ]
+        "status": 0,
+        "result": {
+            "blockNumber": 111,
+            "events": [
+                {},
+                {},
+                {}
+            ]
+        }
     }
     */
     auto strResp = std::string(_msg->data()->begin(), _msg->data()->end());
@@ -272,7 +274,7 @@ void EventPush::onRecvEventPushMessage(
         return;
     }
 
-    if (resp->result() == StatusCode::EndOfPush)
+    if (resp->status() == StatusCode::EndOfPush)
     {  // event push end
         getTaskAndRemove(resp->id());
         task->callback()(nullptr, strResp);
@@ -281,7 +283,7 @@ void EventPush::onRecvEventPushMessage(
                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
                          << LOG_KV("response", strResp);
     }
-    else if (resp->result() != StatusCode::Success)
+    else if (resp->status() != StatusCode::Success)
     {  // event push error
         getTaskAndRemove(resp->id());
         // normal event push
@@ -354,7 +356,7 @@ void EventPush::subscribeEvent(
                                   << LOG_KV("id", id) << LOG_KV("response", strResp);
                 _callback(nullptr, strResp);
             }
-            else if (resp->result() != StatusCode::Success)
+            else if (resp->status() != StatusCode::Success)
             {
                 _callback(nullptr, strResp);
                 EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEvent")
@@ -436,11 +438,11 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
 
                 _callback(nullptr, strResp);
             }
-            else if (resp->result() != StatusCode::Success)
+            else if (resp->status() != StatusCode::Success)
             {
                 EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent")
                                   << LOG_DESC("callback response error") << LOG_KV("id", _id)
-                                  << LOG_KV("result", resp->result())
+                                  << LOG_KV("status", resp->status())
                                   << LOG_KV("response", strResp);
 
                 _callback(nullptr, strResp);
@@ -451,7 +453,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
 
                 EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent")
                                  << LOG_DESC("callback response success") << LOG_KV("id", _id)
-                                 << LOG_KV("result", resp->result()) << LOG_KV("response", strResp);
+                                 << LOG_KV("status", resp->status()) << LOG_KV("response", strResp);
             }
         });
 }
