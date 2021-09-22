@@ -52,16 +52,18 @@ public:
     void doLoop();
 
 public:
+    void subscribeEvent(EventPushTask::Ptr _task, Callback _callback);
     void onRecvEventPushMessage(
         std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
 
 public:
+    void addTask(const std::string& _id);
     void addTask(const std::string& _id, EventPushTask::Ptr _task);
     EventPushTask::Ptr getTask(const std::string& _id);
     EventPushTask::Ptr getTaskAndRemove(const std::string& _id);
     void removeWaitResp(const std::string& _id);
 
-    void interruptTasks(std::shared_ptr<ws::WsSession> _session);
+    void suspendTasks(std::shared_ptr<ws::WsSession> _session);
 
     void setWsService(ws::WsService::Ptr _wsService) { m_wsService = _wsService; }
     ws::WsService::Ptr wsService() const { return m_wsService; }
@@ -81,19 +83,22 @@ public:
     SdkConfig::ConstPtr config() const { return m_config; }
     void setConfig(SdkConfig::ConstPtr _config) { m_config = _config; }
 
-    uint32_t interruptTasksCount() const { return m_interruptTasksCount.load(); }
-    const std::unordered_map<std::string, EventPushTask::Ptr>& interruptTasks() const
+    uint32_t suspendTasksCount() const { return m_suspendTasksCount.load(); }
+    const std::unordered_map<std::string, EventPushTask::Ptr>& suspendTasks() const
     {
-        return m_interruptTasks;
+        return m_suspendTasks;
     }
-    const std::unordered_map<std::string, EventPushTask::Ptr>& tasks() const { return m_tasks; }
+    const std::unordered_map<std::string, EventPushTask::Ptr>& workingtasks() const
+    {
+        return m_workingTasks;
+    }
 
 private:
     bool m_running = false;
     mutable std::shared_mutex x_tasks;
-    std::unordered_map<std::string, EventPushTask::Ptr> m_tasks;
-    std::atomic<uint32_t> m_interruptTasksCount{0};
-    std::unordered_map<std::string, EventPushTask::Ptr> m_interruptTasks;
+    std::unordered_map<std::string, EventPushTask::Ptr> m_workingTasks;
+    std::atomic<uint32_t> m_suspendTasksCount{0};
+    std::unordered_map<std::string, EventPushTask::Ptr> m_suspendTasks;
     std::set<std::string> m_waitRespTasks;
     // timer
     std::shared_ptr<boost::asio::deadline_timer> m_timer;
