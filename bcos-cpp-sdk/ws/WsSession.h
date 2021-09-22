@@ -78,6 +78,8 @@ public:
      */
     void startHandshake();
     bool checkHandshakeDone();
+
+public:
     /**
      * @brief: async send message
      * @param _msg: message
@@ -85,7 +87,7 @@ public:
      * @param _respCallback: callback
      * @return void:
      */
-    void asyncSendMessage(std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
+    virtual void asyncSendMessage(std::shared_ptr<WsMessage> _msg, Options _options = Options(-1),
         RespCallBack _respCallback = RespCallBack());
 
 public:
