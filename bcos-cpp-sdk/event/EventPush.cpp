@@ -107,7 +107,7 @@ void EventPush::doLoop()
 
         auto self = std::weak_ptr<EventPush>(shared_from_this());
         subscribeEvent(task->params()->group(), task->params(),
-            [id, self](bcos::Error::Ptr, const std::string&) {
+            [id, self](bcos::Error::Ptr, const std::string&, const std::string&) {
                 auto ep = self.lock();
                 if (!ep)
                 {
@@ -277,7 +277,7 @@ void EventPush::onRecvEventPushMessage(
     if (resp->status() == StatusCode::EndOfPush)
     {  // event push end
         getTaskAndRemove(resp->id());
-        task->callback()(nullptr, strResp);
+        task->callback()(nullptr, resp->id(), strResp);
 
         EVENT_PUSH(INFO) << LOG_BADGE("onRecvEventPushMessage") << LOG_DESC("end of push")
                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
@@ -287,7 +287,7 @@ void EventPush::onRecvEventPushMessage(
     {  // event push error
         getTaskAndRemove(resp->id());
         // normal event push
-        task->callback()(nullptr, strResp);
+        task->callback()(nullptr, resp->id(), strResp);
 
         EVENT_PUSH(INFO) << LOG_BADGE("onRecvEventPushMessage") << LOG_DESC("event push error")
                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
@@ -296,7 +296,7 @@ void EventPush::onRecvEventPushMessage(
     else
     {
         // event push
-        task->callback()(nullptr, strResp);
+        task->callback()(nullptr, resp->id(), strResp);
 
         EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventPushMessage") << LOG_DESC("event push")
                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
@@ -343,7 +343,7 @@ void EventPush::subscribeEvent(
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
 
-                _callback(_error, "subscribe event failed");
+                _callback(_error, id, "subscribe event failed");
                 return;
             }
 
@@ -354,11 +354,11 @@ void EventPush::subscribeEvent(
                 EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEvent")
                                   << LOG_DESC("invalid subscribe event response")
                                   << LOG_KV("id", id) << LOG_KV("response", strResp);
-                _callback(nullptr, strResp);
+                _callback(nullptr, id, strResp);
             }
             else if (resp->status() != StatusCode::Success)
             {
-                _callback(nullptr, strResp);
+                _callback(nullptr, id, strResp);
                 EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEvent")
                                   << LOG_DESC("callback response error") << LOG_KV("id", id)
                                   << LOG_KV("response", strResp);
@@ -373,7 +373,7 @@ void EventPush::subscribeEvent(
                 task->setCallback(_callback);
                 ep->addTask(id, task);
 
-                _callback(nullptr, strResp);
+                _callback(nullptr, id, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("subscribeEvent")
                                  << LOG_DESC("callback response success") << LOG_KV("id", id)
                                  << LOG_KV("response", strResp);
@@ -388,7 +388,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     {
         // TODO: error code define
         auto error = std::make_shared<Error>(-1, "event push task not found");
-        _callback(error, "event push task not found");
+        _callback(error, _id, "event push task not found");
         EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event push task not found")
                           << LOG_KV("id", _id);
         return;
@@ -397,7 +397,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     auto session = task->session();
     if (!session)
     {
-        _callback(nullptr, "unsubscribe event successfully(task is suspend)");
+        _callback(nullptr, _id, "unsubscribe event successfully(task is suspend)");
         EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("task is suspend")
                          << LOG_KV("id", _id);
         return;
@@ -423,7 +423,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
 
-                _callback(_error, "");
+                _callback(_error, _id, "unsubscribe event failed");
                 return;
             }
 
@@ -436,7 +436,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_DESC("callback invalid response") << LOG_KV("id", _id)
                                   << LOG_KV("response", strResp);
 
-                _callback(nullptr, strResp);
+                _callback(nullptr, _id, strResp);
             }
             else if (resp->status() != StatusCode::Success)
             {
@@ -445,11 +445,11 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_KV("status", resp->status())
                                   << LOG_KV("response", strResp);
 
-                _callback(nullptr, strResp);
+                _callback(nullptr, _id, strResp);
             }
             else
             {
-                _callback(nullptr, strResp);
+                _callback(nullptr, _id, strResp);
 
                 EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent")
                                  << LOG_DESC("callback response success") << LOG_KV("id", _id)

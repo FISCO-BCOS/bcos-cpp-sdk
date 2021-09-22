@@ -29,7 +29,7 @@ namespace cppsdk
 {
 namespace event
 {
-using Callback = std::function<void(bcos::Error::Ptr, const std::string&)>;
+using Callback = std::function<void(bcos::Error::Ptr, const std::string&, const std::string&)>;
 
 class EventPushInterface
 {
