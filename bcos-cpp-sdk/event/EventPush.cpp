@@ -120,6 +120,7 @@ void EventPush::doLoop()
 void EventPush::addTask(const std::string& _id, EventPushTask::Ptr _task)
 {
     std::unique_lock lock(x_tasks);
+    // remove from suspendTasks
     auto it = m_suspendTasks.find(_id);
     if (it != m_suspendTasks.end())
     {
@@ -298,12 +299,22 @@ void EventPush::onRecvEventPushMessage(
     }
     else
     {
+        int64_t blockNumber = -1;
+        // NOTE: update the latest blocknumber of event push for network disconnect continue
+        const auto jResp = resp->jResp();
+        if (jResp.isMember("result") && jResp["result"].isMember("blockNumber") &&
+            jResp["result"]["blockNumber"].isInt64())
+        {
+            blockNumber = jResp["result"]["blockNumber"].asInt64();
+            task->state()->setCurrentBlockNumber(blockNumber);
+        }
+
         // event push
         task->callback()(nullptr, resp->id(), strResp);
 
         EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventPushMessage") << LOG_DESC("event push")
                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
-                          << LOG_KV("response", strResp);
+                          << LOG_KV("blockNumber", blockNumber) << LOG_KV("response", strResp);
     }
 }
 

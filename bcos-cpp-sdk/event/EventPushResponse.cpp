@@ -79,6 +79,7 @@ bool EventPushResponse::fromJson(const std::string& _response)
 
             m_id = id;
             m_status = status;
+            m_jResp = root;
 
             EVENT_RESPONSE(INFO) << LOG_BADGE("fromJson")
                                  << LOG_DESC("parse event push response success")

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <json/value.h>
 #include <memory>
 #include <string>
 namespace bcos
@@ -39,6 +40,9 @@ public:
     int status() const { return m_status; }
     void setStatus(int _status) { m_status = _status; }
 
+    void setJResp(const Json::Value& _jResp) { m_jResp = _jResp; }
+    Json::Value jResp() const { return m_jResp; }
+
 public:
     std::string generateJson();
     bool fromJson(const std::string& _response);
@@ -46,6 +50,8 @@ public:
 private:
     std::string m_id;
     int m_status;
+
+    Json::Value m_jResp;
 };
 }  // namespace event
 }  // namespace cppsdk
