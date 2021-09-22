@@ -20,9 +20,11 @@
 
 #pragma once
 
+#include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/event/EventPushParams.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
+#include <bcos-framework/libutilities/Log.h>
 
 namespace bcos
 {
@@ -55,6 +57,8 @@ class EventPushTask
 {
 public:
     using Ptr = std::shared_ptr<EventPushTask>;
+    EventPushTask() { EVENT_PUSH_TASK(DEBUG) << LOG_KV("[NEWOBJ][EventPushTask]", this); }
+    ~EventPushTask() { EVENT_PUSH_TASK(DEBUG) << LOG_KV("[DELOBJ][EventPushTask]", this); }
 
 public:
     void setSession(std::shared_ptr<ws::WsSession> _session) { m_session = _session; }
@@ -62,6 +66,9 @@ public:
 
     void setId(const std::string& _id) { m_id = _id; }
     std::string id() const { return m_id; }
+
+    void setGroup(const std::string& _group) { m_group = _group; }
+    std::string group() const { return m_group; }
 
     void setParams(std::shared_ptr<EventPushParams> _params) { m_params = _params; }
     std::shared_ptr<EventPushParams> params() const { return m_params; }
@@ -74,6 +81,7 @@ public:
 
 private:
     std::string m_id;
+    std::string m_group;
     Callback m_callback;
     std::shared_ptr<ws::WsSession> m_session;
     std::shared_ptr<EventPushParams> m_params;
