@@ -81,9 +81,15 @@ public:
     SdkConfig::ConstPtr config() const { return m_config; }
     void setConfig(SdkConfig::ConstPtr _config) { m_config = _config; }
 
+    uint32_t interruptTasksCount() const { return m_interruptTasksCount.load(); }
+    const std::unordered_map<std::string, EventPushTask::Ptr>& interruptTasks() const
+    {
+        return m_interruptTasks;
+    }
+    const std::unordered_map<std::string, EventPushTask::Ptr>& tasks() const { return m_tasks; }
+
 private:
     bool m_running = false;
-
     mutable std::shared_mutex x_tasks;
     std::unordered_map<std::string, EventPushTask::Ptr> m_tasks;
     std::atomic<uint32_t> m_interruptTasksCount{0};

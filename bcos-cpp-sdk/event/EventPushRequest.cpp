@@ -23,20 +23,92 @@
 
 #include <json/json.h>
 #include <exception>
-#include <memory>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
-std::string EventPushRequest::generateJson() const
+std::string EventPushUnsubRequest::generateJson() const
 {
     /*
-    {
-    "id": "",
-    "group": ""
-    }
+        {
+        "id": "",
+        "group": ""
+        }
     */
+    Json::Value jResult;
+    // id
+    jResult["id"] = m_id;
+    // group
+    jResult["group"] = m_group;
+
+    Json::FastWriter writer;
+    std::string result = writer.write(jResult);
+    return result;
+}
+
+bool EventPushUnsubRequest::fromJson(const std::string& _request)
+{
+    std::string id;
+    std::string group;
+    EventPushParams::Ptr params = std::make_shared<EventPushParams>();
+
+    try
+    {
+        Json::Value root;
+        Json::Reader jsonReader;
+        std::string errorMessage;
+        do
+        {
+            if (!jsonReader.parse(_request, root))
+            {
+                errorMessage = "invalid json object, parse request failed";
+                break;
+            }
+
+            if (!root.isMember("id"))
+            {  // id field not exist
+                errorMessage = "\'id\' field not exist";
+                break;
+            }
+            id = root["id"].asString();
+
+            if (!root.isMember("group"))
+            {
+                // group field not exist
+                errorMessage = "\'group\' field not exist";
+                break;
+            }
+            group = root["group"].asString();
+
+            m_id = id;
+            m_group = group;
+
+            EVENT_REQUEST(INFO) << LOG_BADGE("fromJson")
+                                << LOG_DESC("parse event push request success")
+                                << LOG_KV("group", m_group) << LOG_KV("id", m_id);
+
+            return true;
+
+        } while (0);
+
+        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid event push request")
+                             << LOG_KV("request", _request) << LOG_KV("errorMessage", errorMessage);
+    }
+    catch (const std::exception& e)
+    {
+        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
+
+                             << LOG_KV("request", _request)
+                             << LOG_KV("error", std::string(e.what()));
+    }
+
+    return false;
+}
+
+
+std::string EventPushSubRequest::generateJson() const
+{
     /*
     {
     "id": "",
@@ -53,19 +125,11 @@ std::string EventPushRequest::generateJson() const
         }
     }
     */
-
     Json::Value jResult;
     // id
-    jResult["id"] = m_id;
+    jResult["id"] = id();
     // group
-    jResult["group"] = m_group;
-
-    if (!m_params)
-    {
-        Json::FastWriter writer;
-        std::string result = writer.write(jResult);
-        return result;
-    }
+    jResult["group"] = group();
 
     Json::Value jParams;
     // fromBlock
@@ -108,7 +172,7 @@ std::string EventPushRequest::generateJson() const
     return result;
 }
 
-bool EventPushRequest::fromJson(const std::string& _request)
+bool EventPushSubRequest::fromJson(const std::string& _request)
 {
     std::string id;
     std::string group;
@@ -195,13 +259,13 @@ bool EventPushRequest::fromJson(const std::string& _request)
                 }
             }
 
-            m_id = id;
-            m_group = group;
+            setId(id);
+            setGroup(group);
             m_params = params;
 
             EVENT_REQUEST(INFO) << LOG_BADGE("fromJson")
                                 << LOG_DESC("parse event push request success")
-                                << LOG_KV("group", m_group) << LOG_KV("id", m_id);
+                                << LOG_KV("group", group) << LOG_KV("id", id);
 
             return true;
 

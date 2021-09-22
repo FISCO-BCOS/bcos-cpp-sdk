@@ -307,7 +307,7 @@ void EventPush::onRecvEventPushMessage(
 void EventPush::subscribeEvent(
     const std::string& _group, EventPushParams::Ptr _params, Callback _callback)
 {
-    auto request = std::make_shared<EventPushRequest>();
+    auto request = std::make_shared<EventPushSubRequest>();
     auto state = std::make_shared<EventPushTaskState>();
 
     _params->setGroup(_group);
@@ -406,7 +406,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     auto message = m_messagefactory->buildMessage();
     message->setType(ws::WsMessageType::EVENT_UNSUBSCRIBE);
 
-    auto request = std::make_shared<EventPushRequest>();
+    auto request = std::make_shared<EventPushUnsubRequest>();
     request->setId(_id);
     request->setGroup(task->params()->group());
 
