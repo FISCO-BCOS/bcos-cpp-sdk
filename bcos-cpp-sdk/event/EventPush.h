@@ -19,9 +19,11 @@
  */
 
 #pragma once
+#include <bcos-cpp-sdk/SdkConfig.h>
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/event/EventPushTask.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
+#include <atomic>
 #include <shared_mutex>
 #include <utility>
 
@@ -70,13 +72,21 @@ public:
     void setIoc(std::shared_ptr<boost::asio::io_context> _ioc) { m_ioc = _ioc; }
     std::shared_ptr<boost::asio::io_context> ioc() const { return m_ioc; }
 
-    void setFactory(std::shared_ptr<ws::WsMessageFactory> _factory) { m_factory = _factory; }
-    std::shared_ptr<ws::WsMessageFactory> factory() const { return m_factory; }
+    void setMessageFactory(std::shared_ptr<ws::WsMessageFactory> _messageFactory)
+    {
+        m_messagefactory = _messageFactory;
+    }
+    std::shared_ptr<ws::WsMessageFactory> messageFactory() const { return m_messagefactory; }
+
+    SdkConfig::ConstPtr config() const { return m_config; }
+    void setConfig(SdkConfig::ConstPtr _config) { m_config = _config; }
 
 private:
     bool m_running = false;
+
     mutable std::shared_mutex x_tasks;
     std::unordered_map<std::string, EventPushTask::Ptr> m_tasks;
+    std::atomic<uint32_t> m_interruptTasksCount{0};
     std::unordered_map<std::string, EventPushTask::Ptr> m_interruptTasks;
     std::set<std::string> m_waitRespTasks;
     // timer
@@ -84,9 +94,11 @@ private:
     // io context
     std::shared_ptr<boost::asio::io_context> m_ioc;
     // message factory
-    std::shared_ptr<ws::WsMessageFactory> m_factory;
+    std::shared_ptr<ws::WsMessageFactory> m_messagefactory;
     // websocket service
     ws::WsService::Ptr m_wsService;
+    //
+    SdkConfig::ConstPtr m_config;
 };
 }  // namespace event
 }  // namespace cppsdk

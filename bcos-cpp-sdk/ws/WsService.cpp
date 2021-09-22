@@ -72,7 +72,7 @@ void WsService::stop()
 void WsService::reconnect()
 {
     auto ss = sessions();
-    auto peers = m_config->peers();
+    auto peers = m_config->connectedPeers();
     for (auto const& peer : *peers)
     {
         std::string connectedEndPoint = peer.host + ":" + std::to_string(peer.port);
@@ -107,9 +107,8 @@ void WsService::reconnect()
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("heartbeat") << LOG_DESC("connected server")
                             << LOG_KV("count", ss.size());
 
-    // TODO: make periodic task time to configuration
-    m_reconnect = std::make_shared<boost::asio::deadline_timer>(
-        boost::asio::make_strand(*m_ioc), boost::posix_time::milliseconds(5000));
+    m_reconnect = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
+        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
     auto self = std::weak_ptr<WsService>(shared_from_this());
     m_reconnect->async_wait([self](const boost::system::error_code&) {
         auto service = self.lock();

@@ -38,8 +38,8 @@ public:
 public:
     int64_t fromBlock() const { return m_fromBlock; }
     int64_t toBlock() const { return m_toBlock; }
-    const std::vector<std::string>& addresses() const { return m_addresses; }
-    std::vector<std::string>& addresses() { return m_addresses; }
+    const std::set<std::string>& addresses() const { return m_addresses; }
+    std::set<std::string>& addresses() { return m_addresses; }
     const std::vector<std::vector<std::string>>& topics() const { return m_topics; }
     std::vector<std::vector<std::string>>& topics() { return m_topics; }
 
@@ -48,7 +48,7 @@ public:
 
     void setFromBlock(int64_t _fromBlock) { m_fromBlock = _fromBlock; }
     void setToBlock(int64_t _toBlock) { m_toBlock = _toBlock; }
-    void addAddress(const std::string& _address) { m_addresses.push_back(_address); }
+    void addAddress(const std::string& _address) { m_addresses.insert(_address); }
     bool addTopic(std::size_t _index, const std::string& _topic)
     {
         if (_index >= EVENT_LOG_TOPICS_MAX_INDEX)
@@ -65,7 +65,7 @@ private:
     std::string m_group;
     bcos::protocol::BlockNumber m_fromBlock = -1;
     bcos::protocol::BlockNumber m_toBlock = -1;
-    std::vector<std::string> m_addresses;
+    std::set<std::string> m_addresses;
     std::vector<std::vector<std::string>> m_topics;
 };
 

@@ -28,10 +28,9 @@
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <json/reader.h>
-#include <boost/core/ignore_unused.hpp>
-#include <memory>
 #include <mutex>
 #include <shared_mutex>
+#include <vector>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
@@ -46,9 +45,8 @@ void EventPush::start()
     }
     m_running = true;
 
-    // TODO: config
-    m_timer = std::make_shared<boost::asio::deadline_timer>(
-        boost::asio::make_strand(*m_ioc), boost::posix_time::milliseconds(10000));
+    m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
+        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
     auto self = std::weak_ptr<EventPush>(shared_from_this());
     m_timer->async_wait([self](const boost::system::error_code&) {
         auto ep = self.lock();
@@ -59,7 +57,9 @@ void EventPush::start()
         ep->doLoop();
     });
 
-    EVENT_PUSH(INFO) << LOG_BADGE("start") << LOG_DESC("start event push successfully");
+    EVENT_PUSH(INFO) << LOG_BADGE("start") << LOG_DESC("start event push successfully")
+                     << LOG_KV("sendMsgTimeout", m_config->sendMsgTimeout())
+                     << LOG_KV("reconnectPeriod", m_config->reconnectPeriod());
 }
 
 void EventPush::stop()
@@ -81,10 +81,15 @@ void EventPush::stop()
 
 void EventPush::doLoop()
 {
+    if (m_interruptTasksCount.load() == 0)
+    {
+        return;
+    }
+
     auto ss = m_wsService->sessions();
     if (ss.empty())
     {
-        EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC(" no active sessions available");
+        EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("no active sessions available");
         return;
     }
 
@@ -117,6 +122,12 @@ void EventPush::doLoop()
 void EventPush::addTask(const std::string& _id, EventPushTask::Ptr _task)
 {
     std::unique_lock lock(x_tasks);
+    auto it = m_interruptTasks.find(_id);
+    if (it != m_interruptTasks.end())
+    {
+        m_interruptTasksCount--;
+        m_interruptTasks.erase(it);
+    }
     m_tasks[_id] = _task;
 }
 
@@ -130,17 +141,22 @@ EventPushTask::Ptr EventPush::getTask(const std::string& _id)
     {
         task = it->second;
 
-        EVENT_PUSH(TRACE) << LOG_BADGE("getTask") << LOG_DESC("event push task online")
+        EVENT_PUSH(TRACE) << LOG_BADGE("getTask") << LOG_DESC("event push task is working")
                           << LOG_KV("id", task->id());
     }
     else
     {
         auto innerIt = m_interruptTasks.find(_id);
-        if (innerIt == m_interruptTasks.end())
+        if (innerIt != m_interruptTasks.end())
         {
             task = it->second;
 
             EVENT_PUSH(TRACE) << LOG_BADGE("getTask") << LOG_DESC("event push task suspend")
+                              << LOG_KV("id", task->id());
+        }
+        else
+        {
+            EVENT_PUSH(DEBUG) << LOG_BADGE("getTask") << LOG_DESC("cannot found event push task")
                               << LOG_KV("id", task->id());
         }
     }
@@ -159,16 +175,17 @@ EventPushTask::Ptr EventPush::getTaskAndRemove(const std::string& _id)
         task = it->second;
         m_tasks.erase(it);
 
-        EVENT_PUSH(TRACE) << LOG_BADGE("getTaskAndRemove") << LOG_DESC("event push task online")
+        EVENT_PUSH(TRACE) << LOG_BADGE("getTaskAndRemove") << LOG_DESC("event push task is working")
                           << LOG_KV("id", task->id());
     }
     else
     {
         // remove from m_interruptTasks
         auto innerIt = m_interruptTasks.find(_id);
-        if (innerIt == m_interruptTasks.end())
+        if (innerIt != m_interruptTasks.end())
         {
             task = it->second;
+            m_interruptTasksCount--;
             m_interruptTasks.erase(it);
 
             EVENT_PUSH(TRACE) << LOG_BADGE("getTaskAndRemove")
@@ -192,17 +209,29 @@ void EventPush::interruptTasks(std::shared_ptr<ws::WsSession> _session)
     {
         auto task = it->second;
         auto s = task->session();
+        if (!s)
+        {
+            EVENT_PUSH(ERROR) << LOG_BADGE("interruptTasks")
+                              << LOG_DESC("something is wrong for session is nullptr")
+                              << LOG_KV("id", task->id());
+            ++it;
+            continue;
+        }
+
         if (s.get() != _session.get())
         {
             ++it;
             continue;
         }
 
-        EVENT_PUSH(INFO) << LOG_BADGE("interruptTasks") << LOG_DESC("event push suspend")
+        // TODO : try to send the task again immediately is better ???
+        EVENT_PUSH(INFO) << LOG_BADGE("interruptTasks")
+                         << LOG_DESC("suspend event push task for network disconnect")
                          << LOG_KV("id", task->id());
 
         it = m_tasks.erase(it);
         task->setSession(nullptr);
+        m_interruptTasksCount++;
         m_interruptTasks[task->id()] = task;
     }
 }
@@ -210,13 +239,12 @@ void EventPush::interruptTasks(std::shared_ptr<ws::WsSession> _session)
 void EventPush::onRecvEventPushMessage(
     std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
 {
-    boost::ignore_unused(_session);
-
     /*
     {
-        "id": ""
-        "result": 0
-        "event": [
+        "id": "",
+        "result": 0,
+        "blockNumber": 111,
+        "events": [
             {},
             {},
             {}
@@ -247,7 +275,6 @@ void EventPush::onRecvEventPushMessage(
     if (resp->result() == StatusCode::EndOfPush)
     {  // event push end
         getTaskAndRemove(resp->id());
-        // normal event push
         task->callback()(nullptr, strResp);
 
         EVENT_PUSH(INFO) << LOG_BADGE("onRecvEventPushMessage") << LOG_DESC("end of push")
@@ -266,7 +293,7 @@ void EventPush::onRecvEventPushMessage(
     }
     else
     {
-        // normal event push
+        // event push
         task->callback()(nullptr, strResp);
 
         EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventPushMessage") << LOG_DESC("event push")
@@ -283,14 +310,14 @@ void EventPush::subscribeEvent(
 
     _params->setGroup(_group);
 
-    auto id = m_factory->newSeq();
+    auto id = m_messagefactory->newSeq();
     request->setId(id);
     request->setParams(_params);
-    request->setState(state);
     request->setGroup(_group);
+    request->setState(state);
     auto jsonReq = request->generateJson();
 
-    auto message = m_factory->buildMessage();
+    auto message = m_messagefactory->buildMessage();
     message->setType(ws::WsMessageType::EVENT_SUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(jsonReq.begin(), jsonReq.end()));
 
@@ -298,7 +325,7 @@ void EventPush::subscribeEvent(
                      << LOG_KV("id", id) << LOG_KV("group", _group) << LOG_KV("request", jsonReq);
 
     auto self = std::weak_ptr<EventPush>(shared_from_this());
-    m_wsService->asyncSendMessage(message, ws::Options(-1),
+    m_wsService->asyncSendMessage(message, ws::Options(m_config->sendMsgTimeout()),
         [id, _params, _callback, self](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
             std::shared_ptr<ws::WsSession> _session) {
             auto ep = self.lock();
@@ -336,7 +363,7 @@ void EventPush::subscribeEvent(
             }
             else
             {
-                // subscribe successfully
+                // subscribe event successfully
                 auto task = std::make_shared<EventPushTask>();
                 task->setId(id);
                 task->setParams(_params);
@@ -374,7 +401,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
         return;
     }
 
-    auto message = m_factory->buildMessage();
+    auto message = m_messagefactory->buildMessage();
     message->setType(ws::WsMessageType::EVENT_UNSUBSCRIBE);
 
     auto request = std::make_shared<EventPushRequest>();
@@ -382,9 +409,9 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     request->setGroup(task->params()->group());
 
     auto strReq = request->generateJson();
-
     message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
-    session->asyncSendMessage(message, ws::Options(-1),
+
+    session->asyncSendMessage(message, ws::Options(m_config->sendMsgTimeout()),
         [_id, _callback](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
             std::shared_ptr<ws::WsSession>) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
@@ -412,7 +439,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
             else if (resp->result() != StatusCode::Success)
             {
                 EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent")
-                                  << LOG_DESC("callback response failed") << LOG_KV("id", _id)
+                                  << LOG_DESC("callback response error") << LOG_KV("id", _id)
                                   << LOG_KV("result", resp->result())
                                   << LOG_KV("response", strResp);
 

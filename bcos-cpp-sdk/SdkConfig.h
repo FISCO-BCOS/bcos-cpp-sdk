@@ -42,11 +42,17 @@ using EndPointsConstPtr = std::shared_ptr<const std::vector<EndPoint>>;
 // cppsdk configuration items
 class SdkConfig
 {
+public:
+    using Ptr = std::shared_ptr<SdkConfig>;
+    using ConstPtr = std::shared_ptr<const SdkConfig>;
+
 private:
     // list of connected server nodes
-    EndPointsConstPtr m_peers;
+    EndPointsConstPtr m_connectedPeers;
     // time interval for reconnection
     uint32_t m_reconnectPeriod{10000};
+    // time out for send message
+    int32_t m_sendMsgTimeout{-1};
     // thread pool size
     uint32_t m_threadPoolSize{4};
 
@@ -54,11 +60,17 @@ public:
     uint32_t reconnectPeriod() const { return m_reconnectPeriod; }
     void setReconnectPeriod(uint32_t _reconnectPeriod) { m_reconnectPeriod = _reconnectPeriod; }
 
+    int32_t sendMsgTimeout() const { return m_sendMsgTimeout; }
+    void setSendMsgTimeout(int32_t _sendMsgTimeout) { m_sendMsgTimeout = _sendMsgTimeout; }
+
     uint32_t threadPoolSize() const { return m_threadPoolSize; }
     void setThreadPoolSize(uint32_t _threadPoolSize) { m_threadPoolSize = _threadPoolSize; }
 
-    EndPointsConstPtr peers() { return m_peers; }
-    void setPeers(EndPointsConstPtr _peers) { m_peers = _peers; }
+    EndPointsConstPtr connectedPeers() { return m_connectedPeers; }
+    void setConnectedPeers(EndPointsConstPtr _connectedPeers)
+    {
+        m_connectedPeers = _connectedPeers;
+    }
 
 public:
     // void initConfig(const std::string& _configPath);
