@@ -237,7 +237,7 @@ bool EventPushSubRequest::fromJson(const std::string& _request)
 
                 for (Json::Value::ArrayIndex index = 0; index < jTopics.size(); ++index)
                 {
-                    auto& jIndex = jParams[index];
+                    auto& jIndex = jTopics[index];
                     if (jIndex.isNull())
                     {
                         continue;
