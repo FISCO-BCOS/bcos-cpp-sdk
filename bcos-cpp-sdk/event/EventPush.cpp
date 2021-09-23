@@ -265,16 +265,15 @@ void EventPush::onRecvEventPushMessage(
     }
 
     EVENT_PUSH(DEBUG) << LOG_BADGE("onRecvEventPushMessage")
-                      << LOG_DESC("receive event push message")
-                      << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", resp->id())
-                      << LOG_KV("response", strResp);
+                      << LOG_DESC("receive event push message") << LOG_KV("id", resp->id())
+                      << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("response", strResp);
 
     auto task = getTask(resp->id());
     if (task == nullptr)
     {
         EVENT_PUSH(ERROR) << LOG_BADGE("onRecvEventPushMessage")
-                          << LOG_DESC("event push task not exist")
-                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
+                          << LOG_DESC("event push task not exist") << LOG_KV("id", task->id())
+                          << LOG_KV("endpoint", _session->endPoint())
                           << LOG_KV("response", strResp);
         return;
     }
@@ -310,7 +309,6 @@ void EventPush::onRecvEventPushMessage(
             task->state()->setCurrentBlockNumber(blockNumber);
         }
 
-        // event push
         task->callback()(nullptr, resp->id(), strResp);
 
         EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventPushMessage") << LOG_DESC("event push")
@@ -336,7 +334,7 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
     message->setType(ws::WsMessageType::EVENT_SUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(jsonReq.begin(), jsonReq.end()));
 
-    EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask") << LOG_DESC("subscribe event push")
+    EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask") << LOG_DESC("subscribe event")
                      << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
     auto self = std::weak_ptr<EventPush>(shared_from_this());
@@ -356,7 +354,7 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
 
-                _callback(_error, id, "subscribe event failed");
+                _callback(_error, id, "");
                 return;
             }
 
@@ -378,7 +376,7 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
             }
             else
             {
-                // subscribe event successfully
+                // subscribe event successfully, set network session for unsubscribe opr
                 _task->setSession(_session);
 
                 ep->addTask(id, _task);
@@ -411,7 +409,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     {
         // TODO: error code define
         auto error = std::make_shared<Error>(-1, "event push task not found");
-        _callback(error, _id, "event push task not found");
+        _callback(error, _id, "");
         EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event push task not found")
                           << LOG_KV("id", _id);
         return;
@@ -420,7 +418,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     auto session = task->session();
     if (!session)
     {
-        _callback(nullptr, _id, "unsubscribe event successfully(task is suspend)");
+        _callback(nullptr, _id, "");
         EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("task is suspend")
                          << LOG_KV("id", _id);
         return;
