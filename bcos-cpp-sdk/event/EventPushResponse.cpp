@@ -29,8 +29,12 @@ std::string EventPushResponse::generateJson()
 {
     /*
         {
-        "id": "",
-        "status": 0
+        "id": "0x123",
+        "status": 0,
+        "result": {
+            "blockNumber": 111,
+            "events":[]
+        }
         }
     */
     Json::Value jResult;
