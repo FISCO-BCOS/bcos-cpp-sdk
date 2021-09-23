@@ -105,15 +105,16 @@ void EventPush::doLoop()
         m_waitRespTasks.insert(id);
 
         auto self = std::weak_ptr<EventPush>(shared_from_this());
-        subscribeEvent(task, [id, self](bcos::Error::Ptr, const std::string&, const std::string&) {
-            auto ep = self.lock();
-            if (!ep)
-            {
-                return;
-            }
+        subscribeEventByTask(
+            task, [id, self](bcos::Error::Ptr, const std::string&, const std::string&) {
+                auto ep = self.lock();
+                if (!ep)
+                {
+                    return;
+                }
 
-            ep->removeWaitResp(id);
-        });
+                ep->removeWaitResp(id);
+            });
     }
 }
 
@@ -318,23 +319,24 @@ void EventPush::onRecvEventPushMessage(
     }
 }
 
-void EventPush::subscribeEvent(EventPushTask::Ptr _task, Callback _callback)
+void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callback)
 {
-    auto request = std::make_shared<EventPushSubRequest>();
-
     auto id = _task->id();
     auto group = _task->group();
+
+    auto request = std::make_shared<EventPushSubRequest>();
     request->setId(id);
     request->setParams(_task->params());
     request->setGroup(_task->group());
     request->setState(_task->state());
+
     auto jsonReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
     message->setType(ws::WsMessageType::EVENT_SUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(jsonReq.begin(), jsonReq.end()));
 
-    EVENT_PUSH(INFO) << LOG_BADGE("subscribeEvent") << LOG_DESC("subscribe event push")
+    EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask") << LOG_DESC("subscribe event push")
                      << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
     auto self = std::weak_ptr<EventPush>(shared_from_this());
@@ -349,7 +351,7 @@ void EventPush::subscribeEvent(EventPushTask::Ptr _task, Callback _callback)
 
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
             {
-                EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEvent")
+                EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEventByTask")
                                   << LOG_DESC("callback response error") << LOG_KV("id", id)
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
@@ -362,7 +364,7 @@ void EventPush::subscribeEvent(EventPushTask::Ptr _task, Callback _callback)
             auto resp = std::make_shared<EventPushResponse>();
             if (!resp->fromJson(strResp))
             {
-                EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEvent")
+                EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEventByTask")
                                   << LOG_DESC("invalid subscribe event response")
                                   << LOG_KV("id", id) << LOG_KV("response", strResp);
                 _callback(nullptr, id, strResp);
@@ -370,7 +372,7 @@ void EventPush::subscribeEvent(EventPushTask::Ptr _task, Callback _callback)
             else if (resp->status() != StatusCode::Success)
             {
                 _callback(nullptr, id, strResp);
-                EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEvent")
+                EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEventByTask")
                                   << LOG_DESC("callback response error") << LOG_KV("id", id)
                                   << LOG_KV("response", strResp);
             }
@@ -382,7 +384,7 @@ void EventPush::subscribeEvent(EventPushTask::Ptr _task, Callback _callback)
                 ep->addTask(id, _task);
 
                 _callback(nullptr, id, strResp);
-                EVENT_PUSH(INFO) << LOG_BADGE("subscribeEvent")
+                EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask")
                                  << LOG_DESC("callback response success") << LOG_KV("id", id)
                                  << LOG_KV("response", strResp);
             }
@@ -399,7 +401,7 @@ void EventPush::subscribeEvent(
     task->setCallback(_callback);
     task->setState(std::make_shared<EventPushTaskState>());
 
-    return subscribeEvent(task, _callback);
+    return subscribeEventByTask(task, _callback);
 }
 
 void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)

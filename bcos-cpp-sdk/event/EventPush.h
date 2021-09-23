@@ -52,7 +52,7 @@ public:
     void doLoop();
 
 public:
-    void subscribeEvent(EventPushTask::Ptr _task, Callback _callback);
+    void subscribeEventByTask(EventPushTask::Ptr _task, Callback _callback);
     void onRecvEventPushMessage(
         std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
 
