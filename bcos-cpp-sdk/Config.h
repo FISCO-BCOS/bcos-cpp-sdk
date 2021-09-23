@@ -40,11 +40,11 @@ using EndPointsPtr = std::shared_ptr<std::vector<EndPoint>>;
 using EndPointsConstPtr = std::shared_ptr<const std::vector<EndPoint>>;
 
 // cppsdk configuration items
-class SdkConfig
+class Config
 {
 public:
-    using Ptr = std::shared_ptr<SdkConfig>;
-    using ConstPtr = std::shared_ptr<const SdkConfig>;
+    using Ptr = std::shared_ptr<Config>;
+    using ConstPtr = std::shared_ptr<const Config>;
 
 private:
     // list of connected server nodes

@@ -58,8 +58,8 @@ class EventPushTask
 {
 public:
     using Ptr = std::shared_ptr<EventPushTask>;
-    EventPushTask() { EVENT_PUSH_TASK(DEBUG) << LOG_KV("[NEWOBJ][EventPushTask]", this); }
-    ~EventPushTask() { EVENT_PUSH_TASK(DEBUG) << LOG_KV("[DELOBJ][EventPushTask]", this); }
+    EventPushTask() { EVENT_TASK(DEBUG) << LOG_KV("[NEWOBJ][EventPushTask]", this); }
+    ~EventPushTask() { EVENT_TASK(DEBUG) << LOG_KV("[DELOBJ][EventPushTask]", this); }
 
 public:
     void setSession(std::shared_ptr<ws::WsSession> _session) { m_session = _session; }

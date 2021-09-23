@@ -33,6 +33,7 @@ class EventPushParams
 {
 public:
     using Ptr = std::shared_ptr<EventPushParams>;
+    using ConstPtr = std::shared_ptr<const EventPushParams>;
 
 public:
     int64_t fromBlock() const { return m_fromBlock; }

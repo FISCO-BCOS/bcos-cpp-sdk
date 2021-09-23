@@ -19,7 +19,7 @@
  */
 
 #include "bcos-cpp-sdk/ws/WsMessageType.h"
-#include <bcos-cpp-sdk/SdkConfig.h>
+#include <bcos-cpp-sdk/Config.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ") << LOG_KV("ip", host)
                    << LOG_KV("port", port) << LOG_KV("topic", topic);
 
-    auto config = std::make_shared<bcos::cppsdk::SdkConfig>();
+    auto config = std::make_shared<bcos::cppsdk::Config>();
 
     bcos::cppsdk::EndPoint endpoint;
     endpoint.host = host;

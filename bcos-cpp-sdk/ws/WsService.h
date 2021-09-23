@@ -19,7 +19,7 @@
  */
 #pragma once
 
-#include <bcos-cpp-sdk/SdkConfig.h>
+#include <bcos-cpp-sdk/Config.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/WsConnector.h>
 #include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
@@ -116,8 +116,8 @@ public:
     std::shared_ptr<WsConnector> connector() const { return m_connector; }
     void setConnector(std::shared_ptr<WsConnector> _connector) { m_connector = _connector; }
 
-    std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
-    void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
+    std::shared_ptr<bcos::cppsdk::Config> config() const { return m_config; }
+    void setConfig(std::shared_ptr<bcos::cppsdk::Config> _config) { m_config = _config; }
 
     bool registerMsgHandler(uint32_t _msgType, MsgHandler _msgHandler);
     void listMsgHandler();
@@ -140,7 +140,7 @@ private:
     std::shared_ptr<bcos::ThreadPool> m_threadPool;
 
     // sdk config
-    std::shared_ptr<bcos::cppsdk::SdkConfig> m_config;
+    std::shared_ptr<bcos::cppsdk::Config> m_config;
     // ws connector
     std::shared_ptr<WsConnector> m_connector;
     // io context

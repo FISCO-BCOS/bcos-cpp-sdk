@@ -19,7 +19,7 @@
  */
 
 #pragma once
-#include <bcos-cpp-sdk/SdkConfig.h>
+#include <bcos-cpp-sdk/Config.h>
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/event/EventPushTask.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
@@ -80,8 +80,8 @@ public:
     }
     std::shared_ptr<ws::WsMessageFactory> messageFactory() const { return m_messagefactory; }
 
-    SdkConfig::ConstPtr config() const { return m_config; }
-    void setConfig(SdkConfig::ConstPtr _config) { m_config = _config; }
+    Config::ConstPtr config() const { return m_config; }
+    void setConfig(Config::ConstPtr _config) { m_config = _config; }
 
     uint32_t suspendTasksCount() const { return m_suspendTasksCount.load(); }
     const std::unordered_map<std::string, EventPushTask::Ptr>& suspendTasks() const
@@ -109,7 +109,7 @@ private:
     // websocket service
     ws::WsService::Ptr m_wsService;
     //
-    SdkConfig::ConstPtr m_config;
+    Config::ConstPtr m_config;
 };
 }  // namespace event
 }  // namespace cppsdk
