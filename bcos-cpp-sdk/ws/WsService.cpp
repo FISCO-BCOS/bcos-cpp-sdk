@@ -90,12 +90,19 @@ void WsService::reconnect()
         uint16_t port = peer.port;
         auto self = std::weak_ptr<WsService>(shared_from_this());
         m_connector->connectToWsServer(host, port,
-            [self, connectedEndPoint](
+            [self, connectedEndPoint](boost::beast::error_code _ec,
                 std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>
                     _stream) {
                 auto service = self.lock();
                 if (!service)
                 {
+                    return;
+                }
+
+                if (_ec)
+                {
+                    // WEBSOCKET_CONNECTOR(ERROR)
+                    //     << LOG_BADGE("connectToWsServer") << LOG_KV("error", _ec.message());
                     return;
                 }
 

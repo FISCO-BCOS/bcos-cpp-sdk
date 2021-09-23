@@ -44,7 +44,7 @@ public:
      * @return void:
      */
     void connectToWsServer(const std::string& _host, uint16_t _port,
-        std::function<void(
+        std::function<void(boost::beast::error_code _ec,
             std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
             _callback);
 

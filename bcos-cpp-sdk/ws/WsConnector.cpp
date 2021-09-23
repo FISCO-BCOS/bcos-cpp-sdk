@@ -34,7 +34,8 @@ using namespace bcos::ws;
  * @return void:
  */
 void WsConnector::connectToWsServer(const std::string& _host, uint16_t _port,
-    std::function<void(std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
+    std::function<void(boost::beast::error_code _ec,
+        std::shared_ptr<boost::beast::websocket::stream<boost::beast::tcp_stream>>)>
         _callback)
 {
     auto ioc = m_ioc;
@@ -48,6 +49,7 @@ void WsConnector::connectToWsServer(const std::string& _host, uint16_t _port,
                     << LOG_BADGE("connectToWsServer") << LOG_DESC("async_resolve")
                     << LOG_KV("error", _ec) << LOG_KV("errorMessage", _ec.message())
                     << LOG_KV("host", _host);
+                _callback(_ec, nullptr);
                 return;
             }
 
@@ -69,6 +71,7 @@ void WsConnector::connectToWsServer(const std::string& _host, uint16_t _port,
                             << LOG_BADGE("connectToWsServer") << LOG_DESC("async_connect")
                             << LOG_KV("error", _ec.message()) << LOG_KV("host", _host)
                             << LOG_KV("port", _port);
+                        _callback(_ec, nullptr);
                         return;
                     }
 
@@ -102,6 +105,7 @@ void WsConnector::connectToWsServer(const std::string& _host, uint16_t _port,
                                     << LOG_BADGE("connectToWsServer") << LOG_DESC("async_handshake")
                                     << LOG_KV("error", _ec.message()) << LOG_KV("host", _host)
                                     << LOG_KV("port", _port);
+                                _callback(_ec, nullptr);
                                 return;
                             }
 
@@ -109,7 +113,7 @@ void WsConnector::connectToWsServer(const std::string& _host, uint16_t _port,
                                 << LOG_BADGE("connectToWsServer")
                                 << LOG_DESC("websocket handshake successfully")
                                 << LOG_KV("host", _host) << LOG_KV("port", _port);
-                            _callback(stream);
+                            _callback(_ec, stream);
                         });
                 });
         });
