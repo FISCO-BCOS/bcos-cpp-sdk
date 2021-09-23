@@ -21,8 +21,7 @@
 #pragma once
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
-#include <string>
-#include <vector>
+#include <set>
 
 namespace bcos
 {
@@ -40,8 +39,8 @@ public:
     int64_t toBlock() const { return m_toBlock; }
     const std::set<std::string>& addresses() const { return m_addresses; }
     std::set<std::string>& addresses() { return m_addresses; }
-    const std::vector<std::vector<std::string>>& topics() const { return m_topics; }
-    std::vector<std::vector<std::string>>& topics() { return m_topics; }
+    const std::vector<std::set<std::string>>& topics() const { return m_topics; }
+    std::vector<std::set<std::string>>& topics() { return m_topics; }
 
     void setFromBlock(int64_t _fromBlock) { m_fromBlock = _fromBlock; }
     void setToBlock(int64_t _toBlock) { m_toBlock = _toBlock; }
@@ -54,7 +53,7 @@ public:
         }
 
         m_topics.resize(_index + 1);
-        m_topics[_index].push_back(_topic);
+        m_topics[_index].insert(_topic);
         return true;
     }
 
@@ -62,7 +61,7 @@ private:
     bcos::protocol::BlockNumber m_fromBlock = -1;
     bcos::protocol::BlockNumber m_toBlock = -1;
     std::set<std::string> m_addresses;
-    std::vector<std::vector<std::string>> m_topics;
+    std::vector<std::set<std::string>> m_topics;
 };
 
 }  // namespace event
