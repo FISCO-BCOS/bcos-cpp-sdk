@@ -20,6 +20,7 @@
 #pragma once
 #include <bcos-cpp-sdk/Config.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
+#include <bcos-cpp-sdk/event/EventPush.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/WsService.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
@@ -38,7 +39,7 @@ public:
     bcos::ws::WsService::Ptr buildWsService();
     bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(bcos::ws::WsService::Ptr _wsService);
     bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::ws::WsService::Ptr _wsService);
-    // bcos::cppsdk::event::EventPush buildEventPush(bcos::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::event::EventPush::Ptr buildEventPush(bcos::ws::WsService::Ptr _wsService);
 
 public:
     std::shared_ptr<bcos::cppsdk::Config> config() const { return m_config; }

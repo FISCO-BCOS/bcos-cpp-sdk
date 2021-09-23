@@ -47,6 +47,8 @@ void WsService::start()
     }
     m_running = true;
     reconnect();
+
+    // TODO: block until connect to server successfully(at least one)
     WEBSOCKET_SERVICE(INFO) << LOG_BADGE("start")
                             << LOG_DESC("start websocket service successfully");
 }

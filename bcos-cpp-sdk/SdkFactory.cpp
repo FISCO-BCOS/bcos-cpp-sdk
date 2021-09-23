@@ -133,3 +133,26 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::Ptr _ws
     amop->setService(wsServicePtr);
     return amop;
 }
+
+bcos::cppsdk::event::EventPush::Ptr SdkFactory::buildEventPush(bcos::ws::WsService::Ptr _wsService)
+{
+    auto ep = std::make_shared<event::EventPush>();
+    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
+
+    ep->setMessageFactory(messageFactory);
+    ep->setWsService(_wsService);
+    ep->setConfig(_wsService->config());
+    ep->setIoc(_wsService->ioc());
+
+    auto self = std::weak_ptr<event::EventPush>(ep);
+    _wsService->registerMsgHandler(WsMessageType::EVENT_LOG_PUSH,
+        [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto ep = self.lock();
+            if (ep)
+            {
+                ep->onRecvEventPushMessage(_msg, _session);
+            }
+        });
+
+    return ep;
+}
