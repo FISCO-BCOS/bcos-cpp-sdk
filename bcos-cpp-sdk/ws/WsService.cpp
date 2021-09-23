@@ -113,7 +113,7 @@ void WsService::reconnect()
             });
     }
 
-    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("heartbeat") << LOG_DESC("connected server")
+    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("reconnect") << LOG_DESC("connected ")
                             << LOG_KV("count", ss.size());
 
     m_reconnect = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
@@ -138,30 +138,6 @@ bool WsService::registerMsgHandler(uint32_t _msgType, MsgHandler _msgHandler)
         return true;
     }
     return false;
-}
-
-void WsService::listMsgHandler()
-{
-    // TODO: add register message handler for block notify
-    /*
-    m_msgType2Method.clear();
-    auto self = std::weak_ptr<WsService>(shared_from_this());
-    m_msgType2Method[WsMessageType::BLOCK_NOTIFY] = [self](std::shared_ptr<WsMessage> _msg,
-                                                        std::shared_ptr<WsSession> _session) {
-        auto service = self.lock();
-        if (service)
-        {
-            service->onRecvBlkNotify(_msg, _session);
-        }
-    };
-    */
-
-    WEBSOCKET_SERVICE(INFO) << LOG_BADGE("listMsgHandler")
-                            << LOG_KV("msg handler size", m_msgType2Method.size());
-    for (const auto& method : m_msgType2Method)
-    {
-        WEBSOCKET_SERVICE(INFO) << LOG_BADGE("listMsgHandler") << LOG_KV("type", method.first);
-    }
 }
 
 std::shared_ptr<WsSession> WsService::newSession(

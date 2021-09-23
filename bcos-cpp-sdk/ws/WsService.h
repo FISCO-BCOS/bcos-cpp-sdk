@@ -120,7 +120,6 @@ public:
     void setConfig(std::shared_ptr<bcos::cppsdk::Config> _config) { m_config = _config; }
 
     bool registerMsgHandler(uint32_t _msgType, MsgHandler _msgHandler);
-    void listMsgHandler();
 
     void registerConnectHandler(ConnectHandler _connectHandler)
     {

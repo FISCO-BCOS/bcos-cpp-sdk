@@ -88,7 +88,7 @@ void EventPush::doLoop()
     auto ss = m_wsService->sessions();
     if (ss.empty())
     {
-        EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("no active sessions available");
+        // EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("no active sessions available");
         return;
     }
 

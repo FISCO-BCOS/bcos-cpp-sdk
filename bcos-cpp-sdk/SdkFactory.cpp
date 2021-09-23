@@ -24,16 +24,12 @@
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/WsConnector.h>
 #include <bcos-cpp-sdk/ws/WsMessage.h>
-#include <memory>
 
 using namespace bcos;
 using namespace bcos::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
 using namespace bcos::cppsdk::jsonrpc;
-
-#define AMOP_MODULE (1000)
-#define EVENTPUSH_MODULE (1001)
 
 bcos::ws::WsService::Ptr SdkFactory::buildWsService()
 {
@@ -49,7 +45,6 @@ bcos::ws::WsService::Ptr SdkFactory::buildWsService()
     wsService->setIoc(ioc);
     wsService->setConnector(connector);
     wsService->setMessageFactory(messageFactory);
-    // wsService->listMsgHandler();
     return wsService;
 }
 
@@ -60,6 +55,16 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
     auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
+
+    // TODO: how to handler block notify message
+    _wsService->registerMsgHandler(WsMessageType::BLOCK_NOTIFY,
+        [wsServicePtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto blkMsg = std::string(_msg->data()->begin(), _msg->data()->end());
+
+            BCOS_LOG(INFO) << "[WS]" << LOG_DESC("receive block notify")
+                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("blk", blkMsg);
+        });
+
     jsonRpc->setSender(
         [wsServicePtr](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
             auto wsService = wsServicePtr.lock();
@@ -76,7 +81,7 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
             wsService->asyncSendMessage(msg, bcos::ws::Options(-1),
                 [_respFunc](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
                     std::shared_ptr<bcos::ws::WsSession> _session) {
-                    boost::ignore_unused(_session);
+                    (void)_session;
                     _respFunc(_error, _msg ? _msg->data() : nullptr);
                 });
         });

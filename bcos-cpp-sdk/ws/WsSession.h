@@ -91,7 +91,7 @@ public:
         RespCallBack _respCallback = RespCallBack());
 
 public:
-    bool isConnected() { return !m_isDrop && m_wsStream.next_layer().socket().is_open(); }
+    virtual bool isConnected() { return !m_isDrop && m_wsStream.next_layer().socket().is_open(); }
 
     std::string endPoint() const { return m_endPoint; }
     void setEndPoint(const std::string& _endPoint) { m_endPoint = _endPoint; }
