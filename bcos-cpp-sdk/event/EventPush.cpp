@@ -131,7 +131,7 @@ void EventPush::addTask(const std::string& _id, EventPushTask::Ptr _task)
     m_workingTasks[_id] = _task;
 }
 
-EventPushTask::Ptr EventPush::getTask(const std::string& _id)
+EventPushTask::Ptr EventPush::getTask(const std::string& _id, bool includeSuspendTask)
 {
     EventPushTask::Ptr task = nullptr;
 
@@ -144,7 +144,7 @@ EventPushTask::Ptr EventPush::getTask(const std::string& _id)
         EVENT_PUSH(TRACE) << LOG_BADGE("getTask") << LOG_DESC("event push task is working")
                           << LOG_KV("id", task->id());
     }
-    else
+    else if (includeSuspendTask)
     {
         auto innerIt = m_suspendTasks.find(_id);
         if (innerIt != m_suspendTasks.end())
@@ -164,7 +164,7 @@ EventPushTask::Ptr EventPush::getTask(const std::string& _id)
     return task;
 }
 
-EventPushTask::Ptr EventPush::getTaskAndRemove(const std::string& _id)
+EventPushTask::Ptr EventPush::getTaskAndRemove(const std::string& _id, bool includeSuspendTask)
 {
     EventPushTask::Ptr task = nullptr;
 
@@ -178,7 +178,7 @@ EventPushTask::Ptr EventPush::getTaskAndRemove(const std::string& _id)
         EVENT_PUSH(TRACE) << LOG_BADGE("getTaskAndRemove") << LOG_DESC("event push task is working")
                           << LOG_KV("id", task->id());
     }
-    else
+    else if (includeSuspendTask)
     {
         // remove from m_suspendTasks
         auto innerIt = m_suspendTasks.find(_id);
@@ -196,14 +196,15 @@ EventPushTask::Ptr EventPush::getTaskAndRemove(const std::string& _id)
     return task;
 }
 
-void EventPush::removeWaitResp(const std::string& _id)
+bool EventPush::removeWaitResp(const std::string& _id)
 {
     std::unique_lock lock(x_tasks);
-    m_waitRespTasks.erase(_id);
+    return 0 != m_waitRespTasks.erase(_id);
 }
 
-void EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
+std::size_t EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
 {
+    std::size_t retCount = 0;
     std::unique_lock lock(x_tasks);
     for (auto it = m_workingTasks.begin(); it != m_workingTasks.end();)
     {
@@ -233,7 +234,10 @@ void EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
         task->setSession(nullptr);
         m_suspendTasksCount++;
         m_suspendTasks[task->id()] = task;
+        retCount++;
     }
+
+    return retCount;
 }
 
 void EventPush::onRecvEventPushMessage(
@@ -390,7 +394,7 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
 }
 
 void EventPush::subscribeEvent(
-    const std::string& _group, EventPushParams::Ptr _params, Callback _callback)
+    const std::string& _group, EventPushParams::ConstPtr _params, Callback _callback)
 {
     auto task = std::make_shared<EventPushTask>();
     task->setId(m_messagefactory->newSeq());

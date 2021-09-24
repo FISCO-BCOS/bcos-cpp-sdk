@@ -42,6 +42,7 @@ class EventPushTaskState
 {
 public:
     using Ptr = std::shared_ptr<EventPushTaskState>;
+    using ConstPtr = std::shared_ptr<const EventPushTaskState>;
 
 public:
     int64_t currentBlockNumber() const { return m_currentBlockNumber.load(); }
@@ -71,8 +72,8 @@ public:
     void setGroup(const std::string& _group) { m_group = _group; }
     std::string group() const { return m_group; }
 
-    void setParams(std::shared_ptr<EventPushParams> _params) { m_params = _params; }
-    std::shared_ptr<EventPushParams> params() const { return m_params; }
+    void setParams(std::shared_ptr<const EventPushParams> _params) { m_params = _params; }
+    std::shared_ptr<const EventPushParams> params() const { return m_params; }
 
     void setState(std::shared_ptr<EventPushTaskState> _state) { m_state = _state; }
     std::shared_ptr<EventPushTaskState> state() const { return m_state; }
@@ -85,7 +86,7 @@ private:
     std::string m_group;
     Callback m_callback;
     std::shared_ptr<ws::WsSession> m_session;
-    std::shared_ptr<EventPushParams> m_params;
+    std::shared_ptr<const EventPushParams> m_params;
     std::shared_ptr<EventPushTaskState> m_state;
 };
 

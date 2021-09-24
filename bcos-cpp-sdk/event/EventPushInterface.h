@@ -44,7 +44,7 @@ public:
 
 public:
     virtual void subscribeEvent(
-        const std::string& _group, EventPushParams::Ptr _params, Callback _callback) = 0;
+        const std::string& _group, EventPushParams::ConstPtr _params, Callback _callback) = 0;
     virtual void unsubscribeEvent(const std::string& _id, Callback _callback) = 0;
 };
 }  // namespace event

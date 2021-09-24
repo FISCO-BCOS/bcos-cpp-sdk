@@ -45,7 +45,7 @@ public:
     virtual void stop() override;
 
     virtual void subscribeEvent(
-        const std::string& _group, EventPushParams::Ptr _params, Callback _callback) override;
+        const std::string& _group, EventPushParams::ConstPtr _params, Callback _callback) override;
     virtual void unsubscribeEvent(const std::string& _id, Callback _callback) override;
 
 public:
@@ -57,13 +57,12 @@ public:
         std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
 
 public:
-    void addTask(const std::string& _id);
     void addTask(const std::string& _id, EventPushTask::Ptr _task);
-    EventPushTask::Ptr getTask(const std::string& _id);
-    EventPushTask::Ptr getTaskAndRemove(const std::string& _id);
-    void removeWaitResp(const std::string& _id);
+    EventPushTask::Ptr getTask(const std::string& _id, bool includeSuspendTask = true);
+    EventPushTask::Ptr getTaskAndRemove(const std::string& _id, bool includeSuspendTask = true);
+    bool removeWaitResp(const std::string& _id);
 
-    void suspendTasks(std::shared_ptr<ws::WsSession> _session);
+    std::size_t suspendTasks(std::shared_ptr<ws::WsSession> _session);
 
     void setWsService(ws::WsService::Ptr _wsService) { m_wsService = _wsService; }
     ws::WsService::Ptr wsService() const { return m_wsService; }
