@@ -57,7 +57,7 @@ public:
         std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
 
 public:
-    void addTask(const std::string& _id, EventPushTask::Ptr _task);
+    bool addTask(const std::string& _id, EventPushTask::Ptr _task);
     EventPushTask::Ptr getTask(const std::string& _id, bool includeSuspendTask = true);
     EventPushTask::Ptr getTaskAndRemove(const std::string& _id, bool includeSuspendTask = true);
     bool removeWaitResp(const std::string& _id);
@@ -66,9 +66,6 @@ public:
 
     void setWsService(ws::WsService::Ptr _wsService) { m_wsService = _wsService; }
     ws::WsService::Ptr wsService() const { return m_wsService; }
-
-    void setTimer(std::shared_ptr<boost::asio::deadline_timer> _timer) { m_timer = _timer; }
-    std::shared_ptr<boost::asio::deadline_timer> timer() const { return m_timer; }
 
     void setIoc(std::shared_ptr<boost::asio::io_context> _ioc) { m_ioc = _ioc; }
     std::shared_ptr<boost::asio::io_context> ioc() const { return m_ioc; }

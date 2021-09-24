@@ -35,6 +35,12 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
+#define EP_DEFAULT_LOOP_PERIOD (10000)
+#define EP_DEFAULT_SENDMSG_TIMEOUT (30000)
+
+#define EP_LOOP_PERIOD(config) (config ? config->reconnectPeriod() : EP_DEFAULT_LOOP_PERIOD)
+#define EP_SENDMSG_TIMEOUT(config) (config ? config->reconnectPeriod() : EP_DEFAULT_SENDMSG_TIMEOUT)
+
 void EventPush::start()
 {
     if (m_running)
@@ -45,7 +51,7 @@ void EventPush::start()
     m_running = true;
 
     m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
+        boost::posix_time::milliseconds(EP_LOOP_PERIOD(m_config)));
     auto self = std::weak_ptr<EventPush>(shared_from_this());
     m_timer->async_wait([self](const boost::system::error_code&) {
         auto ep = self.lock();
@@ -57,8 +63,8 @@ void EventPush::start()
     });
 
     EVENT_PUSH(INFO) << LOG_BADGE("start") << LOG_DESC("start event push successfully")
-                     << LOG_KV("sendMsgTimeout", m_config->sendMsgTimeout())
-                     << LOG_KV("reconnectPeriod", m_config->reconnectPeriod());
+                     << LOG_KV("sendMsgTimeout", EP_SENDMSG_TIMEOUT(m_config))
+                     << LOG_KV("reconnectPeriod", EP_LOOP_PERIOD(m_config));
 }
 
 void EventPush::stop()
@@ -118,7 +124,7 @@ void EventPush::doLoop()
     }
 }
 
-void EventPush::addTask(const std::string& _id, EventPushTask::Ptr _task)
+bool EventPush::addTask(const std::string& _id, EventPushTask::Ptr _task)
 {
     std::unique_lock lock(x_tasks);
     // remove from suspendTasks
@@ -128,7 +134,14 @@ void EventPush::addTask(const std::string& _id, EventPushTask::Ptr _task)
         m_suspendTasksCount--;
         m_suspendTasks.erase(it);
     }
-    m_workingTasks[_id] = _task;
+
+    if (m_workingTasks.find(_id) == m_workingTasks.end())
+    {
+        m_workingTasks[_id] = _task;
+        return true;
+    }
+
+    return false;
 }
 
 EventPushTask::Ptr EventPush::getTask(const std::string& _id, bool includeSuspendTask)
@@ -142,22 +155,22 @@ EventPushTask::Ptr EventPush::getTask(const std::string& _id, bool includeSuspen
         task = it->second;
 
         EVENT_PUSH(TRACE) << LOG_BADGE("getTask") << LOG_DESC("event push task is working")
-                          << LOG_KV("id", task->id());
+                          << LOG_KV("id", _id);
     }
     else if (includeSuspendTask)
     {
         auto innerIt = m_suspendTasks.find(_id);
         if (innerIt != m_suspendTasks.end())
         {
-            task = it->second;
+            task = innerIt->second;
 
             EVENT_PUSH(TRACE) << LOG_BADGE("getTask") << LOG_DESC("event push task suspend")
-                              << LOG_KV("id", task->id());
+                              << LOG_KV("id", _id);
         }
         else
         {
             EVENT_PUSH(DEBUG) << LOG_BADGE("getTask") << LOG_DESC("cannot found event push task")
-                              << LOG_KV("id", task->id());
+                              << LOG_KV("id", _id);
         }
     }
 
@@ -176,7 +189,7 @@ EventPushTask::Ptr EventPush::getTaskAndRemove(const std::string& _id, bool incl
         m_workingTasks.erase(it);
 
         EVENT_PUSH(TRACE) << LOG_BADGE("getTaskAndRemove") << LOG_DESC("event push task is working")
-                          << LOG_KV("id", task->id());
+                          << LOG_KV("id", _id);
     }
     else if (includeSuspendTask)
     {
@@ -184,12 +197,12 @@ EventPushTask::Ptr EventPush::getTaskAndRemove(const std::string& _id, bool incl
         auto innerIt = m_suspendTasks.find(_id);
         if (innerIt != m_suspendTasks.end())
         {
-            task = it->second;
+            task = innerIt->second;
             m_suspendTasksCount--;
-            m_suspendTasks.erase(it);
+            m_suspendTasks.erase(innerIt);
 
             EVENT_PUSH(TRACE) << LOG_BADGE("getTaskAndRemove")
-                              << LOG_DESC("event push task suspend") << LOG_KV("id", task->id());
+                              << LOG_DESC("event push task suspend") << LOG_KV("id", _id);
         }
     }
 
@@ -225,7 +238,7 @@ std::size_t EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
             continue;
         }
 
-        // TODO : try to send the task again immediately is better ???
+        // TODO : try to resend the task immediately is better ???
         EVENT_PUSH(INFO) << LOG_BADGE("suspendTasks")
                          << LOG_DESC("suspend event push task for network disconnect")
                          << LOG_KV("id", task->id());
@@ -305,7 +318,7 @@ void EventPush::onRecvEventPushMessage(
     {
         int64_t blockNumber = -1;
         // NOTE: update the latest blocknumber of event push for network disconnect continue
-        const auto jResp = resp->jResp();
+        const auto& jResp = resp->jResp();
         if (jResp.isMember("result") && jResp["result"].isMember("blockNumber") &&
             jResp["result"]["blockNumber"].isInt64())
         {
@@ -342,7 +355,7 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
                      << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
     auto self = std::weak_ptr<EventPush>(shared_from_this());
-    m_wsService->asyncSendMessage(message, ws::Options(m_config->sendMsgTimeout()),
+    m_wsService->asyncSendMessage(message, ws::Options(EP_SENDMSG_TIMEOUT(m_config)),
         [id, _task, _callback, self](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
             std::shared_ptr<ws::WsSession> _session) {
             auto ep = self.lock();
@@ -437,7 +450,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     message->setType(ws::WsMessageType::EVENT_UNSUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
 
-    session->asyncSendMessage(message, ws::Options(m_config->sendMsgTimeout()),
+    session->asyncSendMessage(message, ws::Options(EP_SENDMSG_TIMEOUT(m_config)),
         [_id, _callback](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
             std::shared_ptr<ws::WsSession>) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
@@ -451,8 +464,8 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
                 return;
             }
 
-            auto resp = std::make_shared<EventPushResponse>();
             auto strResp = std::string(_msg->data()->begin(), _msg->data()->end());
+            auto resp = std::make_shared<EventPushResponse>();
             if (!resp->fromJson(strResp))
             {
                 EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent")
