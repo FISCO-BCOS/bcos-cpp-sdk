@@ -22,7 +22,6 @@
 #include "libutilities/Common.h"
 #include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <bcos-cpp-sdk/ws/WsSession.h>
-#include <memory>
 
 namespace bcos
 {

@@ -57,10 +57,12 @@ public:
         std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
 
 public:
-    bool addTask(const std::string& _id, EventPushTask::Ptr _task);
+    bool addTask(EventPushTask::Ptr _task);
     EventPushTask::Ptr getTask(const std::string& _id, bool includeSuspendTask = true);
     EventPushTask::Ptr getTaskAndRemove(const std::string& _id, bool includeSuspendTask = true);
     bool removeWaitResp(const std::string& _id);
+    bool addSuspendTask(EventPushTask::Ptr _task);
+    bool removeSuspendTask(const std::string& _id);
 
     std::size_t suspendTasks(std::shared_ptr<ws::WsSession> _session);
 

@@ -124,20 +124,13 @@ void EventPush::doLoop()
     }
 }
 
-bool EventPush::addTask(const std::string& _id, EventPushTask::Ptr _task)
+bool EventPush::addTask(EventPushTask::Ptr _task)
 {
     std::unique_lock lock(x_tasks);
-    // remove from suspendTasks
-    auto it = m_suspendTasks.find(_id);
-    if (it != m_suspendTasks.end())
+    removeSuspendTask(_task->id());
+    if (m_workingTasks.find(_task->id()) == m_workingTasks.end())
     {
-        m_suspendTasksCount--;
-        m_suspendTasks.erase(it);
-    }
-
-    if (m_workingTasks.find(_id) == m_workingTasks.end())
-    {
-        m_workingTasks[_id] = _task;
+        m_workingTasks[_task->id()] = _task;
         return true;
     }
 
@@ -215,6 +208,31 @@ bool EventPush::removeWaitResp(const std::string& _id)
     return 0 != m_waitRespTasks.erase(_id);
 }
 
+bool EventPush::addSuspendTask(EventPushTask::Ptr _task)
+{
+    if (m_suspendTasks.find(_task->id()) == m_suspendTasks.end())
+    {
+        m_suspendTasksCount++;
+        m_suspendTasks[_task->id()] = _task;
+        return true;
+    }
+
+    return false;
+}
+
+bool EventPush::removeSuspendTask(const std::string& _id)
+{
+    // remove from suspendTasks
+    auto it = m_suspendTasks.find(_id);
+    if (it != m_suspendTasks.end())
+    {
+        m_suspendTasksCount--;
+        m_suspendTasks.erase(it);
+        return true;
+    }
+    return false;
+}
+
 std::size_t EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
 {
     std::size_t retCount = 0;
@@ -245,8 +263,7 @@ std::size_t EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
 
         it = m_workingTasks.erase(it);
         task->setSession(nullptr);
-        m_suspendTasksCount++;
-        m_suspendTasks[task->id()] = task;
+        addSuspendTask(task);
         retCount++;
     }
 
@@ -396,7 +413,7 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
                 // subscribe event successfully, set network session for unsubscribe opr
                 _task->setSession(_session);
 
-                ep->addTask(id, _task);
+                ep->addTask(_task);
 
                 _callback(nullptr, id, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask")
@@ -472,6 +489,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_DESC("callback invalid response") << LOG_KV("id", _id)
                                   << LOG_KV("response", strResp);
 
+                // TODO:
                 _callback(nullptr, _id, strResp);
             }
             else if (resp->status() != StatusCode::Success)
