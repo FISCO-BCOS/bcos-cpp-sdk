@@ -150,10 +150,20 @@ void WsSession::onRead(boost::beast::error_code _ec, std::size_t _size)
 
 void WsSession::asyncRead()
 {
-    auto session = shared_from_this();
-    // read the next message
-    m_wsStream.async_read(m_buffer,
-        std::bind(&WsSession::onRead, session, std::placeholders::_1, std::placeholders::_2));
+    try
+    {
+        auto session = shared_from_this();
+        // read the next message
+        m_wsStream.async_read(m_buffer,
+            std::bind(&WsSession::onRead, session, std::placeholders::_1, std::placeholders::_2));
+    }
+    catch (const std::exception& _e)
+    {
+        WEBSOCKET_SESSION(ERROR) << LOG_BADGE("asyncRead") << LOG_DESC("async_read with exception")
+                                 << LOG_KV("endpoint", endPoint())
+                                 << LOG_KV("what", std::string(_e.what()));
+        disconnect();
+    }
 }
 
 void WsSession::onWrite(boost::beast::error_code _ec, std::size_t)
@@ -178,11 +188,22 @@ void WsSession::onWrite(boost::beast::error_code _ec, std::size_t)
 
 void WsSession::asyncWrite()
 {
-    auto session = shared_from_this();
-    m_wsStream.binary(true);
-    // we are not currently writing, so send this immediately
-    m_wsStream.async_write(boost::asio::buffer(*m_queue.front()),
-        std::bind(&WsSession::onWrite, session, std::placeholders::_1, std::placeholders::_2));
+    try
+    {
+        auto session = shared_from_this();
+        m_wsStream.binary(true);
+        // we are not currently writing, so send this immediately
+        m_wsStream.async_write(boost::asio::buffer(*m_queue.front()),
+            std::bind(&WsSession::onWrite, session, std::placeholders::_1, std::placeholders::_2));
+    }
+    catch (const std::exception& _e)
+    {
+        WEBSOCKET_SESSION(ERROR) << LOG_BADGE("asyncWrite")
+                                 << LOG_DESC("async_write with exception")
+                                 << LOG_KV("endpoint", endPoint())
+                                 << LOG_KV("what", std::string(_e.what()));
+        disconnect();
+    }
 }
 
 /**
