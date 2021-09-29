@@ -20,20 +20,15 @@
 
 #pragma once
 
+#include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/event/EventPushParams.h>
-#include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <atomic>
 
 namespace bcos
 {
-namespace ws
-{
-class WsSession;
-}
-
 namespace cppsdk
 {
 namespace event
@@ -63,8 +58,11 @@ public:
     ~EventPushTask() { EVENT_TASK(DEBUG) << LOG_KV("[DELOBJ][EventPushTask]", this); }
 
 public:
-    void setSession(std::shared_ptr<ws::WsSession> _session) { m_session = _session; }
-    std::shared_ptr<ws::WsSession> session() const { return m_session; }
+    void setSession(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
+    {
+        m_session = _session;
+    }
+    std::shared_ptr<bcos::boostssl::ws::WsSession> session() const { return m_session; }
 
     void setId(const std::string& _id) { m_id = _id; }
     std::string id() const { return m_id; }
@@ -85,7 +83,7 @@ private:
     std::string m_id;
     std::string m_group;
     Callback m_callback;
-    std::shared_ptr<ws::WsSession> m_session;
+    std::shared_ptr<bcos::boostssl::ws::WsSession> m_session;
     std::shared_ptr<const EventPushParams> m_params;
     std::shared_ptr<EventPushTaskState> m_state;
 };

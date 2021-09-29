@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(test_EventPush_unsubscribeEvent)
 {
     auto ep = std::make_shared<bcos::cppsdk::event::EventPush>();
     auto ioc = std::make_shared<boost::asio::io_context>();
-    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
+    auto messageFactory = std::make_shared<bcos::boostssl::ws::WsMessageFactory>();
     ep->setMessageFactory(messageFactory);
     ep->setIoc(ioc);
 

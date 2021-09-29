@@ -18,8 +18,8 @@
  * @date 2021-08-25
  */
 
-#include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/NodeInfo.h>
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/NodeInfo.h>
 #include <json/json.h>
 #include <exception>
 

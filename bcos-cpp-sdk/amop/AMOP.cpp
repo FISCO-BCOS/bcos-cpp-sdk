@@ -17,11 +17,12 @@
  * @author: octopus
  * @date 2021-08-23
  */
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-boostssl/websocket/WsSession.h>
+#include <bcos-cpp-sdk/MessageType.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/Common.h>
-#include <bcos-cpp-sdk/ws/WsMessageType.h>
-#include <bcos-cpp-sdk/ws/WsService.h>
-#include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/interfaces/protocol/CommonError.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/DataConvertUtility.h>
@@ -32,6 +33,8 @@
 
 
 using namespace bcos;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::ws;
 using namespace bcos::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
@@ -81,7 +84,7 @@ void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq, b
     auto msg = m_messageFactory->buildMessage();
     msg->setSeq(std::make_shared<bcos::bytes>(_seq.begin(), _seq.end()));
     msg->setData(std::make_shared<bcos::bytes>(_data.begin(), _data.end()));
-    msg->setType(WsMessageType::AMOP_RESPONSE);
+    msg->setType(ws::MessageType::AMOP_RESPONSE);
 
     auto service = m_service.lock();
     if (service)
@@ -92,7 +95,7 @@ void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq, b
 
 // publish message
 void AMOP::publish(
-    const std::string& _topic, bytesConstRef _data, uint32_t timeout, PubCallback _callback)
+    const std::string& _topic, bytesConstRef _data, uint32_t _timeout, PubCallback _callback)
 {
     auto request = m_requestFactory->buildRequest();
     request->setTopic(_topic);
@@ -102,7 +105,7 @@ void AMOP::publish(
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
-    sendMsg->setType(bcos::ws::WsMessageType::AMOP_REQUEST);
+    sendMsg->setType(ws::MessageType::AMOP_REQUEST);
     sendMsg->setData(buffer);
 
     auto sendBuffer = std::make_shared<bcos::bytes>();
@@ -113,9 +116,11 @@ void AMOP::publish(
     {
         AMOP_CLIENT(TRACE) << LOG_BADGE("publish") << LOG_DESC("publish message")
                            << LOG_KV("topic", _topic);
-        service->asyncSendMessage(sendMsg, ws::Options(timeout),
-            [_callback](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
-                std::shared_ptr<ws::WsSession> _session) { _callback(_error, _msg, _session); });
+        service->asyncSendMessage(sendMsg, bcos::boostssl::ws::Options(_timeout),
+            [_callback](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+                std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
+                _callback(_error, _msg, _session);
+            });
     }
 }
 
@@ -130,7 +135,7 @@ void AMOP::broadcast(const std::string& _topic, bytesConstRef _data)
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
-    sendMsg->setType(bcos::ws::WsMessageType::AMOP_BROADCAST);
+    sendMsg->setType(ws::MessageType::AMOP_BROADCAST);
     sendMsg->setData(buffer);
 
     auto sendBuffer = std::make_shared<bcos::bytes>();
@@ -166,11 +171,11 @@ void AMOP::updateTopicsToRemote()
     }
 }
 
-void AMOP::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
+void AMOP::updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     std::string request = m_topicManager->topicsToJsonString();
     auto msg = m_messageFactory->buildMessage();
-    msg->setType(bcos::ws::WsMessageType::AMOP_SUBTOPIC);
+    msg->setType(ws::MessageType::AMOP_SUBTOPIC);
     msg->setData(std::make_shared<bcos::bytes>(request.begin(), request.end()));
 
     _session->asyncSendMessage(msg);
@@ -181,7 +186,7 @@ void AMOP::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
 }
 
 void AMOP::onRecvAMOPRequest(
-    std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
+    std::shared_ptr<WsMessage> _msg, std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
     auto request = m_requestFactory->buildRequest();
@@ -219,7 +224,7 @@ void AMOP::onRecvAMOPRequest(
 }
 
 void AMOP::onRecvAMOPResponse(
-    std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
+    std::shared_ptr<WsMessage> _msg, std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
     boost::ignore_unused(_msg, _session);
@@ -229,7 +234,7 @@ void AMOP::onRecvAMOPResponse(
 }
 
 void AMOP::onRecvAMOPBroadcast(
-    std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
+    std::shared_ptr<WsMessage> _msg, std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
     auto request = m_requestFactory->buildRequest();

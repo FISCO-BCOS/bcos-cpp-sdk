@@ -18,10 +18,10 @@
  * @date 2021-09-24
  */
 #pragma once
-#include "bcos-cpp-sdk/ws/Common.h"
 #include "libutilities/Common.h"
-#include <bcos-cpp-sdk/ws/WsMessage.h>
-#include <bcos-cpp-sdk/ws/WsSession.h>
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsSession.h>
 
 namespace bcos
 {
@@ -29,24 +29,25 @@ namespace cppsdk
 {
 namespace test
 {
-class WsSessionFake : public ws::WsSession
+class WsSessionFake : public bcos::boostssl::ws::WsSession
 {
 public:
     WsSessionFake(boost::beast::websocket::stream<boost::beast::tcp_stream>&& _wsStream)
-      : ws::WsSession(std::move(_wsStream))
+      : bcos::boostssl::ws::WsSession(std::move(_wsStream))
     {
         WEBSOCKET_SESSION(INFO) << LOG_KV("[NEWOBJ][WSSESSION]", this);
     }
     using Ptr = std::shared_ptr<WsSessionFake>;
 
 public:
-    virtual void asyncSendMessage(std::shared_ptr<ws::WsMessage> _msg,
-        ws::Options _options = ws::Options(-1),
-        ws::RespCallBack _respCallback = ws::RespCallBack()) override
+    virtual void asyncSendMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+        bcos::boostssl::ws::Options _options = bcos::boostssl::ws::Options(-1),
+        bcos::boostssl::ws::RespCallBack _respCallback =
+            bcos::boostssl::ws::RespCallBack()) override
     {
         (void)_msg;
         (void)_options;
-        auto msg = std::make_shared<ws::WsMessage>();
+        auto msg = std::make_shared<bcos::boostssl::ws::WsMessage>();
         msg->setData(m_resp);
         auto session = shared_from_this();
         _respCallback(m_error, msg, session);

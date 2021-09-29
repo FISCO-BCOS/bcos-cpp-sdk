@@ -18,13 +18,12 @@
  * @date 2021-08-24
  */
 
-#include "bcos-cpp-sdk/ws/WsMessageType.h"
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/Config.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
-#include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/WsMessage.h>
-#include <bcos-cpp-sdk/ws/WsService.h>
-#include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
@@ -99,7 +98,7 @@ int main(int argc, char** argv)
     auto self = std::weak_ptr(amop);
     amop->subscribe(topic, [self](bcos::Error::Ptr _error, const std::string& _endPoint,
                                const std::string& _seq, bytesConstRef _data,
-                               std::shared_ptr<bcos::ws::WsSession> _session) {
+                               std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
         boost::ignore_unused(_session);
         if (_error)
         {

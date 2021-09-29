@@ -19,8 +19,9 @@
  */
 #pragma once
 
-#include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/WsMessage.h>
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Error.h>
 #include <functional>
@@ -29,20 +30,15 @@
 
 namespace bcos
 {
-namespace ws
-{
-class WsMessage;
-class WsSession;
-}  // namespace ws
-
 namespace cppsdk
 {
 namespace amop
 {
 using SubCallback = std::function<void(bcos::Error::Ptr, const std::string&, const std::string&,
-    bytesConstRef, std::shared_ptr<bcos::ws::WsSession>)>;
-using PubCallback = std::function<void(
-    bcos::Error::Ptr, std::shared_ptr<bcos::ws::WsMessage>, std::shared_ptr<bcos::ws::WsSession>)>;
+    bytesConstRef, std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
+using PubCallback =
+    std::function<void(bcos::Error::Ptr, std::shared_ptr<bcos::boostssl::ws::WsMessage>,
+        std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
 class AMOPInterface
 {
 public:

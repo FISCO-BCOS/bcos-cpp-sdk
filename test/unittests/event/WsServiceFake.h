@@ -19,8 +19,8 @@
  */
 #pragma once
 #include "libutilities/Common.h"
-#include <bcos-cpp-sdk/ws/WsService.h>
-#include <bcos-cpp-sdk/ws/WsSession.h>
+#include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-boostssl/websocket/WsSession.h>
 
 namespace bcos
 {
@@ -28,20 +28,20 @@ namespace cppsdk
 {
 namespace test
 {
-class WsServiceFake : public ws::WsService
+class WsServiceFake : public bcos::boostssl::ws::WsService
 {
 public:
     using Ptr = std::shared_ptr<WsServiceFake>;
 
 public:
-    virtual void asyncSendMessage(std::shared_ptr<ws::WsMessage> _msg,
-        ws::Options _options = ws::Options(-1),
-        ws::RespCallBack _respFunc = ws::RespCallBack()) override
+    virtual void asyncSendMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+        bcos::boostssl::ws::Options _options = bcos::boostssl::ws::Options(-1),
+        bcos::boostssl::ws::RespCallBack _respFunc = bcos::boostssl::ws::RespCallBack()) override
     {
         (void)_msg;
         (void)_options;
 
-        auto msg = std::make_shared<ws::WsMessage>();
+        auto msg = std::make_shared<bcos::boostssl::ws::WsMessage>();
         msg->setData(m_resp);
         auto session = shared_from_this();
         _respFunc(m_error, _msg, m_session);
@@ -50,12 +50,15 @@ public:
 public:
     void setError(bcos::Error::Ptr _error) { m_error = _error; }
     void setResp(std::shared_ptr<bcos::bytes> _resp) { m_resp = _resp; }
-    void setSession(std::shared_ptr<ws::WsSession> _session) { m_session = _session; }
+    void setSession(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
+    {
+        m_session = _session;
+    }
 
 private:
     bcos::Error::Ptr m_error;
     std::shared_ptr<bcos::bytes> m_resp;
-    std::shared_ptr<ws::WsSession> m_session;
+    std::shared_ptr<bcos::boostssl::ws::WsSession> m_session;
 };
 }  // namespace test
 }  // namespace cppsdk

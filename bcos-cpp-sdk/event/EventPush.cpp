@@ -18,12 +18,15 @@
  * @date 2021-09-01
  */
 
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsSession.h>
+#include <bcos-cpp-sdk/MessageType.h>
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventPush.h>
 #include <bcos-cpp-sdk/event/EventPushRequest.h>
 #include <bcos-cpp-sdk/event/EventPushResponse.h>
 #include <bcos-cpp-sdk/event/EventPushStatus.h>
-#include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-framework/interfaces/protocol/CommonError.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Log.h>
@@ -32,6 +35,9 @@
 #include <shared_mutex>
 
 using namespace bcos;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::ws;
+using namespace bcos::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
@@ -233,7 +239,7 @@ bool EventPush::removeSuspendTask(const std::string& _id)
     return false;
 }
 
-std::size_t EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
+std::size_t EventPush::suspendTasks(std::shared_ptr<WsSession> _session)
 {
     std::size_t retCount = 0;
     std::unique_lock lock(x_tasks);
@@ -271,7 +277,7 @@ std::size_t EventPush::suspendTasks(std::shared_ptr<ws::WsSession> _session)
 }
 
 void EventPush::onRecvEventPushMessage(
-    std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
+    std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
 {
     /*
     {
@@ -365,16 +371,16 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
     auto jsonReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
-    message->setType(ws::WsMessageType::EVENT_SUBSCRIBE);
+    message->setType(ws::MessageType::EVENT_SUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(jsonReq.begin(), jsonReq.end()));
 
     EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask") << LOG_DESC("subscribe event")
                      << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
     auto self = std::weak_ptr<EventPush>(shared_from_this());
-    m_wsService->asyncSendMessage(message, ws::Options(EP_SENDMSG_TIMEOUT(m_config)),
-        [id, _task, _callback, self](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
-            std::shared_ptr<ws::WsSession> _session) {
+    m_wsService->asyncSendMessage(message, Options(EP_SENDMSG_TIMEOUT(m_config)),
+        [id, _task, _callback, self](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+            std::shared_ptr<WsSession> _session) {
             auto ep = self.lock();
             if (!ep)
             {
@@ -464,12 +470,12 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     auto strReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
-    message->setType(ws::WsMessageType::EVENT_UNSUBSCRIBE);
+    message->setType(ws::MessageType::EVENT_UNSUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
 
-    session->asyncSendMessage(message, ws::Options(EP_SENDMSG_TIMEOUT(m_config)),
-        [_id, _callback](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
-            std::shared_ptr<ws::WsSession>) {
+    session->asyncSendMessage(message, Options(EP_SENDMSG_TIMEOUT(m_config)),
+        [_id, _callback](
+            bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
             {
                 EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent")

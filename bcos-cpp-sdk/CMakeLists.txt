@@ -5,7 +5,6 @@ file(GLOB SRC_LIST "*.cpp")
 file(GLOB HEADERS "*.h")
 
 add_subdirectory(rpc)
-add_subdirectory(ws)
 add_subdirectory(amop)
 add_subdirectory(event)
 

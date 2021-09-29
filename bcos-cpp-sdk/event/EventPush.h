@@ -19,10 +19,10 @@
  */
 
 #pragma once
-#include <bcos-cpp-sdk/Config.h>
+#include <bcos-boostssl/websocket/WsConfig.h>
+#include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/event/EventPushInterface.h>
 #include <bcos-cpp-sdk/event/EventPushTask.h>
-#include <bcos-cpp-sdk/ws/WsService.h>
 #include <atomic>
 #include <shared_mutex>
 #include <utility>
@@ -53,8 +53,8 @@ public:
 
 public:
     void subscribeEventByTask(EventPushTask::Ptr _task, Callback _callback);
-    void onRecvEventPushMessage(
-        std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
+    void onRecvEventPushMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+        std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
 public:
     bool addTask(EventPushTask::Ptr _task);
@@ -64,22 +64,25 @@ public:
     bool addSuspendTask(EventPushTask::Ptr _task);
     bool removeSuspendTask(const std::string& _id);
 
-    std::size_t suspendTasks(std::shared_ptr<ws::WsSession> _session);
+    std::size_t suspendTasks(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
-    void setWsService(ws::WsService::Ptr _wsService) { m_wsService = _wsService; }
-    ws::WsService::Ptr wsService() const { return m_wsService; }
+    void setWsService(bcos::boostssl::ws::WsService::Ptr _wsService) { m_wsService = _wsService; }
+    bcos::boostssl::ws::WsService::Ptr wsService() const { return m_wsService; }
 
     void setIoc(std::shared_ptr<boost::asio::io_context> _ioc) { m_ioc = _ioc; }
     std::shared_ptr<boost::asio::io_context> ioc() const { return m_ioc; }
 
-    void setMessageFactory(std::shared_ptr<ws::WsMessageFactory> _messageFactory)
+    void setMessageFactory(std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> _messageFactory)
     {
         m_messagefactory = _messageFactory;
     }
-    std::shared_ptr<ws::WsMessageFactory> messageFactory() const { return m_messagefactory; }
+    std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> messageFactory() const
+    {
+        return m_messagefactory;
+    }
 
-    Config::ConstPtr config() const { return m_config; }
-    void setConfig(Config::ConstPtr _config) { m_config = _config; }
+    boostssl::ws::WsConfig::ConstPtr config() const { return m_config; }
+    void setConfig(boostssl::ws::WsConfig::ConstPtr _config) { m_config = _config; }
 
     uint32_t suspendTasksCount() const { return m_suspendTasksCount.load(); }
     const std::unordered_map<std::string, EventPushTask::Ptr>& suspendTasks() const
@@ -103,11 +106,11 @@ private:
     // io context
     std::shared_ptr<boost::asio::io_context> m_ioc;
     // message factory
-    std::shared_ptr<ws::WsMessageFactory> m_messagefactory;
+    std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> m_messagefactory;
     // websocket service
-    ws::WsService::Ptr m_wsService;
+    bcos::boostssl::ws::WsService::Ptr m_wsService;
     //
-    Config::ConstPtr m_config;
+    boostssl::ws::WsConfig::ConstPtr m_config;
 };
 }  // namespace event
 }  // namespace cppsdk

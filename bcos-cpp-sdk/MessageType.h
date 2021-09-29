@@ -11,26 +11,38 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  m_limitations under the License.
+ *  limitations under the License.
  *
- * @file WsVersion.h
+ * @file MessageType.h
  * @author: octopus
- * @date 2021-07-30
+ * @date 2021-07-28
  */
 #pragma once
 
-#include <cstdint>
 namespace bcos
 {
 namespace ws
 {
-enum WsProtocolVersion : uint32_t
+/**
+ * @brief: all websocket protocol message types
+ */
+enum MessageType
 {
-    None = 0,
-    v1 = 1,
-    // Focus: update current when websocket protocol upgrade
-    current = v1
-};
+    BLOCK_NOTIFY = 0x101,  // 257
+    RPC_REQUEST = 0x102,   // 258
 
+    // ------------AMOP begin ---------
+    AMOP_SUBTOPIC = 0x110,   // 272
+    AMOP_REQUEST = 0x111,    // 273
+    AMOP_BROADCAST = 0x112,  // 274
+    AMOP_RESPONSE = 0x113,   // 275
+    // ------------AMOP end ---------
+
+    // ------------event begin ---------
+    EVENT_SUBSCRIBE = 0x120,    // 288
+    EVENT_UNSUBSCRIBE = 0x121,  // 289
+    EVENT_LOG_PUSH = 0x122,     // 290
+    // ------------event end ---------
+};
 }  // namespace ws
 }  // namespace bcos

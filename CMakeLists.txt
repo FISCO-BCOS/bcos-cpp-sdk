@@ -72,7 +72,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include(InstallBcosFrameworkDependencies)
 
 set(CPP_SDK_TARGET "bcos-cpp-sdk")
-set(WS_SERVICE_TARGET "ws-service")
 set(JSON_RPC_TARGET "json-rpc-client")
 set(AMOP_TARGET "amop-client")
 set(EVENT_TARGET "event-client")
@@ -93,15 +92,6 @@ endif()
 # install bcos-cpp-sdk target
 install(
     TARGETS ${CPP_SDK_TARGET}
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
-
-install(
-    TARGETS ${WS_SERVICE_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
