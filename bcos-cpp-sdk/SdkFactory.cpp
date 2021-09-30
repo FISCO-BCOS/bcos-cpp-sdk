@@ -26,7 +26,7 @@
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/AMOPMessageType.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
-#include <bcos-cpp-sdk/event/EventPushMessageType.h>
+#include <bcos-cpp-sdk/event/EventSubMessageType.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/rpc/RpcMessageType.h>
 #include <memory>
@@ -139,25 +139,25 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(WsService::Ptr _wsService)
     return amop;
 }
 
-bcos::cppsdk::event::EventPush::Ptr SdkFactory::buildEventPush(WsService::Ptr _wsService)
+bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(WsService::Ptr _wsService)
 {
-    auto ep = std::make_shared<event::EventPush>();
+    auto es = std::make_shared<event::EventSub>();
     auto messageFactory = std::make_shared<WsMessageFactory>();
 
-    ep->setMessageFactory(messageFactory);
-    ep->setWsService(_wsService);
-    ep->setConfig(_wsService->config());
-    ep->setIoc(_wsService->ioc());
+    es->setMessageFactory(messageFactory);
+    es->setWsService(_wsService);
+    es->setConfig(_wsService->config());
+    es->setIoc(_wsService->ioc());
 
-    auto self = std::weak_ptr<event::EventPush>(ep);
-    _wsService->registerMsgHandler(EventPushMessageType::EVENT_LOG_PUSH,
+    auto self = std::weak_ptr<event::EventSub>(es);
+    _wsService->registerMsgHandler(EventSubMessageType::EVENT_LOG_PUSH,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            auto ep = self.lock();
-            if (ep)
+            auto es = self.lock();
+            if (es)
             {
-                ep->onRecvEventPushMessage(_msg, _session);
+                es->onRecvEventSubMessage(_msg, _session);
             }
         });
 
-    return ep;
+    return es;
 }

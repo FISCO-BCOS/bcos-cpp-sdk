@@ -29,11 +29,11 @@ namespace cppsdk
 {
 namespace event
 {
-class EventPushParams
+class EventSubParams
 {
 public:
-    using Ptr = std::shared_ptr<EventPushParams>;
-    using ConstPtr = std::shared_ptr<const EventPushParams>;
+    using Ptr = std::shared_ptr<EventSubParams>;
+    using ConstPtr = std::shared_ptr<const EventSubParams>;
 
 public:
     int64_t fromBlock() const { return m_fromBlock; }

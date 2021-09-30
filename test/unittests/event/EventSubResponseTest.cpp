@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @brief test for EventPushParams
- * @file EventPushParamsTest.cpp
+ * @brief test for EventSubParams
+ * @file EventSubParamsTest.cpp
  * @author: octopus
  * @date 2021-09-22
  */
-#include <bcos-cpp-sdk/event/EventPushResponse.h>
+#include <bcos-cpp-sdk/event/EventSubResponse.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
@@ -27,14 +27,14 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::test;
 
-BOOST_FIXTURE_TEST_SUITE(EventPushResponseTest, TestPromptFixture)
+BOOST_FIXTURE_TEST_SUITE(EventSubResponseTest, TestPromptFixture)
 
-BOOST_AUTO_TEST_CASE(test_EventPushResponse)
+BOOST_AUTO_TEST_CASE(test_EventSubResponse)
 {
     {
         std::string id = "0x12345";
         int status = 111;
-        auto resp = std::make_shared<bcos::cppsdk::event::EventPushResponse>();
+        auto resp = std::make_shared<bcos::cppsdk::event::EventSubResponse>();
         resp->setId(id);
         resp->setStatus(status);
         auto json = resp->generateJson();
@@ -53,10 +53,10 @@ BOOST_AUTO_TEST_CASE(test_EventPushResponse)
     }
 }
 
-BOOST_AUTO_TEST_CASE(test_EventPushResponse_Event)
+BOOST_AUTO_TEST_CASE(test_EventSubResponse_Event)
 {
     {
-        auto resp = std::make_shared<bcos::cppsdk::event::EventPushResponse>();
+        auto resp = std::make_shared<bcos::cppsdk::event::EventSubResponse>();
         auto json =
             "{\"id\":\"0x123\",\"status\":0,\"result\":{\"blockNumber\":111,\"events\":[]}}";
         auto r = resp->fromJson(json);

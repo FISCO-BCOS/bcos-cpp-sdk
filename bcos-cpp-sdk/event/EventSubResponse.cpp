@@ -18,14 +18,14 @@
  * @date 2021-09-09
  */
 #include <bcos-cpp-sdk/event/Common.h>
-#include <bcos-cpp-sdk/event/EventPushResponse.h>
+#include <bcos-cpp-sdk/event/EventSubResponse.h>
 #include <json/json.h>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
-std::string EventPushResponse::generateJson()
+std::string EventSubResponse::generateJson()
 {
     /*
         {
@@ -48,7 +48,7 @@ std::string EventPushResponse::generateJson()
     return result;
 }
 
-bool EventPushResponse::fromJson(const std::string& _response)
+bool EventSubResponse::fromJson(const std::string& _response)
 {
     std::string id;
     int status;

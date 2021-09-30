@@ -13,30 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EventPushMessageType.h
+ * @file EventSubError.h
  * @author: octopus
- * @date 2021-09-30
+ * @date 2021-09-01
  */
-#pragma once
 
+#pragma once
 namespace bcos
 {
 namespace cppsdk
 {
 namespace event
 {
-/**
- * @brief: event push message types
- */
-enum EventPushMessageType
+enum StatusCode
 {
-    // ------------event begin ---------
-
-    EVENT_SUBSCRIBE = 0x120,    // 288
-    EVENT_UNSUBSCRIBE = 0x121,  // 289
-    EVENT_LOG_PUSH = 0x122,     // 290
-
-    // ------------event end ---------
+    Success = 0,
+    EndOfPush = 1,  // push completed
 };
 }  // namespace event
 }  // namespace cppsdk

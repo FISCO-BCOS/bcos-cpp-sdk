@@ -13,15 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EvenPushInterface.h
+ * @file EventSubMessageType.h
  * @author: octopus
- * @date 2021-09-01
+ * @date 2021-09-30
  */
-
 #pragma once
-#include <bcos-cpp-sdk/event/EventPushParams.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/Error.h>
 
 namespace bcos
 {
@@ -29,23 +25,18 @@ namespace cppsdk
 {
 namespace event
 {
-using Callback = std::function<void(bcos::Error::Ptr, const std::string&, const std::string&)>;
-
-class EventPushInterface
+/**
+ * @brief: event push message types
+ */
+enum EventSubMessageType
 {
-public:
-    using Ptr = std::shared_ptr<EventPushInterface>;
+    // ------------event begin ---------
 
-    virtual ~EventPushInterface() {}
+    EVENT_SUBSCRIBE = 0x120,    // 288
+    EVENT_UNSUBSCRIBE = 0x121,  // 289
+    EVENT_LOG_PUSH = 0x122,     // 290
 
-public:
-    virtual void start() = 0;
-    virtual void stop() = 0;
-
-public:
-    virtual void subscribeEvent(
-        const std::string& _group, EventPushParams::ConstPtr _params, Callback _callback) = 0;
-    virtual void unsubscribeEvent(const std::string& _id, Callback _callback) = 0;
+    // ------------event end ---------
 };
 }  // namespace event
 }  // namespace cppsdk

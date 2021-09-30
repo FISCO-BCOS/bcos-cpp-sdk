@@ -22,8 +22,8 @@
 
 #include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/event/Common.h>
-#include <bcos-cpp-sdk/event/EventPushInterface.h>
-#include <bcos-cpp-sdk/event/EventPushParams.h>
+#include <bcos-cpp-sdk/event/EventSubInterface.h>
+#include <bcos-cpp-sdk/event/EventSubParams.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <atomic>
 
@@ -33,11 +33,11 @@ namespace cppsdk
 {
 namespace event
 {
-class EventPushTaskState
+class EventSubTaskState
 {
 public:
-    using Ptr = std::shared_ptr<EventPushTaskState>;
-    using ConstPtr = std::shared_ptr<const EventPushTaskState>;
+    using Ptr = std::shared_ptr<EventSubTaskState>;
+    using ConstPtr = std::shared_ptr<const EventSubTaskState>;
 
 public:
     int64_t currentBlockNumber() const { return m_currentBlockNumber.load(); }
@@ -50,12 +50,12 @@ private:
     std::atomic<int64_t> m_currentBlockNumber = -1;
 };
 
-class EventPushTask
+class EventSubTask
 {
 public:
-    using Ptr = std::shared_ptr<EventPushTask>;
-    EventPushTask() { EVENT_TASK(DEBUG) << LOG_KV("[NEWOBJ][EventPushTask]", this); }
-    ~EventPushTask() { EVENT_TASK(DEBUG) << LOG_KV("[DELOBJ][EventPushTask]", this); }
+    using Ptr = std::shared_ptr<EventSubTask>;
+    EventSubTask() { EVENT_TASK(DEBUG) << LOG_KV("[NEWOBJ][EventSubTask]", this); }
+    ~EventSubTask() { EVENT_TASK(DEBUG) << LOG_KV("[DELOBJ][EventSubTask]", this); }
 
 public:
     void setSession(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
@@ -70,11 +70,11 @@ public:
     void setGroup(const std::string& _group) { m_group = _group; }
     std::string group() const { return m_group; }
 
-    void setParams(std::shared_ptr<const EventPushParams> _params) { m_params = _params; }
-    std::shared_ptr<const EventPushParams> params() const { return m_params; }
+    void setParams(std::shared_ptr<const EventSubParams> _params) { m_params = _params; }
+    std::shared_ptr<const EventSubParams> params() const { return m_params; }
 
-    void setState(std::shared_ptr<EventPushTaskState> _state) { m_state = _state; }
-    std::shared_ptr<EventPushTaskState> state() const { return m_state; }
+    void setState(std::shared_ptr<EventSubTaskState> _state) { m_state = _state; }
+    std::shared_ptr<EventSubTaskState> state() const { return m_state; }
 
     void setCallback(Callback _callback) { m_callback = _callback; }
     Callback callback() const { return m_callback; }
@@ -84,11 +84,11 @@ private:
     std::string m_group;
     Callback m_callback;
     std::shared_ptr<bcos::boostssl::ws::WsSession> m_session;
-    std::shared_ptr<const EventPushParams> m_params;
-    std::shared_ptr<EventPushTaskState> m_state;
+    std::shared_ptr<const EventSubParams> m_params;
+    std::shared_ptr<EventSubTaskState> m_state;
 };
 
-using EventPushTaskPtrs = std::vector<EventPushTask::Ptr>;
+using EventSubTaskPtrs = std::vector<EventSubTask::Ptr>;
 }  // namespace event
 }  // namespace cppsdk
 }  // namespace bcos

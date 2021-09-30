@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @brief test for EventPushTask
- * @file EventPushTaskTest.cpp
+ * @brief test for EventSubTask
+ * @file EventSubTaskTest.cpp
  * @author: octopus
  * @date 2021-09-22
  */
 
-#include <bcos-cpp-sdk/event/EventPushTask.h>
+#include <bcos-cpp-sdk/event/EventSubTask.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/test/tools/old/interface.hpp>
@@ -31,16 +31,16 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::test;
 
-BOOST_FIXTURE_TEST_SUITE(EventPushTaskTest, TestPromptFixture)
+BOOST_FIXTURE_TEST_SUITE(EventSubTaskTest, TestPromptFixture)
 
-BOOST_AUTO_TEST_CASE(test_EventPushTask)
+BOOST_AUTO_TEST_CASE(test_EventSubTask)
 {
     auto id = std::string("123");
     auto group = std::string("321");
-    auto params = std::shared_ptr<bcos::cppsdk::event::EventPushParams>();
-    auto state = std::shared_ptr<bcos::cppsdk::event::EventPushTaskState>();
+    auto params = std::shared_ptr<bcos::cppsdk::event::EventSubParams>();
+    auto state = std::shared_ptr<bcos::cppsdk::event::EventSubTaskState>();
 
-    auto task = std::make_shared<bcos::cppsdk::event::EventPushTask>();
+    auto task = std::make_shared<bcos::cppsdk::event::EventSubTask>();
     task->setId(id);
     task->setGroup(group);
     task->setParams(params);

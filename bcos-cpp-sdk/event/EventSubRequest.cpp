@@ -19,7 +19,7 @@
  */
 
 #include <bcos-cpp-sdk/event/Common.h>
-#include <bcos-cpp-sdk/event/EventPushRequest.h>
+#include <bcos-cpp-sdk/event/EventSubRequest.h>
 
 #include <json/json.h>
 #include <exception>
@@ -28,7 +28,7 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
-std::string EventPushUnsubRequest::generateJson() const
+std::string EventSubUnsubRequest::generateJson() const
 {
     /*
         {
@@ -47,11 +47,11 @@ std::string EventPushUnsubRequest::generateJson() const
     return result;
 }
 
-bool EventPushUnsubRequest::fromJson(const std::string& _request)
+bool EventSubUnsubRequest::fromJson(const std::string& _request)
 {
     std::string id;
     std::string group;
-    EventPushParams::Ptr params = std::make_shared<EventPushParams>();
+    EventSubParams::Ptr params = std::make_shared<EventSubParams>();
 
     try
     {
@@ -107,7 +107,7 @@ bool EventPushUnsubRequest::fromJson(const std::string& _request)
 }
 
 
-std::string EventPushSubRequest::generateJson() const
+std::string EventSubSubRequest::generateJson() const
 {
     /*
     {
@@ -171,11 +171,11 @@ std::string EventPushSubRequest::generateJson() const
     return result;
 }
 
-bool EventPushSubRequest::fromJson(const std::string& _request)
+bool EventSubSubRequest::fromJson(const std::string& _request)
 {
     std::string id;
     std::string group;
-    EventPushParams::Ptr params = std::make_shared<EventPushParams>();
+    EventSubParams::Ptr params = std::make_shared<EventSubParams>();
 
     try
     {
