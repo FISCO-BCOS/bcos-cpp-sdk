@@ -13,45 +13,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EvenPushResponse.h
+ * @file EvenPushInterface.h
  * @author: octopus
- * @date 2021-09-09
+ * @date 2021-09-01
  */
 
 #pragma once
+#include <bcos-cpp-sdk/event/EventSubParams.h>
+#include <bcos-framework/libutilities/Common.h>
+#include <bcos-framework/libutilities/Error.h>
 
-#include <json/value.h>
-#include <memory>
-#include <string>
 namespace bcos
 {
 namespace cppsdk
 {
 namespace event
 {
-class EventPushResponse
+using Callback = std::function<void(bcos::Error::Ptr, const std::string&, const std::string&)>;
+
+class EventSubInterface
 {
 public:
-    using Ptr = std::shared_ptr<EventPushResponse>;
+    using Ptr = std::shared_ptr<EventSubInterface>;
+
+    virtual ~EventSubInterface() {}
 
 public:
-    std::string id() const { return m_id; }
-    void setId(const std::string& _id) { m_id = _id; }
-    int status() const { return m_status; }
-    void setStatus(int _status) { m_status = _status; }
-
-    void setJResp(const Json::Value& _jResp) { m_jResp = _jResp; }
-    Json::Value jResp() const { return m_jResp; }
+    virtual void start() = 0;
+    virtual void stop() = 0;
 
 public:
-    std::string generateJson();
-    bool fromJson(const std::string& _response);
-
-private:
-    std::string m_id;
-    int m_status;
-
-    Json::Value m_jResp;
+    virtual void subscribeEvent(
+        const std::string& _group, EventSubParams::ConstPtr _params, Callback _callback) = 0;
+    virtual void unsubscribeEvent(const std::string& _id, Callback _callback) = 0;
 };
 }  // namespace event
 }  // namespace cppsdk

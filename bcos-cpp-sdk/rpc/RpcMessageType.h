@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EventPushMessageType.h
+ * @file EventSubMessageType.h
  * @author: octopus
  * @date 2021-09-30
  */

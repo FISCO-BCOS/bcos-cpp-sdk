@@ -13,14 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @brief test for EventPushTaskState
- * @file EventPushTaskStateTest.cpp
+ * @brief test for EventSubTaskState
+ * @file EventSubTaskStateTest.cpp
  * @author: octopus
  * @date 2021-09-22
  */
 #define BOOST_TEST_MAIN
 
-#include <bcos-cpp-sdk/event/EventPushTask.h>
+#include <bcos-cpp-sdk/event/EventSubTask.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>
 #include <boost/test/unit_test.hpp>
 
@@ -28,11 +28,11 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::test;
 
-BOOST_FIXTURE_TEST_SUITE(EventPushTaskStateTest, TestPromptFixture)
+BOOST_FIXTURE_TEST_SUITE(EventSubTaskStateTest, TestPromptFixture)
 
-BOOST_AUTO_TEST_CASE(test_EventPushTaskStateTest)
+BOOST_AUTO_TEST_CASE(test_EventSubTaskStateTest)
 {
-    auto state = std::make_shared<bcos::cppsdk::event::EventPushTaskState>();
+    auto state = std::make_shared<bcos::cppsdk::event::EventSubTaskState>();
     BOOST_CHECK(state->currentBlockNumber() < 0);
     int64_t blockNumber = 10;
     state->setCurrentBlockNumber(blockNumber);

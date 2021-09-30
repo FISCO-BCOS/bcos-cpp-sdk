@@ -21,7 +21,7 @@
 #include <bcos-boostssl/websocket/WsConfig.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
-#include <bcos-cpp-sdk/event/EventPush.h>
+#include <bcos-cpp-sdk/event/EventSub.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
 
@@ -37,10 +37,11 @@ public:
 public:
     // construct WsService object
     bcos::boostssl::ws::WsService::Ptr buildWsService();
+    
     bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(
         bcos::boostssl::ws::WsService::Ptr _wsService);
     bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::boostssl::ws::WsService::Ptr _wsService);
-    bcos::cppsdk::event::EventPush::Ptr buildEventPush(
+    bcos::cppsdk::event::EventSub::Ptr buildEventSub(
         bcos::boostssl::ws::WsService::Ptr _wsService);
 
 public:

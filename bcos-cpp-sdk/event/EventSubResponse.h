@@ -13,22 +13,45 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file EventPushError.h
+ * @file EvenPushResponse.h
  * @author: octopus
- * @date 2021-09-01
+ * @date 2021-09-09
  */
 
 #pragma once
+
+#include <json/value.h>
+#include <memory>
+#include <string>
 namespace bcos
 {
 namespace cppsdk
 {
 namespace event
 {
-enum StatusCode
+class EventSubResponse
 {
-    Success = 0,
-    EndOfPush = 1,  // push completed
+public:
+    using Ptr = std::shared_ptr<EventSubResponse>;
+
+public:
+    std::string id() const { return m_id; }
+    void setId(const std::string& _id) { m_id = _id; }
+    int status() const { return m_status; }
+    void setStatus(int _status) { m_status = _status; }
+
+    void setJResp(const Json::Value& _jResp) { m_jResp = _jResp; }
+    Json::Value jResp() const { return m_jResp; }
+
+public:
+    std::string generateJson();
+    bool fromJson(const std::string& _response);
+
+private:
+    std::string m_id;
+    int m_status;
+
+    Json::Value m_jResp;
 };
 }  // namespace event
 }  // namespace cppsdk

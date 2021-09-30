@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @brief test for EventPushParams
- * @file EventPushParamsTest.cpp
+ * @brief test for EventSubParams
+ * @file EventSubParamsTest.cpp
  * @author: octopus
  * @date 2021-09-22
  */
-#include <bcos-cpp-sdk/event/EventPushParams.h>
+#include <bcos-cpp-sdk/event/EventSubParams.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
@@ -27,12 +27,12 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::test;
 
-BOOST_FIXTURE_TEST_SUITE(EventPushParamsTest, TestPromptFixture)
+BOOST_FIXTURE_TEST_SUITE(EventSubParamsTest, TestPromptFixture)
 
-BOOST_AUTO_TEST_CASE(test_EventPushParams)
+BOOST_AUTO_TEST_CASE(test_EventSubParams)
 {
     {
-        auto params = std::make_shared<bcos::cppsdk::event::EventPushParams>();
+        auto params = std::make_shared<bcos::cppsdk::event::EventSubParams>();
         BOOST_CHECK(params->fromBlock() < 0);
         BOOST_CHECK(params->toBlock() < 0);
         BOOST_CHECK(params->addresses().empty());
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(test_EventPushParams)
         std::string addr = "0x123456";
         std::string topic = "0x45678";
 
-        auto params = std::make_shared<bcos::cppsdk::event::EventPushParams>();
+        auto params = std::make_shared<bcos::cppsdk::event::EventSubParams>();
         params->setFromBlock(fromBlk);
         params->setToBlock(toBlk);
         params->addAddress(addr);
