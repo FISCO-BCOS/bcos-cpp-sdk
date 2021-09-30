@@ -13,36 +13,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file MessageType.h
+ * @file AMOPMessageType.h
  * @author: octopus
- * @date 2021-07-28
+ * @date 2021-09-30
  */
 #pragma once
 
 namespace bcos
 {
-namespace ws
+namespace cppsdk
+{
+namespace amop
 {
 /**
- * @brief: all websocket protocol message types
+ * @brief: amop message types
  */
-enum MessageType
+enum AMOPMessageType
 {
-    BLOCK_NOTIFY = 0x101,  // 257
-    RPC_REQUEST = 0x102,   // 258
-
     // ------------AMOP begin ---------
+
     AMOP_SUBTOPIC = 0x110,   // 272
     AMOP_REQUEST = 0x111,    // 273
     AMOP_BROADCAST = 0x112,  // 274
-    AMOP_RESPONSE = 0x113,   // 275
+    AMOP_RESPONSE = 0x113    // 275
+
     // ------------AMOP end ---------
 
-    // ------------event begin ---------
-    EVENT_SUBSCRIBE = 0x120,    // 288
-    EVENT_UNSUBSCRIBE = 0x121,  // 289
-    EVENT_LOG_PUSH = 0x122,     // 290
-    // ------------event end ---------
 };
-}  // namespace ws
+}  // namespace amop
+}  // namespace cppsdk
 }  // namespace bcos

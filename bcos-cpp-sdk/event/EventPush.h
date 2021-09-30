@@ -38,7 +38,7 @@ class EventPush : public EventPushInterface, public std::enable_shared_from_this
 public:
     using Ptr = std::shared_ptr<EventPush>;
     EventPush() {}
-    virtual ~EventPush() override { stop(); }
+    virtual ~EventPush() { stop(); }
 
 public:
     virtual void start() override;

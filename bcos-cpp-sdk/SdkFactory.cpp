@@ -19,13 +19,17 @@
  */
 
 #include <bcos-boostssl/websocket/WsConnector.h>
+#include <bcos-boostssl/websocket/WsInitializer.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
-#include <bcos-cpp-sdk/MessageType.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
+#include <bcos-cpp-sdk/amop/AMOPMessageType.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
+#include <bcos-cpp-sdk/event/EventPushMessageType.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
+#include <bcos-cpp-sdk/rpc/RpcMessageType.h>
+#include <memory>
 
 using namespace bcos;
 using namespace bcos::boostssl;
@@ -34,21 +38,14 @@ using namespace bcos::boostssl::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
 using namespace bcos::cppsdk::jsonrpc;
+using namespace bcos::cppsdk::event;
 
 WsService::Ptr SdkFactory::buildWsService()
 {
-    auto ioc = std::make_shared<boost::asio::io_context>();
-    auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*ioc);
-    auto connector = std::make_shared<WsConnector>(resolver, ioc);
-    auto messageFactory = std::make_shared<WsMessageFactory>();
     auto wsService = std::make_shared<WsService>();
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_cppsdk", m_config->threadPoolSize());
-
-    wsService->setConfig(m_config);
-    wsService->setThreadPool(threadPool);
-    wsService->setIoc(ioc);
-    wsService->setConnector(connector);
-    wsService->setMessageFactory(messageFactory);
+    auto initializer = std::make_shared<WsInitializer>();
+    initializer->setConfig(m_config);
+    initializer->initWsService(wsService);
     return wsService;
 }
 
@@ -60,7 +57,7 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(WsService::Ptr 
     auto wsServicePtr = std::weak_ptr<WsService>(_wsService);
 
     // TODO: how to handler block notify message
-    _wsService->registerMsgHandler(ws::MessageType::BLOCK_NOTIFY,
+    _wsService->registerMsgHandler(RpcMessageType::BLOCK_NOTIFY,
         [wsServicePtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto blkMsg = std::string(_msg->data()->begin(), _msg->data()->end());
 
@@ -78,7 +75,7 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(WsService::Ptr 
 
             auto data = std::make_shared<bcos::bytes>(_request.begin(), _request.end());
             auto msg = wsService->messageFactory()->buildMessage();
-            msg->setType(ws::MessageType::RPC_REQUEST);
+            msg->setType(RpcMessageType::RPC_REQUEST);
             msg->setData(data);
 
             wsService->asyncSendMessage(msg, Options(-1),
@@ -103,7 +100,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(WsService::Ptr _wsService)
     amop->setMessageFactory(messageFactory);
 
     auto self = std::weak_ptr<AMOP>(amop);
-    _wsService->registerMsgHandler(ws::MessageType::AMOP_REQUEST,
+    _wsService->registerMsgHandler(AMOPMessageType::AMOP_REQUEST,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = self.lock();
             if (amop)
@@ -111,7 +108,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(WsService::Ptr _wsService)
                 amop->onRecvAMOPRequest(_msg, _session);
             }
         });
-    _wsService->registerMsgHandler(ws::MessageType::AMOP_RESPONSE,
+    _wsService->registerMsgHandler(AMOPMessageType::AMOP_RESPONSE,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = self.lock();
             if (amop)
@@ -119,7 +116,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(WsService::Ptr _wsService)
                 amop->onRecvAMOPResponse(_msg, _session);
             }
         });
-    _wsService->registerMsgHandler(ws::MessageType::AMOP_BROADCAST,
+    _wsService->registerMsgHandler(AMOPMessageType::AMOP_BROADCAST,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = self.lock();
             if (amop)
@@ -153,7 +150,7 @@ bcos::cppsdk::event::EventPush::Ptr SdkFactory::buildEventPush(WsService::Ptr _w
     ep->setIoc(_wsService->ioc());
 
     auto self = std::weak_ptr<event::EventPush>(ep);
-    _wsService->registerMsgHandler(ws::MessageType::EVENT_LOG_PUSH,
+    _wsService->registerMsgHandler(EventPushMessageType::EVENT_LOG_PUSH,
         [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto ep = self.lock();
             if (ep)

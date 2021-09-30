@@ -54,6 +54,9 @@ set(VERSION_SUFFIX "")
 hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
 
+hunter_add_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
+
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
 
@@ -85,9 +88,9 @@ if (TESTS)
     add_subdirectory(test)
 endif()
 
-if (BUILD_AMOP_TEST)
-    add_subdirectory(test/client)
-endif()
+# if (BUILD_AMOP_TEST)
+#    add_subdirectory(test/client)
+# endif()
 
 # install bcos-cpp-sdk target
 install(

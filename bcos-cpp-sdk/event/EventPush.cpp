@@ -21,9 +21,9 @@
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
-#include <bcos-cpp-sdk/MessageType.h>
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventPush.h>
+#include <bcos-cpp-sdk/event/EventPushMessageType.h>
 #include <bcos-cpp-sdk/event/EventPushRequest.h>
 #include <bcos-cpp-sdk/event/EventPushResponse.h>
 #include <bcos-cpp-sdk/event/EventPushStatus.h>
@@ -37,7 +37,6 @@
 using namespace bcos;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
-using namespace bcos::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
@@ -371,7 +370,7 @@ void EventPush::subscribeEventByTask(EventPushTask::Ptr _task, Callback _callbac
     auto jsonReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
-    message->setType(ws::MessageType::EVENT_SUBSCRIBE);
+    message->setType(EventPushMessageType::EVENT_SUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(jsonReq.begin(), jsonReq.end()));
 
     EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask") << LOG_DESC("subscribe event")
@@ -470,7 +469,7 @@ void EventPush::unsubscribeEvent(const std::string& _id, Callback _callback)
     auto strReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
-    message->setType(ws::MessageType::EVENT_UNSUBSCRIBE);
+    message->setType(EventPushMessageType::EVENT_UNSUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
 
     session->asyncSendMessage(message, Options(EP_SENDMSG_TIMEOUT(m_config)),
