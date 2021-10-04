@@ -23,3 +23,28 @@
 
 #define AMOP_CLIENT(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][CLIENT]"
 #define AMOP_TOPIC_MANAGER(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][TOPICMANAGER]"
+
+namespace bcos
+{
+namespace cppsdk
+{
+namespace amop
+{
+/**
+ * @brief: amop message types
+ */
+enum MessageType
+{
+    // ------------AMOP begin ---------
+
+    AMOP_SUBTOPIC = 0x110,   // 272
+    AMOP_REQUEST = 0x111,    // 273
+    AMOP_BROADCAST = 0x112,  // 274
+    AMOP_RESPONSE = 0x113    // 275
+
+    // ------------AMOP end ---------
+
+};
+}  // namespace amop
+}  // namespace cppsdk
+}  // namespace bcos

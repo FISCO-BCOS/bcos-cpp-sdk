@@ -21,7 +21,6 @@
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
-#include <bcos-cpp-sdk/amop/AMOPMessageType.h>
 #include <bcos-cpp-sdk/amop/Common.h>
 #include <bcos-framework/interfaces/protocol/CommonError.h>
 #include <bcos-framework/libutilities/Common.h>
@@ -83,7 +82,7 @@ void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq, b
     auto msg = m_messageFactory->buildMessage();
     msg->setSeq(std::make_shared<bcos::bytes>(_seq.begin(), _seq.end()));
     msg->setData(std::make_shared<bcos::bytes>(_data.begin(), _data.end()));
-    msg->setType(AMOPMessageType::AMOP_RESPONSE);
+    msg->setType(bcos::cppsdk::amop::MessageType::AMOP_RESPONSE);
 
     auto service = m_service.lock();
     if (service)
@@ -104,7 +103,7 @@ void AMOP::publish(
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
-    sendMsg->setType(AMOPMessageType::AMOP_REQUEST);
+    sendMsg->setType(bcos::cppsdk::amop::MessageType::AMOP_REQUEST);
     sendMsg->setData(buffer);
 
     auto sendBuffer = std::make_shared<bcos::bytes>();
@@ -134,7 +133,7 @@ void AMOP::broadcast(const std::string& _topic, bytesConstRef _data)
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
-    sendMsg->setType(AMOPMessageType::AMOP_BROADCAST);
+    sendMsg->setType(bcos::cppsdk::amop::MessageType::AMOP_BROADCAST);
     sendMsg->setData(buffer);
 
     auto sendBuffer = std::make_shared<bcos::bytes>();
@@ -174,7 +173,7 @@ void AMOP::updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _
 {
     std::string request = m_topicManager->topicsToJsonString();
     auto msg = m_messageFactory->buildMessage();
-    msg->setType(AMOPMessageType::AMOP_SUBTOPIC);
+    msg->setType(bcos::cppsdk::amop::MessageType::AMOP_SUBTOPIC);
     msg->setData(std::make_shared<bcos::bytes>(request.begin(), request.end()));
 
     _session->asyncSendMessage(msg);

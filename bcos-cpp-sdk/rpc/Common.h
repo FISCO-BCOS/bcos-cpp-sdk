@@ -23,3 +23,25 @@
 
 #define RPCREQ_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][REQUEST]"
 #define RPCIMPL_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][IMPL]"
+
+namespace bcos
+{
+namespace cppsdk
+{
+namespace jsonrpc
+{
+/**
+ * @brief: jsonrpc message types
+ */
+enum MessageType
+{
+    // ------------jsonrpc begin ----------
+
+    BLOCK_NOTIFY = 0x101,  // 257
+    RPC_REQUEST = 0x102,   // 258
+
+    // ------------jsonrpc end ---------
+};
+}  // namespace jsonrpc
+}  // namespace cppsdk
+}  // namespace bcos

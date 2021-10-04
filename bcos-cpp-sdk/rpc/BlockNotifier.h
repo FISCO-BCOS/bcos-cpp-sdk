@@ -13,33 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file AMOPMessageType.h
+ * @file BlockNotifier.h
  * @author: octopus
- * @date 2021-09-30
+ * @date 2021-10-04
  */
+
 #pragma once
+
+#include <memory>
+#include <string>
 
 namespace bcos
 {
-namespace cppsdk
+namespace group
 {
-namespace amop
+class BlockNotifier
 {
-/**
- * @brief: amop message types
- */
-enum AMOPMessageType
-{
-    // ------------AMOP begin ---------
-
-    AMOP_SUBTOPIC = 0x110,   // 272
-    AMOP_REQUEST = 0x111,    // 273
-    AMOP_BROADCAST = 0x112,  // 274
-    AMOP_RESPONSE = 0x113    // 275
-
-    // ------------AMOP end ---------
-
+public:
+    using Ptr = std::shared_ptr<BlockNotifier>;
+    using ConstPtr = std::shared_ptr<const BlockNotifier>;
 };
-}  // namespace amop
-}  // namespace cppsdk
+}  // namespace group
 }  // namespace bcos
