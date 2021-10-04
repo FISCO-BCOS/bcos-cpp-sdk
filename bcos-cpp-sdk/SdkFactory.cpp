@@ -49,22 +49,33 @@ WsService::Ptr SdkFactory::buildWsService()
 
 bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(WsService::Ptr _wsService)
 {
+    auto blockNotifier = std::make_shared<BlockNotifier>();
     auto jsonRpc = std::make_shared<JsonRpcImpl>();
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
-    auto wsServicePtr = std::weak_ptr<WsService>(_wsService);
+    jsonRpc->setBlockNotifier(blockNotifier);
+    auto wsServiceWeakPtr = std::weak_ptr<WsService>(_wsService);
+    auto blockNotifierWeakPtr = std::weak_ptr<BlockNotifier>(blockNotifier);
 
     _wsService->registerMsgHandler(bcos::cppsdk::jsonrpc::MessageType::BLOCK_NOTIFY,
-        [wsServicePtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+        [blockNotifierWeakPtr](
+            std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto bi = blockNotifierWeakPtr.lock();
+            if (!bi)
+            {
+                return;
+            }
+
             auto blkMsg = std::string(_msg->data()->begin(), _msg->data()->end());
+            bi->onRecvBlockNotifier(blkMsg);
 
             BCOS_LOG(INFO) << "[WS]" << LOG_DESC("receive block notify")
                            << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("blk", blkMsg);
         });
 
     jsonRpc->setSender(
-        [wsServicePtr](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
-            auto wsService = wsServicePtr.lock();
+        [wsServiceWeakPtr](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
+            auto wsService = wsServiceWeakPtr.lock();
             if (!wsService)
             {
                 return;
