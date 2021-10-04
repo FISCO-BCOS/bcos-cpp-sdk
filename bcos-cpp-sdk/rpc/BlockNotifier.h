@@ -20,18 +20,62 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
+#include <shared_mutex>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace bcos
 {
-namespace group
+namespace cppsdk
 {
+namespace jsonrpc
+{
+using BlockNotifierCallback = std::function<void(int64_t _blockNumber)>;
+using BlockNotifierCallbacks = std::vector<BlockNotifierCallback>;
+
+class BlockInfo
+{
+public:
+    using Ptr = std::shared_ptr<BlockInfo>;
+    using ConstPtr = std::shared_ptr<const BlockInfo>;
+
+public:
+    std::string group() const { return m_group; }
+    void setGroup(const std::string& _group) { m_group = _group; }
+    int64_t blockNumber() const { return m_blockNumber; }
+    void setBlockNumber(int64_t _blockNumber) { m_blockNumber = _blockNumber; }
+
+public:
+    std::string toJson();
+    bool fromJson(const std::string& _json);
+
+private:
+    std::string m_group;
+    int64_t m_blockNumber;
+};
+
 class BlockNotifier
 {
 public:
     using Ptr = std::shared_ptr<BlockNotifier>;
     using ConstPtr = std::shared_ptr<const BlockNotifier>;
+
+public:
+    void onRecvBlockNotifier(const std::string& _msg);
+    void onRecvBlockNotifier(BlockInfo::Ptr _blockInfo);
+
+    bool getBlockNumberByGroup(const std::string& _group, int64_t& _blockNumber);
+    void registerCallback(const std::string& _group, BlockNotifierCallback _callback);
+    void removeGroup(const std::string& _group);
+
+private:
+    mutable std::shared_mutex x_locks;
+    std::unordered_map<std::string, BlockNotifierCallbacks> m_group2callbacks;
+    std::unordered_map<std::string, BlockInfo::Ptr> m_group2BlockInfo;
 };
-}  // namespace group
+}  // namespace jsonrpc
+}  // namespace cppsdk
 }  // namespace bcos
