@@ -92,7 +92,7 @@ void BlockNotifier::onRecvBlockNotifier(const std::string& _msg)
 {
     auto bi = std::make_shared<BlockInfo>();
     auto r = bi->fromJson(_msg);
-    if (!r)
+    if (r)
     {
         onRecvBlockNotifier(bi);
     }
@@ -105,7 +105,29 @@ void BlockNotifier::onRecvBlockNotifier(BlockInfo::Ptr _blockInfo)
                                 << LOG_KV("group", _blockInfo->group())
                                 << LOG_KV("blockNumber", _blockInfo->blockNumber());
 
-    {  // callback
+
+    bool blockNumberUpdate = false;
+    {  // update blockinfo
+        std::unique_lock lock(x_locks);
+        auto it = m_group2BlockInfo.find(_blockInfo->group());
+        if (it != m_group2BlockInfo.end())
+        {
+            auto blockNumber = it->second->blockNumber();
+            if (_blockInfo->blockNumber() > blockNumber)
+            {
+                it->second->setBlockNumber(_blockInfo->blockNumber());
+                blockNumberUpdate = true;
+            }
+        }
+        else
+        {
+            m_group2BlockInfo[_blockInfo->group()] = _blockInfo;
+            blockNumberUpdate = true;
+        }
+    }
+
+    if (blockNumberUpdate)
+    {
         std::shared_lock lock(x_locks);
         auto it = m_group2callbacks.find(_blockInfo->group());
         if (it != m_group2callbacks.end())
@@ -114,19 +136,6 @@ void BlockNotifier::onRecvBlockNotifier(BlockInfo::Ptr _blockInfo)
             {
                 callback(_blockInfo->blockNumber());
             }
-        }
-    }
-
-    {  // update blockinfo
-        std::unique_lock lock(x_locks);
-        auto it = m_group2BlockInfo.find(_blockInfo->group());
-        if (it != m_group2BlockInfo.end())
-        {
-            it->second->setBlockNumber(_blockInfo->blockNumber());
-        }
-        else
-        {
-            m_group2BlockInfo[_blockInfo->group()] = _blockInfo;
         }
     }
 }
