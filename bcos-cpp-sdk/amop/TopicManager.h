@@ -41,7 +41,7 @@ public:
     bool removeTopic(const std::string& _topic);
     bool removeTopics(const std::set<std::string>& _topics);
     std::set<std::string> topics() const;
-    std::string topicsToJsonString();
+    std::string toJson();
 
 private:
     // mutex for m_sessions

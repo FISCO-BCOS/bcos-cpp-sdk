@@ -171,7 +171,7 @@ void AMOP::updateTopicsToRemote()
 
 void AMOP::updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
-    std::string request = m_topicManager->topicsToJsonString();
+    std::string request = m_topicManager->toJson();
     auto msg = m_messageFactory->buildMessage();
     msg->setType(bcos::cppsdk::amop::MessageType::AMOP_SUBTOPIC);
     msg->setData(std::make_shared<bcos::bytes>(request.begin(), request.end()));

@@ -60,7 +60,7 @@ std::set<std::string> TopicManager::topics() const
     return m_topics;
 }
 
-std::string TopicManager::topicsToJsonString()
+std::string TopicManager::toJson()
 {
     auto totalTopics = topics();
     Json::Value jTopics(Json::arrayValue);
