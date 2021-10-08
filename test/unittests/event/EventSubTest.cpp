@@ -18,8 +18,8 @@
  * @author: octopus
  * @date 2021-09-22
  */
-#include "./WsServiceFake.h"
-#include "./WsSessionFake.h"
+#include "../fake/WsServiceFake.h"
+#include "../fake/WsSessionFake.h"
 #include "libutilities/Common.h"
 #include <bcos-cpp-sdk/event/EventSub.h>
 #include <bcos-cpp-sdk/event/EventSubResponse.h>
