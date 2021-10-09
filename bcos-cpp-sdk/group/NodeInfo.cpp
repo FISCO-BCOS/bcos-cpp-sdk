@@ -18,8 +18,9 @@
  * @date 2021-08-25
  */
 
+#include "libutilities/Log.h"
 #include <bcos-boostssl/websocket/Common.h>
-#include <bcos-boostssl/websocket/NodeInfo.h>
+#include <bcos-cpp-sdk/group/NodeInfo.h>
 #include <json/json.h>
 #include <exception>
 
@@ -50,29 +51,14 @@ bool NodeInfo::init(const std::string& _json)
         Json::Reader reader;
         if (!reader.parse(_json, root))
         {
-            WEBSOCKET_NODEINFO(ERROR)
-                << LOG_BADGE("init") << LOG_DESC("invalid json object") << LOG_KV("json", _json);
+            BCOS_LOG(ERROR) << LOG_BADGE("init") << LOG_DESC("invalid json object")
+                            << LOG_KV("json", _json);
             return false;
-        }
-
-        if (root.isMember("agency"))
-        {
-            m_agency = root["agency"].asString();
         }
 
         if (root.isMember("blockNumber"))
         {
             m_blockNumber = root["blockNumber"].asInt64();
-        }
-
-        if (root.isMember("buildTime"))
-        {
-            m_buildTime = root["buildTime"].asString();
-        }
-
-        if (root.isMember("gitCommit"))
-        {
-            m_gitCommit = root["gitCommit"].asString();
         }
 
         if (root.isMember("chainID"))
@@ -115,21 +101,18 @@ bool NodeInfo::init(const std::string& _json)
             m_wsProtocolVersion = root["wsProtocolVersion"].asUInt();
         }
 
-        WEBSOCKET_NODEINFO(INFO) << LOG_BADGE("init") << LOG_DESC("parse node info successfully")
-                                 << LOG_KV("blockNumber", m_blockNumber)
-                                 << LOG_KV("chainID", m_chainID) << LOG_KV("groupID", m_groupID)
-                                 << LOG_KV("nodeID", m_nodeID) << LOG_KV("smCrypto", m_smCrypto)
-                                 << LOG_KV("version", m_version)
-                                 << LOG_KV("wsProtocolVersion", m_wsProtocolVersion)
-                                 << LOG_KV("gitCommit", m_gitCommit)
-                                 << LOG_KV("buildTime", m_buildTime);
+        BCOS_LOG(INFO) << LOG_BADGE("init") << LOG_DESC("parse node info successfully")
+                       << LOG_KV("blockNumber", m_blockNumber) << LOG_KV("chainID", m_chainID)
+                       << LOG_KV("groupID", m_groupID) << LOG_KV("nodeID", m_nodeID)
+                       << LOG_KV("smCrypto", m_smCrypto) << LOG_KV("version", m_version)
+                       << LOG_KV("wsProtocolVersion", m_wsProtocolVersion);
 
         return true;
     }
     catch (const std::exception& e)
     {
-        WEBSOCKET_NODEINFO(ERROR) << LOG_BADGE("init") << LOG_DESC("invalid json object")
-                                  << LOG_KV("what", std::string(e.what())) << LOG_KV("json", _json);
+        BCOS_LOG(ERROR) << LOG_BADGE("init") << LOG_DESC("invalid json object")
+                        << LOG_KV("what", std::string(e.what())) << LOG_KV("json", _json);
         return false;
     }
 }

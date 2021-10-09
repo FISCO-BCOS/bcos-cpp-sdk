@@ -34,9 +34,6 @@ public:
     bool init(const std::string& _json);
 
 public:
-    std::string agency() const { return m_agency; }
-    void setAgency(const std::string& _agency) { m_agency = _agency; }
-
     int64_t blockNumber() const { return m_blockNumber; }
     void setBlockNumber(int64_t _blockNumber) { m_blockNumber = _blockNumber; }
 
@@ -58,12 +55,6 @@ public:
         m_wsProtocolVersion = _wsProtocolVersion;
     }
 
-    std::string gitCommit() const { return m_gitCommit; }
-    void setGitCommit(const std::string& _gitCommit) { m_gitCommit = _gitCommit; }
-
-    std::string buildTime() const { return m_buildTime; }
-    void setBuildTime(const std::string& _buildTime) { m_buildTime = _buildTime; }
-
     std::string version() const { return m_version; }
     void setVersion(const std::string& _version) { m_version = _version; }
 
@@ -74,7 +65,6 @@ public:
     }
 
 private:
-    std::string m_agency;
     int64_t m_blockNumber;
 
     std::string m_chainID;
@@ -85,8 +75,6 @@ private:
     bool m_wasm;
     uint16_t m_wsProtocolVersion;
 
-    std::string m_gitCommit;
-    std::string m_buildTime;
     std::string m_version;
     std::string m_supportedVersion;
 };
