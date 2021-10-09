@@ -31,7 +31,7 @@ namespace bcos
 {
 namespace cppsdk
 {
-namespace jsonrpc
+namespace group
 {
 using BlockNotifierCallback = std::function<void(int64_t _blockNumber)>;
 using BlockNotifierCallbacks = std::vector<BlockNotifierCallback>;
@@ -76,6 +76,6 @@ private:
     std::unordered_map<std::string, BlockNotifierCallbacks> m_group2callbacks;
     std::unordered_map<std::string, BlockInfo::Ptr> m_group2BlockInfo;
 };
-}  // namespace jsonrpc
+}  // namespace group
 }  // namespace cppsdk
 }  // namespace bcos

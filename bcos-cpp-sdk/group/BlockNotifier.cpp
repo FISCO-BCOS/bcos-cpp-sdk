@@ -18,13 +18,13 @@
  * @date 2021-10-04
  */
 
-#include <bcos-cpp-sdk/rpc/BlockNotifier.h>
+#include <bcos-cpp-sdk/group/BlockNotifier.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <json/json.h>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
-using namespace bcos::cppsdk::jsonrpc;
+using namespace bcos::cppsdk::group;
 
 std::string BlockInfo::toJson()
 {

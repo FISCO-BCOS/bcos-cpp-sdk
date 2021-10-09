@@ -59,6 +59,8 @@ BOOST_AUTO_TEST_CASE(test_TopicManager)
         BOOST_CHECK(!r);
 
         BOOST_CHECK(topics.size() == 2);
+
+        BOOST_CHECK(!topicManager->toJson().empty());
     }
 
     {
@@ -84,6 +86,39 @@ BOOST_AUTO_TEST_CASE(test_TopicManager)
         BOOST_CHECK(!r);
 
         BOOST_CHECK(topics.size() == 0);
+        BOOST_CHECK(!topicManager->toJson().empty());
+    }
+
+    {
+        auto topicManager = std::make_shared<TopicManager>();
+        BOOST_CHECK(topicManager->topics().size() == 0);
+
+        std::string topic1 = "a";
+        std::string topic2 = "a";
+        std::string topic3 = "a";
+        std::set<std::string> topics{topic1, topic2, topic3};
+
+        auto r = topicManager->addTopics(topics);
+        BOOST_CHECK(r);
+        r = topicManager->addTopics(topics);
+        BOOST_CHECK(!r);
+
+        BOOST_CHECK(topics.size() == topics.size());
+
+        r = topicManager->removeTopic(topic1);
+        BOOST_CHECK(r);
+
+        r = topicManager->removeTopic(topic2);
+        BOOST_CHECK(r);
+
+        r = topicManager->removeTopic(topic3);
+        BOOST_CHECK(r);
+
+        r = topicManager->removeTopics(topics);
+        BOOST_CHECK(!r);
+
+        BOOST_CHECK(topics.size() == 0);
+        BOOST_CHECK(!topicManager->toJson().empty());
     }
 }
 

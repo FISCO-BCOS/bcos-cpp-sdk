@@ -19,14 +19,14 @@
  * @date 2021-10-04
  */
 #include "libutilities/Common.h"
-#include <bcos-cpp-sdk/rpc/BlockNotifier.h>
+#include <bcos-cpp-sdk/group/BlockNotifier.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
 #include <future>
 
 using namespace bcos;
-using namespace bcos::cppsdk;
+using namespace bcos::cppsdk::group;
 using namespace bcos::test;
 
 BOOST_FIXTURE_TEST_SUITE(BlockNotifierTest, TestPromptFixture)
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_BlockInfo)
     std::string group = "group";
     int64_t blockNumber = 111;
 
-    auto bi = std::make_shared<bcos::cppsdk::jsonrpc::BlockInfo>();
+    auto bi = std::make_shared<bcos::cppsdk::group::BlockInfo>();
     bi->setGroup(group);
     bi->setBlockNumber(blockNumber);
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(test_BlockInfo)
 
 BOOST_AUTO_TEST_CASE(test_BlockNotifier)
 {
-    auto blockNotifier = std::make_shared<bcos::cppsdk::jsonrpc::BlockNotifier>();
+    auto blockNotifier = std::make_shared<bcos::cppsdk::group::BlockNotifier>();
 
     std::string group = "group";
     int64_t globalBlockNumber1 = -1;
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(test_BlockNotifier)
         std::string group = "group";
         int64_t blockNumber1 = 111;
 
-        auto bi = std::make_shared<bcos::cppsdk::jsonrpc::BlockInfo>();
+        auto bi = std::make_shared<bcos::cppsdk::group::BlockInfo>();
         bi->setGroup(group);
         bi->setBlockNumber(blockNumber1);
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(test_BlockNotifier)
         int64_t blockNumber1 = 12345;
 
 
-        auto bi = std::make_shared<bcos::cppsdk::jsonrpc::BlockInfo>();
+        auto bi = std::make_shared<bcos::cppsdk::group::BlockInfo>();
         bi->setGroup(group);
         bi->setBlockNumber(blockNumber1);
 

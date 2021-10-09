@@ -25,7 +25,6 @@
 #include <bcos-cpp-sdk/amop/AMOPInterface.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/TopicManager.h>
-#include <memory>
 #include <unordered_map>
 
 namespace bcos
@@ -54,11 +53,11 @@ public:
     //
     virtual void sendResponse(
         const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) override;
-    // set default callback
-    virtual void setSubCallback(SubCallback _callback) override;
     // query all subscribed topics
     virtual void querySubTopics(std::set<std::string>& _topics) override;
-
+    // set default callback
+    virtual void setSubCallback(SubCallback _callback) override { m_callback = _callback; }
+    virtual SubCallback subCallback() const { return m_callback; }
 
     void updateTopicsToRemote();
     void updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
@@ -72,8 +71,6 @@ public:
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
 public:
-    SubCallback subCallback() const { return m_callback; }
-
     std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> messageFactory() const
     {
         return m_messageFactory;

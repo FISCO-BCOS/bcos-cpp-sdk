@@ -35,6 +35,7 @@ using namespace bcos::boostssl::ws;
 
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
+using namespace bcos::cppsdk::group;
 using namespace bcos::cppsdk::jsonrpc;
 using namespace bcos::cppsdk::event;
 

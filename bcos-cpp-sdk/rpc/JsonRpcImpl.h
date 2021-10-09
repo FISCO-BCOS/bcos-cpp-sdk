@@ -19,7 +19,7 @@
  */
 
 #pragma once
-#include <bcos-cpp-sdk/rpc/BlockNotifier.h>
+#include <bcos-cpp-sdk/group/BlockNotifier.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcInterface.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcRequest.h>
 #include <functional>
@@ -88,8 +88,11 @@ public:
     JsonRpcRequestFactory::Ptr factory() const { return m_factory; }
     void setFactory(JsonRpcRequestFactory::Ptr _factory) { m_factory = _factory; }
 
-    BlockNotifier::Ptr blockNotifier() { return m_blockNotifier; }
-    void setBlockNotifier(BlockNotifier::Ptr _blockNotifier) { m_blockNotifier = _blockNotifier; }
+    bcos::cppsdk::group::BlockNotifier::Ptr blockNotifier() { return m_blockNotifier; }
+    void setBlockNotifier(bcos::cppsdk::group::BlockNotifier::Ptr _blockNotifier)
+    {
+        m_blockNotifier = _blockNotifier;
+    }
 
     std::function<void(const std::string& _request, RespFunc _respFunc)> sender() const
     {
@@ -101,7 +104,7 @@ public:
     }
 
 private:
-    BlockNotifier::Ptr m_blockNotifier;
+    bcos::cppsdk::group::BlockNotifier::Ptr m_blockNotifier;
     JsonRpcRequestFactory::Ptr m_factory;
     std::function<void(const std::string& _request, RespFunc _respFunc)> m_sender;
 };

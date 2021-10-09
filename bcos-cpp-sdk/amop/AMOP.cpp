@@ -27,8 +27,6 @@
 #include <bcos-framework/libutilities/DataConvertUtility.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <json/json.h>
-#include <boost/core/ignore_unused.hpp>
-#include <memory>
 
 
 using namespace bcos;
@@ -69,11 +67,15 @@ void AMOP::querySubTopics(std::set<std::string>& _topics)
 // subscribe topic with callback
 void AMOP::subscribe(const std::string& _topic, SubCallback _callback)
 {
-    m_topicManager->addTopic(_topic);
+    auto r = m_topicManager->addTopic(_topic);
     addTopicCallback(_topic, _callback);
-    updateTopicsToRemote();
+    if (r)
+    {
+        updateTopicsToRemote();
+    }
+
     AMOP_CLIENT(INFO) << LOG_BADGE("subscribe") << LOG_DESC("subscribe topic with callback")
-                      << LOG_KV("topic", _topic);
+                      << LOG_KV("topic", _topic) << LOG_KV("r", r);
 }
 
 //
@@ -148,11 +150,6 @@ void AMOP::broadcast(const std::string& _topic, bytesConstRef _data)
     }
 }
 
-// set default callback
-void AMOP::setSubCallback(SubCallback _callback)
-{
-    m_callback = _callback;
-}
 
 void AMOP::updateTopicsToRemote()
 {
@@ -225,7 +222,6 @@ void AMOP::onRecvAMOPResponse(
     std::shared_ptr<WsMessage> _msg, std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
-    boost::ignore_unused(_msg, _session);
     AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPResponse")
                          << LOG_DESC("maybe the amop request callback timeout")
                          << LOG_KV("seq", seq) << LOG_KV("endpoint", _session->endPoint());
@@ -249,9 +245,9 @@ void AMOP::onRecvAMOPBroadcast(
 
     auto topic = request->topic();
 
-    AMOP_CLIENT(INFO) << LOG_BADGE("onRecvAMOPBroadcast")
-                      << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
-                      << LOG_KV("data size", request->data().size());
+    AMOP_CLIENT(DEBUG) << LOG_BADGE("onRecvAMOPBroadcast")
+                       << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
+                       << LOG_KV("data size", request->data().size());
 
     auto callback = getCallbackByTopic(topic);
     if (!callback && m_callback)

@@ -239,12 +239,13 @@ bool EventSub::removeSuspendTask(const std::string& _id)
 
 std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
 {
-    std::size_t retCount = 0;
+    std::size_t count = 0;
     std::unique_lock lock(x_tasks);
     for (auto it = m_workingTasks.begin(); it != m_workingTasks.end();)
     {
         auto task = it->second;
         auto s = task->session();
+        /*
         if (!s)
         {
             EVENT_PUSH(ERROR) << LOG_BADGE("suspendTasks")
@@ -253,6 +254,7 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
             ++it;
             continue;
         }
+        */
 
         if (s.get() != _session.get())
         {
@@ -260,18 +262,17 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
             continue;
         }
 
-        // TODO : try to resend the task immediately is better ???
         EVENT_PUSH(INFO) << LOG_BADGE("suspendTasks")
-                         << LOG_DESC("suspend event sub task for network disconnect")
+                         << LOG_DESC("suspend event sub task for session disconnect")
                          << LOG_KV("id", task->id());
 
         it = m_workingTasks.erase(it);
         task->setSession(nullptr);
         addSuspendTask(task);
-        retCount++;
+        count++;
     }
 
-    return retCount;
+    return count;
 }
 
 void EventSub::onRecvEventSubMessage(
@@ -508,7 +509,6 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
             else
             {
                 _callback(nullptr, _id, strResp);
-
                 EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent")
                                  << LOG_DESC("callback response success") << LOG_KV("id", _id)
                                  << LOG_KV("status", resp->status()) << LOG_KV("response", strResp);
