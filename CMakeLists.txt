@@ -74,8 +74,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # install dependencies
 include(InstallBcosFrameworkDependencies)
 
-set(CPP_SDK_TARGET "bcos-cpp-sdk")
-set(CPP_SDK_DY_TARGET "bcos-cpp-sdk-dy")
+set(CPP_SDK_TARGET "bcos-sdk-static")
+set(CPP_SDK_DY_TARGET "bcos-sdk")
 set(JSON_RPC_TARGET "json-rpc-client")
 set(AMOP_TARGET "amop-client")
 set(EVENT_TARGET "event-client")
