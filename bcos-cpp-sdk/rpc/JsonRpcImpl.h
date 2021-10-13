@@ -123,9 +123,6 @@ public:
     virtual void getGroupNodeInfo(
         std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
 
-    // TODO: fit to multi group
-    virtual void getNodeInfo(RespFunc _respFunc) override;
-
 public:
     JsonRpcRequestFactory::Ptr factory() const { return m_factory; }
     void setFactory(JsonRpcRequestFactory::Ptr _factory) { m_factory = _factory; }

@@ -434,12 +434,3 @@ void JsonRpcImpl::getGroupNodeInfo(
     m_sender(s, _respFunc);
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupNodeInfo") << LOG_KV("request", s);
 }
-
-void JsonRpcImpl::getNodeInfo(RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    auto request = m_factory->buildRequest("getNodeInfo", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("getNodeInfo") << LOG_KV("request", s);
-}

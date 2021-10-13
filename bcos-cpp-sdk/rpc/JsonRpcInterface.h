@@ -123,9 +123,6 @@ public:
     // get the information of a given node
     virtual void getGroupNodeInfo(
         std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) = 0;
-
-    // TODO: fit to multi group
-    virtual void getNodeInfo(RespFunc _respFunc) = 0;
 };
 
 }  // namespace jsonrpc
