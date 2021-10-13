@@ -1,7 +1,7 @@
 set(DESTINATION_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
 
 install(
-        DIRECTORY "bcos-rpc"
+        DIRECTORY "bcos-cpp-sdk"
         DESTINATION "${DESTINATION_INCLUDE_DIR}"
         FILES_MATCHING PATTERN "*.h"
 )
