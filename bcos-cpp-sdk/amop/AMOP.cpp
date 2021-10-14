@@ -86,11 +86,7 @@ void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq, b
     msg->setData(std::make_shared<bcos::bytes>(_data.begin(), _data.end()));
     msg->setType(bcos::cppsdk::amop::MessageType::AMOP_RESPONSE);
 
-    auto service = m_service.lock();
-    if (service)
-    {
-        service->asyncSendMessageByEndPoint(_endPoint, msg);
-    }
+    m_service->asyncSendMessageByEndPoint(_endPoint, msg);
 }
 
 // publish message
@@ -111,17 +107,13 @@ void AMOP::publish(
     auto sendBuffer = std::make_shared<bcos::bytes>();
     sendMsg->encode(*sendBuffer);
 
-    auto service = m_service.lock();
-    if (service)
-    {
-        AMOP_CLIENT(TRACE) << LOG_BADGE("publish") << LOG_DESC("publish message")
-                           << LOG_KV("topic", _topic);
-        service->asyncSendMessage(sendMsg, bcos::boostssl::ws::Options(_timeout),
-            [_callback](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
-                std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
-                _callback(_error, _msg, _session);
-            });
-    }
+    AMOP_CLIENT(TRACE) << LOG_BADGE("publish") << LOG_DESC("publish message")
+                       << LOG_KV("topic", _topic);
+    m_service->asyncSendMessage(sendMsg, bcos::boostssl::ws::Options(_timeout),
+        [_callback](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+            std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
+            _callback(_error, _msg, _session);
+        });
 }
 
 // broadcast message
@@ -141,25 +133,15 @@ void AMOP::broadcast(const std::string& _topic, bytesConstRef _data)
     auto sendBuffer = std::make_shared<bcos::bytes>();
     sendMsg->encode(*sendBuffer);
 
-    auto service = m_service.lock();
-    if (service)
-    {
-        AMOP_CLIENT(TRACE) << LOG_BADGE("broadcast") << LOG_DESC("broadcast message")
-                           << LOG_KV("topic", _topic);
-        service->broadcastMessage(sendMsg);
-    }
+    AMOP_CLIENT(TRACE) << LOG_BADGE("broadcast") << LOG_DESC("broadcast message")
+                       << LOG_KV("topic", _topic);
+    m_service->broadcastMessage(sendMsg);
 }
 
 
 void AMOP::updateTopicsToRemote()
 {
-    auto service = m_service.lock();
-    if (!service)
-    {
-        return;
-    }
-
-    auto ss = service->sessions();
+    auto ss = m_service->sessions();
     for (auto session : ss)
     {
         updateTopicsToRemote(session);

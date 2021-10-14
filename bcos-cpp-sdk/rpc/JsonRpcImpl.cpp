@@ -27,6 +27,31 @@ using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
 
+void JsonRpcImpl::genericMethod(const std::string& _data, RespFunc _respFunc)
+{
+    m_sender(_data, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("genericMethod") << LOG_KV("request", _data);
+}
+
+void JsonRpcImpl::genericMethod(
+    const std::string& _groupID, const std::string& _data, RespFunc _respFunc)
+{
+    boost::ignore_unused(_groupID);
+    m_sender(_data, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("genericMethod") << LOG_KV("group", _groupID)
+                       << LOG_KV("request", _data);
+}
+
+void JsonRpcImpl::genericMethod(const std::string& _groupID, const std::string& _nodeName,
+    const std::string& _data, RespFunc _respFunc)
+{
+    boost::ignore_unused(_groupID);
+    boost::ignore_unused(_nodeName);
+    m_sender(_data, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("genericMethod") << LOG_KV("group", _groupID)
+                       << LOG_KV("nodeName", _nodeName) << LOG_KV("request", _data);
+}
+
 void JsonRpcImpl::call(const std::string& _groupID, const std::string& _nodeName,
     const std::string& _to, const std::string& _data, RespFunc _respFunc)
 {

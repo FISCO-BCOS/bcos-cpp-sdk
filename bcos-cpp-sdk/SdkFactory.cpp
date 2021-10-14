@@ -55,7 +55,8 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(WsService::Ptr 
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
     jsonRpc->setBlockNotifier(blockNotifier);
-    auto wsServiceWeakPtr = std::weak_ptr<WsService>(_wsService);
+    jsonRpc->setService(_wsService);
+
     auto blockNotifierWeakPtr = std::weak_ptr<BlockNotifier>(blockNotifier);
 
     _wsService->registerMsgHandler(bcos::cppsdk::jsonrpc::MessageType::BLOCK_NOTIFY,
@@ -75,19 +76,13 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(WsService::Ptr 
         });
 
     jsonRpc->setSender(
-        [wsServiceWeakPtr](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
-            auto wsService = wsServiceWeakPtr.lock();
-            if (!wsService)
-            {
-                return;
-            }
-
+        [_wsService](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
             auto data = std::make_shared<bcos::bytes>(_request.begin(), _request.end());
-            auto msg = wsService->messageFactory()->buildMessage();
+            auto msg = _wsService->messageFactory()->buildMessage();
             msg->setType(bcos::cppsdk::jsonrpc::MessageType::RPC_REQUEST);
             msg->setData(data);
 
-            wsService->asyncSendMessage(msg, Options(-1),
+            _wsService->asyncSendMessage(msg, Options(-1),
                 [_respFunc](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
                     std::shared_ptr<WsSession> _session) {
                     (void)_session;
@@ -143,8 +138,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(WsService::Ptr _wsService)
         }
     });
 
-    auto wsServicePtr = std::weak_ptr<WsService>(_wsService);
-    amop->setService(wsServicePtr);
+    amop->setService(_wsService);
     return amop;
 }
 

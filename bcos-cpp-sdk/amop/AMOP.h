@@ -95,8 +95,11 @@ public:
         m_topicManager = _topicManager;
     }
 
-    std::weak_ptr<bcos::boostssl::ws::WsService> service() const { return m_service; }
-    void setService(std::weak_ptr<bcos::boostssl::ws::WsService> _service) { m_service = _service; }
+    std::shared_ptr<bcos::boostssl::ws::WsService> service() const { return m_service; }
+    void setService(std::shared_ptr<bcos::boostssl::ws::WsService> _service)
+    {
+        m_service = _service;
+    }
 
     void addTopicCallback(const std::string& _topic, SubCallback _callback)
     {
@@ -124,7 +127,7 @@ private:
     mutable std::shared_mutex x_topic2Callback;
     std::unordered_map<std::string, SubCallback> m_topic2Callback;
 
-    std::weak_ptr<bcos::boostssl::ws::WsService> m_service;
+    std::shared_ptr<bcos::boostssl::ws::WsService> m_service;
 };
 }  // namespace amop
 }  // namespace cppsdk

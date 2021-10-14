@@ -19,11 +19,11 @@
  */
 
 #pragma once
+#include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/group/BlockNotifier.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcInterface.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcRequest.h>
 #include <functional>
-#include <memory>
 
 namespace bcos
 {
@@ -40,6 +40,14 @@ public:
     virtual ~JsonRpcImpl() = default;
 
 public:
+    //-------------------------------------------------------------------------------------
+    virtual void genericMethod(const std::string& _data, RespFunc _respFunc) override;
+    virtual void genericMethod(
+        const std::string& _groupID, const std::string& _data, RespFunc _respFunc) override;
+    virtual void genericMethod(const std::string& _groupID, const std::string& _nodeName,
+        const std::string& _data, RespFunc _respFunc) override;
+    //-------------------------------------------------------------------------------------
+
     virtual void call(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _to, const std::string& _data, RespFunc _respFunc) override;
 
@@ -142,7 +150,15 @@ public:
         m_sender = _sender;
     }
 
+    std::shared_ptr<bcos::boostssl::ws::WsService> service() const { return m_service; }
+    void setService(std::shared_ptr<bcos::boostssl::ws::WsService> _service)
+    {
+        m_service = _service;
+    }
+
 private:
+    std::shared_ptr<bcos::boostssl::ws::WsService> m_service;
+
     bcos::cppsdk::group::BlockNotifier::Ptr m_blockNotifier;
     JsonRpcRequestFactory::Ptr m_factory;
     std::function<void(const std::string& _request, RespFunc _respFunc)> m_sender;

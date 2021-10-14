@@ -42,6 +42,14 @@ public:
     virtual ~JsonRpcInterface() {}
 
 public:
+    //-------------------------------------------------------------------------------------
+    virtual void genericMethod(const std::string& _data, RespFunc _respFunc) = 0;
+    virtual void genericMethod(
+        const std::string& _groupID, const std::string& _data, RespFunc _respFunc) = 0;
+    virtual void genericMethod(const std::string& _groupID, const std::string& _nodeName,
+        const std::string& _data, RespFunc _respFunc) = 0;
+    //-------------------------------------------------------------------------------------
+
     virtual void call(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _to, const std::string& _data, RespFunc _respFunc) = 0;
 
