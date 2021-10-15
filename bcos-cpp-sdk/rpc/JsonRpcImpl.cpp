@@ -62,11 +62,10 @@ void JsonRpcImpl::genericMethod(const std::string& _groupID, const std::string& 
                        << LOG_KV("nodeName", _nodeName) << LOG_KV("request", _data);
 }
 
-void JsonRpcImpl::call(const std::string& _groupID, const std::string& _nodeName,
-    const std::string& _to, const std::string& _data, RespFunc _respFunc)
+void JsonRpcImpl::call(const std::string& _groupID, const std::string& _to,
+    const std::string& _data, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_to);
@@ -78,11 +77,10 @@ void JsonRpcImpl::call(const std::string& _groupID, const std::string& _nodeName
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("call") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string& _nodeName,
-    const std::string& _data, bool _requireProof, RespFunc _respFunc)
+void JsonRpcImpl::sendTransaction(
+    const std::string& _groupID, const std::string& _data, bool _requireProof, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_data);
@@ -94,11 +92,10 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getTransaction(const std::string& _groupID, const std::string& _nodeName,
-    const std::string& _txHash, bool _requireProof, RespFunc _respFunc)
+void JsonRpcImpl::getTransaction(
+    const std::string& _groupID, const std::string& _txHash, bool _requireProof, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_txHash);
@@ -110,11 +107,10 @@ void JsonRpcImpl::getTransaction(const std::string& _groupID, const std::string&
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getTransaction") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getTransactionReceipt(const std::string& _groupID, const std::string& _nodeName,
-    const std::string& _txHash, bool _requireProof, RespFunc _respFunc)
+void JsonRpcImpl::getTransactionReceipt(
+    const std::string& _groupID, const std::string& _txHash, bool _requireProof, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_txHash);
@@ -126,11 +122,11 @@ void JsonRpcImpl::getTransactionReceipt(const std::string& _groupID, const std::
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getTransactionReceipt") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getBlockByHash(const std::string& _groupID, const std::string& _nodeName,
-    const std::string& _blockHash, bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc)
+void JsonRpcImpl::getBlockByHash(const std::string& _groupID, const std::string& _blockHash,
+    bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_blockHash);
@@ -143,13 +139,13 @@ void JsonRpcImpl::getBlockByHash(const std::string& _groupID, const std::string&
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getBlockByHash") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getBlockByNumber(const std::string& _groupID, const std::string& _nodeName,
-    int64_t _blockNumber, bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc)
+void JsonRpcImpl::getBlockByNumber(const std::string& _groupID, int64_t _blockNumber,
+    bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
-    // params.append(_group); // params.append(_nodeName);
+    // params.append(_group);
     params.append(_blockNumber);
     params.append(_onlyHeader);
     params.append(_onlyTxHash);
@@ -160,11 +156,10 @@ void JsonRpcImpl::getBlockByNumber(const std::string& _groupID, const std::strin
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getBlockByNumber") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getBlockHashByNumber(const std::string& _groupID, const std::string& _nodeName,
-    int64_t _blockNumber, RespFunc _respFunc)
+void JsonRpcImpl::getBlockHashByNumber(
+    const std::string& _groupID, int64_t _blockNumber, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_blockNumber);
@@ -175,11 +170,9 @@ void JsonRpcImpl::getBlockHashByNumber(const std::string& _groupID, const std::s
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getBlockHashByNumber") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getBlockNumber(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getBlockNumber(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
@@ -189,11 +182,10 @@ void JsonRpcImpl::getBlockNumber(
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getBlockNumber") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getCode(const std::string& _groupID, const std::string& _nodeName,
-    const std::string _contractAddress, RespFunc _respFunc)
+void JsonRpcImpl::getCode(
+    const std::string& _groupID, const std::string _contractAddress, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_contractAddress);
@@ -204,11 +196,9 @@ void JsonRpcImpl::getCode(const std::string& _groupID, const std::string& _nodeN
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getCode") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getSealerList(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getSealerList(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
@@ -218,11 +208,10 @@ void JsonRpcImpl::getSealerList(
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getSealerList") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getObserverList(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getObserverList(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
@@ -232,11 +221,10 @@ void JsonRpcImpl::getObserverList(
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getObserverList") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getPbftView(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getPbftView(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
@@ -246,11 +234,10 @@ void JsonRpcImpl::getPbftView(
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getPbftView") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getPendingTxSize(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getPendingTxSize(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
@@ -260,11 +247,10 @@ void JsonRpcImpl::getPendingTxSize(
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getPendingTxSize") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getSyncStatus(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getSyncStatus(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
@@ -274,11 +260,10 @@ void JsonRpcImpl::getSyncStatus(
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getSyncStatus") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getConsensusStatus(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getConsensusStatus(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
@@ -288,11 +273,11 @@ void JsonRpcImpl::getConsensusStatus(
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getConsensusStatus") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getSystemConfigByKey(const std::string& _groupID, const std::string& _nodeName,
-    const std::string& _keyValue, RespFunc _respFunc)
+void JsonRpcImpl::getSystemConfigByKey(
+    const std::string& _groupID, const std::string& _keyValue, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
     params.append(_keyValue);
@@ -303,11 +288,10 @@ void JsonRpcImpl::getSystemConfigByKey(const std::string& _groupID, const std::s
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getSystemConfigByKey") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getTotalTransactionCount(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getTotalTransactionCount(const std::string& _groupID, RespFunc _respFunc)
 {
     boost::ignore_unused(_groupID);
-    boost::ignore_unused(_nodeName);
+
     Json::Value params = Json::Value(Json::arrayValue);
     // params.append(_group); // params.append(_nodeName);
 
