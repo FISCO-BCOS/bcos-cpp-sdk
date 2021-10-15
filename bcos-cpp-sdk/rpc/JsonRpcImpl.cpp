@@ -429,6 +429,17 @@ void JsonRpcImpl::getGroupList(RespFunc _respFunc)
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupList") << LOG_KV("request", s);
 }
 
+// get all the group informations
+void JsonRpcImpl::getGroupInfoList(RespFunc _respFunc)
+{
+    Json::Value params = Json::Value(Json::arrayValue);
+
+    auto request = m_factory->buildRequest("getGroupInfoList", params);
+    auto s = request->toJson();
+    m_sender(s, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfoList") << LOG_KV("request", s);
+}
+
 // get the group information of the given group
 void JsonRpcImpl::getGroupInfo(std::string const& _groupID, RespFunc _respFunc)
 {
@@ -452,4 +463,15 @@ void JsonRpcImpl::getGroupNodeInfo(
     auto s = request->toJson();
     m_sender(s, _respFunc);
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupNodeInfo") << LOG_KV("request", s);
+}
+
+// TODO: temp interface , should be removed in the end
+void JsonRpcImpl::getNodeInfo(RespFunc _respFunc)
+{
+    Json::Value params = Json::Value(Json::arrayValue);
+
+    auto request = m_factory->buildRequest("getNodeInfo", params);
+    auto s = request->toJson();
+    m_sender(s, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("getNodeInfo") << LOG_KV("request", s);
 }

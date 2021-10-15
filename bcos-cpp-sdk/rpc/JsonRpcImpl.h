@@ -120,11 +120,15 @@ public:
         std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
     // get all the groupID list
     virtual void getGroupList(RespFunc _respFunc) override;
+    // get all the group informations
+    virtual void getGroupInfoList(RespFunc _respFunc) override;
     // get the group information of the given group
     virtual void getGroupInfo(std::string const& _groupID, RespFunc _respFunc) override;
     // get the information of a given node
     virtual void getGroupNodeInfo(
         std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
+    // TODO: temp interface , should be removed in the end
+    virtual void getNodeInfo(RespFunc _respFunc) override;
 
 public:
     JsonRpcRequestFactory::Ptr factory() const { return m_factory; }
