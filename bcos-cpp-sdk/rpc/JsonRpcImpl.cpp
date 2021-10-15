@@ -27,6 +27,16 @@ using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
 
+void JsonRpcImpl::start()
+{
+    // TODO:
+}
+
+void JsonRpcImpl::stop()
+{
+    // TODO:
+}
+
 void JsonRpcImpl::genericMethod(const std::string& _data, RespFunc _respFunc)
 {
     m_sender(_data, _respFunc);

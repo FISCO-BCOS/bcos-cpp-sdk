@@ -39,6 +39,11 @@ public:
     using Ptr = std::shared_ptr<AMOP>;
     virtual ~AMOP() {}
 
+public:
+    virtual void start() override;
+    virtual void stop() override;
+
+public:
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) override;
     // subscribe topics

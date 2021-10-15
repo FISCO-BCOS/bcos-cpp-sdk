@@ -45,6 +45,11 @@ public:
     using Ptr = std::shared_ptr<AMOPInterface>;
     virtual ~AMOPInterface() {}
 
+public:
+    virtual void start() = 0;
+    virtual void stop() = 0;
+
+public:
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) = 0;
     // subscribe topics

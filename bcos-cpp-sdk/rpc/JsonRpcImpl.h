@@ -40,6 +40,10 @@ public:
     virtual ~JsonRpcImpl() = default;
 
 public:
+    virtual void start() override;
+    virtual void stop() override;
+
+public:
     //-------------------------------------------------------------------------------------
     virtual void genericMethod(const std::string& _data, RespFunc _respFunc) override;
     virtual void genericMethod(

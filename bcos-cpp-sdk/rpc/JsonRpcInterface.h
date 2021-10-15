@@ -42,6 +42,10 @@ public:
     virtual ~JsonRpcInterface() {}
 
 public:
+    virtual void start() = 0;
+    virtual void stop() = 0;
+
+public:
     //-------------------------------------------------------------------------------------
     virtual void genericMethod(const std::string& _data, RespFunc _respFunc) = 0;
     virtual void genericMethod(

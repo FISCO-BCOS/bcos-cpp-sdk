@@ -35,6 +35,15 @@ using namespace bcos::boostssl::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
 
+void AMOP::start()
+{
+    // TODO:
+}
+void AMOP::stop()
+{
+    // TODO:
+}
+
 // subscribe topics
 void AMOP::subscribe(const std::set<std::string>& _topics)
 {
