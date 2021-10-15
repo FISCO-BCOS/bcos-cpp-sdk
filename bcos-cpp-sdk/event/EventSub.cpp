@@ -429,6 +429,15 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
 }
 
 void EventSub::subscribeEvent(
+    const std::string& _group, const std::string& _params, Callback _callback)
+{
+    std::ignore = _params;
+    // TODO:
+    EventSubParams::ConstPtr params = nullptr;
+    subscribeEvent(_group, params, _callback);
+}
+
+void EventSub::subscribeEvent(
     const std::string& _group, EventSubParams::ConstPtr _params, Callback _callback)
 {
     auto task = std::make_shared<EventSubTask>();

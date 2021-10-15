@@ -45,6 +45,8 @@ public:
     virtual void stop() override;
 
     virtual void subscribeEvent(
+        const std::string& _group, const std::string& _params, Callback _callback) override;
+    virtual void subscribeEvent(
         const std::string& _group, EventSubParams::ConstPtr _params, Callback _callback) override;
     virtual void unsubscribeEvent(const std::string& _id, Callback _callback) override;
 
