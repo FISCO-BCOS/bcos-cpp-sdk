@@ -115,16 +115,15 @@ void EventSub::doLoop()
         m_waitRespTasks.insert(id);
 
         auto self = std::weak_ptr<EventSub>(shared_from_this());
-        subscribeEventByTask(
-            task, [id, self](bcos::Error::Ptr, const std::string&, const std::string&) {
-                auto es = self.lock();
-                if (!es)
-                {
-                    return;
-                }
+        subscribeEventByTask(task, [id, self](bcos::Error::Ptr, const std::string&) {
+            auto es = self.lock();
+            if (!es)
+            {
+                return;
+            }
 
-                es->removeWaitResp(id);
-            });
+            es->removeWaitResp(id);
+        });
     }
 }
 
@@ -320,7 +319,7 @@ void EventSub::onRecvEventSubMessage(
     if (resp->status() == StatusCode::EndOfPush)
     {  // event sub end
         getTaskAndRemove(resp->id());
-        task->callback()(nullptr, resp->id(), strResp);
+        task->callback()(nullptr, strResp);
 
         EVENT_PUSH(INFO) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("end of push")
                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
@@ -330,7 +329,7 @@ void EventSub::onRecvEventSubMessage(
     {  // event sub error
         getTaskAndRemove(resp->id());
         // normal event sub
-        task->callback()(nullptr, resp->id(), strResp);
+        task->callback()(nullptr, strResp);
 
         EVENT_PUSH(INFO) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub error")
                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
@@ -348,7 +347,7 @@ void EventSub::onRecvEventSubMessage(
             task->state()->setCurrentBlockNumber(blockNumber);
         }
 
-        task->callback()(nullptr, resp->id(), strResp);
+        task->callback()(nullptr, strResp);
 
         EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
@@ -393,7 +392,7 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
 
-                _callback(_error, id, "");
+                _callback(_error, "");
                 return;
             }
 
@@ -404,11 +403,11 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
                 EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEventByTask")
                                   << LOG_DESC("invalid subscribe event response")
                                   << LOG_KV("id", id) << LOG_KV("response", strResp);
-                _callback(nullptr, id, strResp);
+                _callback(nullptr, strResp);
             }
             else if (resp->status() != StatusCode::Success)
             {
-                _callback(nullptr, id, strResp);
+                _callback(nullptr, strResp);
                 EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEventByTask")
                                   << LOG_DESC("callback response error") << LOG_KV("id", id)
                                   << LOG_KV("response", strResp);
@@ -420,7 +419,7 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
 
                 es->addTask(_task);
 
-                _callback(nullptr, id, strResp);
+                _callback(nullptr, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask")
                                  << LOG_DESC("callback response success") << LOG_KV("id", id)
                                  << LOG_KV("response", strResp);
@@ -457,7 +456,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
     {
         // TODO: error code define
         auto error = std::make_shared<Error>(-1, "event sub task not found");
-        _callback(error, _id, "");
+        _callback(error, "");
         EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event sub task not found")
                           << LOG_KV("id", _id);
         return;
@@ -466,7 +465,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
     auto session = task->session();
     if (!session)
     {
-        _callback(nullptr, _id, "");
+        _callback(nullptr, "");
         EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("task is suspend")
                          << LOG_KV("id", _id);
         return;
@@ -491,7 +490,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
 
-                _callback(_error, _id, "");
+                _callback(_error, "");
                 return;
             }
 
@@ -504,7 +503,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_KV("response", strResp);
 
                 // TODO:
-                _callback(nullptr, _id, strResp);
+                _callback(nullptr, strResp);
             }
             else if (resp->status() != StatusCode::Success)
             {
@@ -513,11 +512,11 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_KV("status", resp->status())
                                   << LOG_KV("response", strResp);
 
-                _callback(nullptr, _id, strResp);
+                _callback(nullptr, strResp);
             }
             else
             {
-                _callback(nullptr, _id, strResp);
+                _callback(nullptr, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent")
                                  << LOG_DESC("callback response success") << LOG_KV("id", _id)
                                  << LOG_KV("status", resp->status()) << LOG_KV("response", strResp);
