@@ -26,6 +26,7 @@
 #include <bcos-framework/libutilities/Error.h>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <set>
 
 namespace bcos
@@ -43,6 +44,8 @@ class AMOPInterface
 {
 public:
     using Ptr = std::shared_ptr<AMOPInterface>;
+    using UniquePtr = std::unique_ptr<AMOPInterface>;
+
     virtual ~AMOPInterface() {}
 
 public:

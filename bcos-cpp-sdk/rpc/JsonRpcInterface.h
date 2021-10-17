@@ -37,6 +37,7 @@ class JsonRpcInterface
 {
 public:
     using Ptr = std::shared_ptr<JsonRpcInterface>;
+    using UniquePtr = std::unique_ptr<JsonRpcInterface>;
 
     JsonRpcInterface() = default;
     virtual ~JsonRpcInterface() {}

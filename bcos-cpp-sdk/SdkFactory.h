@@ -37,11 +37,11 @@ public:
 public:
     // construct WsService object
     bcos::boostssl::ws::WsService::Ptr buildWsService();
-    
-    bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(
+
+    bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr buildJsonRpc(
         bcos::boostssl::ws::WsService::Ptr _wsService);
-    bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::boostssl::ws::WsService::Ptr _wsService);
-    bcos::cppsdk::event::EventSub::Ptr buildEventSub(
+    bcos::cppsdk::amop::AMOP::UniquePtr buildAMOP(bcos::boostssl::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::event::EventSub::UniquePtr buildEventSub(
         bcos::boostssl::ws::WsService::Ptr _wsService);
 
 public:

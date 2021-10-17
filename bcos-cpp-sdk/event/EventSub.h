@@ -24,6 +24,7 @@
 #include <bcos-cpp-sdk/event/EventSubInterface.h>
 #include <bcos-cpp-sdk/event/EventSubTask.h>
 #include <atomic>
+#include <memory>
 #include <shared_mutex>
 #include <utility>
 
@@ -37,6 +38,8 @@ class EventSub : public EventSubInterface, public std::enable_shared_from_this<E
 {
 public:
     using Ptr = std::shared_ptr<EventSub>;
+    using UniquePtr = std::unique_ptr<EventSub>;
+
     EventSub() {}
     virtual ~EventSub() { stop(); }
 

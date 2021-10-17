@@ -35,6 +35,7 @@ class EventSubInterface
 {
 public:
     using Ptr = std::shared_ptr<EventSubInterface>;
+    using UniquePtr = std::unique_ptr<EventSubInterface>;
 
     virtual ~EventSubInterface() {}
 

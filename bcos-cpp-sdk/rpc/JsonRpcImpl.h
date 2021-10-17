@@ -35,6 +35,7 @@ class JsonRpcImpl : public JsonRpcInterface, public std::enable_shared_from_this
 {
 public:
     using Ptr = std::shared_ptr<JsonRpcImpl>;
+    using UniquePtr = std::unique_ptr<JsonRpcImpl>;
 
     JsonRpcImpl() = default;
     virtual ~JsonRpcImpl() { stop(); }
