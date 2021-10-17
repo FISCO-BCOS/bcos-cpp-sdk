@@ -37,7 +37,9 @@ class AMOP : public AMOPInterface, public std::enable_shared_from_this<AMOP>
 {
 public:
     using Ptr = std::shared_ptr<AMOP>;
-    virtual ~AMOP() {}
+    using UniquePtr = std::unique_ptr<AMOP>;
+
+    virtual ~AMOP() { stop(); }
 
 public:
     virtual void start() override;

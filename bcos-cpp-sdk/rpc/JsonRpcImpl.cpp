@@ -30,11 +30,13 @@ using namespace jsonrpc;
 void JsonRpcImpl::start()
 {
     // TODO:
+    RPCIMPL_LOG(INFO) << LOG_BADGE("start") << LOG_DESC("start rpc");
 }
 
 void JsonRpcImpl::stop()
 {
     // TODO:
+    RPCIMPL_LOG(INFO) << LOG_BADGE("stop") << LOG_DESC("stop rpc");
 }
 
 void JsonRpcImpl::genericMethod(const std::string& _data, RespFunc _respFunc)

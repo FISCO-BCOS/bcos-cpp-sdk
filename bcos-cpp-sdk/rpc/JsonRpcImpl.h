@@ -37,7 +37,7 @@ public:
     using Ptr = std::shared_ptr<JsonRpcImpl>;
 
     JsonRpcImpl() = default;
-    virtual ~JsonRpcImpl() = default;
+    virtual ~JsonRpcImpl() { stop(); }
 
 public:
     virtual void start() override;
