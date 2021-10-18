@@ -21,6 +21,7 @@
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <boost/core/ignore_unused.hpp>
+#include <fstream>
 #include <string>
 
 using namespace bcos;
@@ -29,7 +30,15 @@ using namespace jsonrpc;
 
 void JsonRpcImpl::start()
 {
-    // TODO:
+    if (m_service)
+    {  // start websocket service
+        m_service->start();
+    }
+    else
+    {
+        RPCIMPL_LOG(WARNING) << LOG_BADGE("start")
+                             << LOG_DESC("websocket service is not uninitialized");
+    }
     RPCIMPL_LOG(INFO) << LOG_BADGE("start") << LOG_DESC("start rpc");
 }
 
