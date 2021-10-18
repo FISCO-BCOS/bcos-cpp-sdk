@@ -20,7 +20,36 @@
 
 #pragma once
 
+#include <bcos-framework/libutilities/Log.h>
+
+namespace bcos
+{
+namespace cppsdk
+{
+namespace event
+{
+/**
+ * @brief: event sub message types
+ */
+enum MessageType
+{
+    // ------------event begin ---------
+
+    EVENT_SUBSCRIBE = 0x120,    // 288
+    EVENT_UNSUBSCRIBE = 0x121,  // 289
+    EVENT_LOG_PUSH = 0x122,     // 290
+
+    // ------------event end ---------
+};
+}  // namespace event
+}  // namespace cppsdk
+}  // namespace bcos
+
+
 // The largest number of topic in one event log
 #define EVENT_LOG_TOPICS_MAX_INDEX (4)
+
+#define EVENT_TASK(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][TASK]"
 #define EVENT_REQUEST(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][REQUEST]"
-#define EVENT_IMPL(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][IMPL]"
+#define EVENT_RESPONSE(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][RESPONSE]"
+#define EVENT_PUSH(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][PUSH]"

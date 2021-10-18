@@ -54,6 +54,9 @@ set(VERSION_SUFFIX "")
 hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
 
+hunter_add_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
+
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
 
@@ -71,10 +74,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # install dependencies
 include(InstallBcosFrameworkDependencies)
 
-set(CPP_SDK_TARGET "bcos-cpp-sdk")
-set(WS_SERVICE_TARGET "ws-service")
+set(CPP_SDK_TARGET "bcos-sdk-static")
+set(CPP_SDK_DY_TARGET "bcos-sdk")
 set(JSON_RPC_TARGET "json-rpc-client")
 set(AMOP_TARGET "amop-client")
+set(EVENT_TARGET "event-client")
+set(GROUP_TARGET "group-client")
 
 add_subdirectory(bcos-cpp-sdk)
 
@@ -85,9 +90,9 @@ if (TESTS)
     add_subdirectory(test)
 endif()
 
-if (BUILD_AMOP_TEST)
-    add_subdirectory(test/client)
-endif()
+# if (BUILD_AMOP_TEST)
+#    add_subdirectory(test/client)
+# endif()
 
 # install bcos-cpp-sdk target
 install(
@@ -99,8 +104,9 @@ install(
     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
+# install bcos-cpp-sdk dynamic target
 install(
-    TARGETS ${WS_SERVICE_TARGET}
+    TARGETS ${CPP_SDK_DY_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
@@ -119,6 +125,24 @@ install(
 
 install(
     TARGETS ${AMOP_TARGET}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+    TARGETS ${EVENT_TARGET}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+    TARGETS ${GROUP_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"

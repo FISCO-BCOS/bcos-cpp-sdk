@@ -11,26 +11,25 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  m_limitations under the License.
+ *  limitations under the License.
  *
- * @file WsVersion.h
+ * @file EventSubError.h
  * @author: octopus
- * @date 2021-07-30
+ * @date 2021-09-01
  */
-#pragma once
 
-#include <cstdint>
+#pragma once
 namespace bcos
 {
-namespace ws
+namespace cppsdk
 {
-enum WsProtocolVersion : uint32_t
+namespace event
 {
-    None = 0,
-    v1 = 1,
-    // Focus: update current when websocket protocol upgrade
-    current = v1
+enum StatusCode
+{
+    Success = 0,
+    EndOfPush = 1,  // push completed
 };
-
-}  // namespace ws
+}  // namespace event
+}  // namespace cppsdk
 }  // namespace bcos

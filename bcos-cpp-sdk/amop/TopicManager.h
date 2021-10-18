@@ -36,12 +36,12 @@ class TopicManager
 public:
     using Ptr = std::shared_ptr<TopicManager>;
 
-    void addTopic(const std::string& _topic);
-    void addTopics(const std::set<std::string>& _topics);
-    void removeTopic(const std::string& _topic);
-    void removeTopics(const std::set<std::string>& _topics);
+    bool addTopic(const std::string& _topic);
+    bool addTopics(const std::set<std::string>& _topics);
+    bool removeTopic(const std::string& _topic);
+    bool removeTopics(const std::set<std::string>& _topics);
     std::set<std::string> topics() const;
-    std::string topicsToJsonString();
+    std::string toJson();
 
 private:
     // mutex for m_sessions

@@ -13,38 +13,46 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Common.h
+ * @file EvenPushResponse.h
  * @author: octopus
- * @date 2021-08-25
+ * @date 2021-09-09
  */
+
 #pragma once
 
-#include <bcos-framework/libutilities/Log.h>
-
-#define AMOP_CLIENT(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][CLIENT]"
-#define AMOP_TOPIC_MANAGER(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][TOPICMANAGER]"
-
+#include <json/value.h>
+#include <memory>
+#include <string>
 namespace bcos
 {
 namespace cppsdk
 {
-namespace amop
+namespace event
 {
-/**
- * @brief: amop message types
- */
-enum MessageType
+class EventSubResponse
 {
-    // ------------AMOP begin ---------
+public:
+    using Ptr = std::shared_ptr<EventSubResponse>;
 
-    AMOP_SUBTOPIC = 0x110,   // 272
-    AMOP_REQUEST = 0x111,    // 273
-    AMOP_BROADCAST = 0x112,  // 274
-    AMOP_RESPONSE = 0x113    // 275
+public:
+    std::string id() const { return m_id; }
+    void setId(const std::string& _id) { m_id = _id; }
+    int status() const { return m_status; }
+    void setStatus(int _status) { m_status = _status; }
 
-    // ------------AMOP end ---------
+    void setJResp(const Json::Value& _jResp) { m_jResp = _jResp; }
+    Json::Value jResp() const { return m_jResp; }
 
+public:
+    std::string generateJson();
+    bool fromJson(const std::string& _response);
+
+private:
+    std::string m_id;
+    int m_status;
+
+    Json::Value m_jResp;
 };
-}  // namespace amop
+}  // namespace event
 }  // namespace cppsdk
 }  // namespace bcos

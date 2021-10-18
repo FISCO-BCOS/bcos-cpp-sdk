@@ -18,13 +18,11 @@
  * @date 2021-08-24
  */
 
-#include "bcos-cpp-sdk/ws/WsMessageType.h"
-#include <bcos-cpp-sdk/SdkConfig.h>
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
-#include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/WsMessage.h>
-#include <bcos-cpp-sdk/ws/WsService.h>
-#include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
@@ -61,15 +59,16 @@ int main(int argc, char** argv)
                    << LOG_KV("port", port) << LOG_KV("topic", topic);
 
 
-    auto config = std::make_shared<bcos::cppsdk::SdkConfig>();
+    auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
+    config->setModel(bcos::boostssl::ws::WsModel::Client);
 
-    bcos::cppsdk::EndPoint endpoint;
+    bcos::boostssl::ws::EndPoint endpoint;
     endpoint.host = host;
     endpoint.port = port;
 
-    auto peers = std::make_shared<EndPoints>();
+    auto peers = std::make_shared<bcos::boostssl::ws::EndPoints>();
     peers->push_back(endpoint);
-    config->setPeers(peers);
+    config->setConnectedPeers(peers);
     config->setThreadPoolSize(4);
 
     auto factory = std::make_shared<SdkFactory>();
@@ -80,26 +79,11 @@ int main(int argc, char** argv)
 
     wsService->start();
 
-    auto ioc = wsService->ioc();
-    std::size_t threadC = 4;
-    std::shared_ptr<std::vector<std::thread>> threads =
-        std::make_shared<std::vector<std::thread>>();
-    threads->reserve(threadC);
-    for (auto i = threadC; i > 0; --i)
-    {
-        threads->emplace_back([&ioc]() { ioc->run(); });
-    }
-
-    while (wsService->sessions().empty())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-
     BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
     auto self = std::weak_ptr(amop);
     amop->subscribe(topic, [self](bcos::Error::Ptr _error, const std::string& _endPoint,
                                const std::string& _seq, bytesConstRef _data,
-                               std::shared_ptr<bcos::ws::WsSession> _session) {
+                               std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
         boost::ignore_unused(_session);
         if (_error)
         {

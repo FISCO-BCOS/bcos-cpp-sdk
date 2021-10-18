@@ -19,23 +19,16 @@
  */
 #pragma once
 
-#include "bcos-cpp-sdk/ws/Common.h"
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/amop/AMOPInterface.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/TopicManager.h>
-#include <bcos-cpp-sdk/ws/WsMessage.h>
-#include <memory>
 #include <unordered_map>
 
 namespace bcos
 {
-namespace ws
-{
-class WsService;
-class WsSession;
-class WsMessage;
-}  // namespace ws
-
 namespace cppsdk
 {
 namespace amop
@@ -44,8 +37,15 @@ class AMOP : public AMOPInterface, public std::enable_shared_from_this<AMOP>
 {
 public:
     using Ptr = std::shared_ptr<AMOP>;
-    virtual ~AMOP() {}
+    using UniquePtr = std::unique_ptr<AMOP>;
 
+    virtual ~AMOP() { stop(); }
+
+public:
+    virtual void start() override;
+    virtual void stop() override;
+
+public:
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) override;
     // subscribe topics
@@ -60,28 +60,29 @@ public:
     //
     virtual void sendResponse(
         const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) override;
-    // set default callback
-    virtual void setSubCallback(SubCallback _callback) override;
     // query all subscribed topics
     virtual void querySubTopics(std::set<std::string>& _topics) override;
-
+    // set default callback
+    virtual void setSubCallback(SubCallback _callback) override { m_callback = _callback; }
+    virtual SubCallback subCallback() const { return m_callback; }
 
     void updateTopicsToRemote();
-    void updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session);
+    void updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
 public:
-    void onRecvAMOPRequest(
-        std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
-    void onRecvAMOPResponse(
-        std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
-    void onRecvAMOPBroadcast(
-        std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session);
+    void onRecvAMOPRequest(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+        std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
+    void onRecvAMOPResponse(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+        std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
+    void onRecvAMOPBroadcast(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+        std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
 public:
-    SubCallback subCallback() const { return m_callback; }
-
-    std::shared_ptr<bcos::ws::WsMessageFactory> messageFactory() const { return m_messageFactory; }
-    void setMessageFactory(std::shared_ptr<bcos::ws::WsMessageFactory> _messageFactory)
+    std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> messageFactory() const
+    {
+        return m_messageFactory;
+    }
+    void setMessageFactory(std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> _messageFactory)
     {
         m_messageFactory = _messageFactory;
     }
@@ -101,8 +102,11 @@ public:
         m_topicManager = _topicManager;
     }
 
-    std::weak_ptr<bcos::ws::WsService> service() const { return m_service; }
-    void setService(std::weak_ptr<bcos::ws::WsService> _service) { m_service = _service; }
+    std::shared_ptr<bcos::boostssl::ws::WsService> service() const { return m_service; }
+    void setService(std::shared_ptr<bcos::boostssl::ws::WsService> _service)
+    {
+        m_service = _service;
+    }
 
     void addTopicCallback(const std::string& _topic, SubCallback _callback)
     {
@@ -124,13 +128,13 @@ public:
 private:
     SubCallback m_callback;
     std::shared_ptr<TopicManager> m_topicManager;
-    std::shared_ptr<bcos::ws::WsMessageFactory> m_messageFactory;
+    std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> m_messageFactory;
     std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> m_requestFactory;
 
     mutable std::shared_mutex x_topic2Callback;
     std::unordered_map<std::string, SubCallback> m_topic2Callback;
 
-    std::weak_ptr<bcos::ws::WsService> m_service;
+    std::shared_ptr<bcos::boostssl::ws::WsService> m_service;
 };
 }  // namespace amop
 }  // namespace cppsdk

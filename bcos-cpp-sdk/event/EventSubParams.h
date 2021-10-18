@@ -21,8 +21,7 @@
 #pragma once
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
-#include <string>
-#include <vector>
+#include <set>
 
 namespace bcos
 {
@@ -30,22 +29,23 @@ namespace cppsdk
 {
 namespace event
 {
-class EventPushParams
+class EventSubParams
 {
 public:
-    using Ptr = std::shared_ptr<EventPushParams>;
+    using Ptr = std::shared_ptr<EventSubParams>;
+    using ConstPtr = std::shared_ptr<const EventSubParams>;
 
 public:
-    bcos::protocol::BlockNumber fromBlock() const { return m_fromBlock; }
-    bcos::protocol::BlockNumber toBlock() const { return m_toBlock; }
-    const std::vector<std::string>& addresses() const { return m_addresses; }
-    std::vector<std::string>& addresses() { return m_addresses; }
-    const std::vector<std::vector<std::string>>& topics() const { return m_topics; }
-    std::vector<std::vector<std::string>>& topics() { return m_topics; }
+    int64_t fromBlock() const { return m_fromBlock; }
+    int64_t toBlock() const { return m_toBlock; }
+    const std::set<std::string>& addresses() const { return m_addresses; }
+    std::set<std::string>& addresses() { return m_addresses; }
+    const std::vector<std::set<std::string>>& topics() const { return m_topics; }
+    std::vector<std::set<std::string>>& topics() { return m_topics; }
 
-    void setFromBlock(bcos::protocol::BlockNumber _fromBlock) { m_fromBlock = _fromBlock; }
-    void setToBlock(bcos::protocol::BlockNumber _toBlock) { m_toBlock = _toBlock; }
-    void addAddress(const std::string& _address) { m_addresses.push_back(_address); }
+    void setFromBlock(int64_t _fromBlock) { m_fromBlock = _fromBlock; }
+    void setToBlock(int64_t _toBlock) { m_toBlock = _toBlock; }
+    void addAddress(const std::string& _address) { m_addresses.insert(_address); }
     bool addTopic(std::size_t _index, const std::string& _topic)
     {
         if (_index >= EVENT_LOG_TOPICS_MAX_INDEX)
@@ -54,15 +54,15 @@ public:
         }
 
         m_topics.resize(_index + 1);
-        m_topics[_index].push_back(_topic);
+        m_topics[_index].insert(_topic);
         return true;
     }
 
 private:
     bcos::protocol::BlockNumber m_fromBlock = -1;
     bcos::protocol::BlockNumber m_toBlock = -1;
-    std::vector<std::string> m_addresses;
-    std::vector<std::vector<std::string>> m_topics;
+    std::set<std::string> m_addresses;
+    std::vector<std::set<std::string>> m_topics;
 };
 
 }  // namespace event

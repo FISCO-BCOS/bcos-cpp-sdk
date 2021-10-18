@@ -31,6 +31,31 @@ namespace cppsdk
 {
 namespace jsonrpc
 {
+class JsonRpcException : public std::exception
+{
+public:
+    JsonRpcException(int32_t _code, std::string const& _msg) : m_code(_code), m_msg(_msg) {}
+    virtual const char* what() const noexcept override { return m_msg.c_str(); }
+
+public:
+    int32_t code() const noexcept { return m_code; }
+    std::string msg() const noexcept { return m_msg; }
+
+private:
+    int32_t m_code;
+    std::string m_msg;
+};
+
+enum JsonRpcError : int32_t
+{
+    ParseError = -32700,
+    InvalidRequest = -32600,
+    MethodNotFound = -32601,
+    InvalidParams = -32602,
+    InternalError = -32603
+    // -32000 to -32099: Server error	Reserved for implementation-defined server-errors.
+};
+
 class JsonRpcRequest
 {
 public:
@@ -50,8 +75,8 @@ public:
     void setParams(const Json::Value& _params) { m_params = _params; }
 
 public:
-    std::string toJsonString();
-    bool fromJsonString(const std::string& _json);
+    std::string toJson();
+    void fromJson(const std::string& _request);
 
 private:
     std::string m_jsonrpc = "2.0";

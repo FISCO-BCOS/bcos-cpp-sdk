@@ -19,45 +19,46 @@
  */
 #pragma once
 
-#include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/WsMessage.h>
+#include <bcos-boostssl/websocket/Common.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Error.h>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <set>
 
 namespace bcos
 {
-namespace ws
-{
-class WsMessage;
-class WsSession;
-}  // namespace ws
-
 namespace cppsdk
 {
 namespace amop
 {
 using SubCallback = std::function<void(bcos::Error::Ptr, const std::string&, const std::string&,
-    bytesConstRef, std::shared_ptr<bcos::ws::WsSession>)>;
-using PubCallback = std::function<void(
-    bcos::Error::Ptr, std::shared_ptr<bcos::ws::WsMessage>, std::shared_ptr<bcos::ws::WsSession>)>;
+    bytesConstRef, std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
+using PubCallback =
+    std::function<void(bcos::Error::Ptr, std::shared_ptr<bcos::boostssl::ws::WsMessage>,
+        std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
 class AMOPInterface
 {
 public:
     using Ptr = std::shared_ptr<AMOPInterface>;
+    using UniquePtr = std::unique_ptr<AMOPInterface>;
+
     virtual ~AMOPInterface() {}
 
+public:
+    virtual void start() = 0;
+    virtual void stop() = 0;
+
+public:
     // subscribe topics
     virtual void subscribe(const std::set<std::string>& _topics) = 0;
     // subscribe topics
     virtual void unsubscribe(const std::set<std::string>& _topics) = 0;
     // subscribe topic with callback
     virtual void subscribe(const std::string& _topic, SubCallback _callback) = 0;
-    //
-    virtual void sendResponse(
-        const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) = 0;
     // publish message
     virtual void publish(const std::string& _topic, bytesConstRef _data, uint32_t timeout,
         PubCallback _callback) = 0;
@@ -67,6 +68,9 @@ public:
     virtual void querySubTopics(std::set<std::string>& _topics) = 0;
     // set default callback
     virtual void setSubCallback(SubCallback _callback) = 0;
+    //
+    virtual void sendResponse(
+        const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) = 0;
 };
 
 }  // namespace amop

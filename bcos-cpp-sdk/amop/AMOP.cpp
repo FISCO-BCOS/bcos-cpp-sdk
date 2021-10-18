@@ -17,39 +17,55 @@
  * @author: octopus
  * @date 2021-08-23
  */
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/Common.h>
-#include <bcos-cpp-sdk/ws/WsMessageType.h>
-#include <bcos-cpp-sdk/ws/WsService.h>
-#include <bcos-cpp-sdk/ws/WsSession.h>
 #include <bcos-framework/interfaces/protocol/CommonError.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/DataConvertUtility.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <json/json.h>
-#include <boost/core/ignore_unused.hpp>
-#include <memory>
 
 
 using namespace bcos;
-using namespace bcos::ws;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
+
+void AMOP::start()
+{
+    // TODO:
+    AMOP_CLIENT(INFO) << LOG_BADGE("start") << LOG_DESC("start amop");
+}
+void AMOP::stop()
+{
+    // TODO:
+    AMOP_CLIENT(INFO) << LOG_BADGE("stop") << LOG_DESC("stop amop");
+}
 
 // subscribe topics
 void AMOP::subscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager and update topics to server
-    m_topicManager->addTopics(_topics);
-    updateTopicsToRemote();
+    auto result = m_topicManager->addTopics(_topics);
+    if (result)
+    {
+        updateTopicsToRemote();
+    }
 }
 
 // subscribe topics
 void AMOP::unsubscribe(const std::set<std::string>& _topics)
 {
     // add topics to manager
-    m_topicManager->removeTopics(_topics);
-    updateTopicsToRemote();
+    auto result = m_topicManager->removeTopics(_topics);
+    if (result)
+    {
+        updateTopicsToRemote();
+    }
 }
 
 // query all subscribed topics
@@ -62,11 +78,15 @@ void AMOP::querySubTopics(std::set<std::string>& _topics)
 // subscribe topic with callback
 void AMOP::subscribe(const std::string& _topic, SubCallback _callback)
 {
-    m_topicManager->addTopic(_topic);
+    auto r = m_topicManager->addTopic(_topic);
     addTopicCallback(_topic, _callback);
-    updateTopicsToRemote();
+    if (r)
+    {
+        updateTopicsToRemote();
+    }
+
     AMOP_CLIENT(INFO) << LOG_BADGE("subscribe") << LOG_DESC("subscribe topic with callback")
-                      << LOG_KV("topic", _topic);
+                      << LOG_KV("topic", _topic) << LOG_KV("r", r);
 }
 
 //
@@ -75,18 +95,14 @@ void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq, b
     auto msg = m_messageFactory->buildMessage();
     msg->setSeq(std::make_shared<bcos::bytes>(_seq.begin(), _seq.end()));
     msg->setData(std::make_shared<bcos::bytes>(_data.begin(), _data.end()));
-    msg->setType(WsMessageType::AMOP_RESPONSE);
+    msg->setType(bcos::cppsdk::amop::MessageType::AMOP_RESPONSE);
 
-    auto service = m_service.lock();
-    if (service)
-    {
-        service->asyncSendMessageByEndPoint(_endPoint, msg);
-    }
+    m_service->asyncSendMessageByEndPoint(_endPoint, msg);
 }
 
 // publish message
 void AMOP::publish(
-    const std::string& _topic, bytesConstRef _data, uint32_t timeout, PubCallback _callback)
+    const std::string& _topic, bytesConstRef _data, uint32_t _timeout, PubCallback _callback)
 {
     auto request = m_requestFactory->buildRequest();
     request->setTopic(_topic);
@@ -96,21 +112,19 @@ void AMOP::publish(
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
-    sendMsg->setType(bcos::ws::WsMessageType::AMOP_REQUEST);
+    sendMsg->setType(bcos::cppsdk::amop::MessageType::AMOP_REQUEST);
     sendMsg->setData(buffer);
 
     auto sendBuffer = std::make_shared<bcos::bytes>();
     sendMsg->encode(*sendBuffer);
 
-    auto service = m_service.lock();
-    if (service)
-    {
-        AMOP_CLIENT(TRACE) << LOG_BADGE("publish") << LOG_DESC("publish message")
-                           << LOG_KV("topic", _topic);
-        service->asyncSendMessage(sendMsg, ws::Options(timeout),
-            [_callback](bcos::Error::Ptr _error, std::shared_ptr<ws::WsMessage> _msg,
-                std::shared_ptr<ws::WsSession> _session) { _callback(_error, _msg, _session); });
-    }
+    AMOP_CLIENT(TRACE) << LOG_BADGE("publish") << LOG_DESC("publish message")
+                       << LOG_KV("topic", _topic);
+    m_service->asyncSendMessage(sendMsg, bcos::boostssl::ws::Options(_timeout),
+        [_callback](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+            std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
+            _callback(_error, _msg, _session);
+        });
 }
 
 // broadcast message
@@ -124,47 +138,32 @@ void AMOP::broadcast(const std::string& _topic, bytesConstRef _data)
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
-    sendMsg->setType(bcos::ws::WsMessageType::AMOP_BROADCAST);
+    sendMsg->setType(bcos::cppsdk::amop::MessageType::AMOP_BROADCAST);
     sendMsg->setData(buffer);
 
     auto sendBuffer = std::make_shared<bcos::bytes>();
     sendMsg->encode(*sendBuffer);
 
-    auto service = m_service.lock();
-    if (service)
-    {
-        AMOP_CLIENT(TRACE) << LOG_BADGE("broadcast") << LOG_DESC("broadcast message")
-                           << LOG_KV("topic", _topic);
-        service->broadcastMessage(sendMsg);
-    }
+    AMOP_CLIENT(TRACE) << LOG_BADGE("broadcast") << LOG_DESC("broadcast message")
+                       << LOG_KV("topic", _topic);
+    m_service->broadcastMessage(sendMsg);
 }
 
-// set default callback
-void AMOP::setSubCallback(SubCallback _callback)
-{
-    m_callback = _callback;
-}
 
 void AMOP::updateTopicsToRemote()
 {
-    auto service = m_service.lock();
-    if (!service)
-    {
-        return;
-    }
-
-    auto ss = service->sessions();
+    auto ss = m_service->sessions();
     for (auto session : ss)
     {
         updateTopicsToRemote(session);
     }
 }
 
-void AMOP::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
+void AMOP::updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
-    std::string request = m_topicManager->topicsToJsonString();
+    std::string request = m_topicManager->toJson();
     auto msg = m_messageFactory->buildMessage();
-    msg->setType(bcos::ws::WsMessageType::AMOP_SUBTOPIC);
+    msg->setType(bcos::cppsdk::amop::MessageType::AMOP_SUBTOPIC);
     msg->setData(std::make_shared<bcos::bytes>(request.begin(), request.end()));
 
     _session->asyncSendMessage(msg);
@@ -175,7 +174,7 @@ void AMOP::updateTopicsToRemote(std::shared_ptr<ws::WsSession> _session)
 }
 
 void AMOP::onRecvAMOPRequest(
-    std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
+    std::shared_ptr<WsMessage> _msg, std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
     auto request = m_requestFactory->buildRequest();
@@ -213,17 +212,16 @@ void AMOP::onRecvAMOPRequest(
 }
 
 void AMOP::onRecvAMOPResponse(
-    std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
+    std::shared_ptr<WsMessage> _msg, std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
-    boost::ignore_unused(_msg, _session);
     AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPResponse")
                          << LOG_DESC("maybe the amop request callback timeout")
                          << LOG_KV("seq", seq) << LOG_KV("endpoint", _session->endPoint());
 }
 
 void AMOP::onRecvAMOPBroadcast(
-    std::shared_ptr<ws::WsMessage> _msg, std::shared_ptr<ws::WsSession> _session)
+    std::shared_ptr<WsMessage> _msg, std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
     auto request = m_requestFactory->buildRequest();
@@ -240,9 +238,9 @@ void AMOP::onRecvAMOPBroadcast(
 
     auto topic = request->topic();
 
-    AMOP_CLIENT(INFO) << LOG_BADGE("onRecvAMOPBroadcast")
-                      << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
-                      << LOG_KV("data size", request->data().size());
+    AMOP_CLIENT(DEBUG) << LOG_BADGE("onRecvAMOPBroadcast")
+                       << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
+                       << LOG_KV("data size", request->data().size());
 
     auto callback = getCallbackByTopic(topic);
     if (!callback && m_callback)

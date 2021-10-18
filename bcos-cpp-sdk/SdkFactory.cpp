@@ -18,118 +18,148 @@
  * @date 2021-08-21
  */
 
+#include <bcos-boostssl/websocket/WsConnector.h>
+#include <bcos-boostssl/websocket/WsInitializer.h>
+#include <bcos-boostssl/websocket/WsMessage.h>
+#include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
+#include <bcos-cpp-sdk/amop/Common.h>
+#include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
-#include <bcos-cpp-sdk/ws/WsConnector.h>
-#include <bcos-cpp-sdk/ws/WsMessage.h>
 #include <memory>
 
 using namespace bcos;
-using namespace bcos::ws;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::ws;
+
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
+using namespace bcos::cppsdk::group;
 using namespace bcos::cppsdk::jsonrpc;
+using namespace bcos::cppsdk::event;
 
-#define AMOP_MODULE (1000)
-#define EVENTPUSH_MODULE (1001)
-
-bcos::ws::WsService::Ptr SdkFactory::buildWsService()
+WsService::Ptr SdkFactory::buildWsService()
 {
-    auto ioc = std::make_shared<boost::asio::io_context>();
-    auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*ioc);
-    auto connector = std::make_shared<WsConnector>(resolver, ioc);
-    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
-    auto wsService = std::make_shared<bcos::ws::WsService>();
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_cppsdk", m_config->threadPoolSize());
-
-    wsService->setConfig(m_config);
-    wsService->setThreadPool(threadPool);
-    wsService->setIoc(ioc);
-    wsService->setConnector(connector);
-    wsService->setMessageFactory(messageFactory);
-    wsService->initMethod();
+    auto wsService = std::make_shared<WsService>();
+    auto initializer = std::make_shared<WsInitializer>();
+    initializer->setConfig(m_config);
+    initializer->initWsService(wsService);
     return wsService;
 }
 
-bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
-    bcos::ws::WsService::Ptr _wsService)
+bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr SdkFactory::buildJsonRpc(WsService::Ptr _wsService)
 {
-    auto jsonRpc = std::make_shared<JsonRpcImpl>();
+    auto blockNotifier = std::make_shared<BlockNotifier>();
+    auto jsonRpc = std::make_unique<JsonRpcImpl>();
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
-    auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
-    jsonRpc->setSender(
-        [wsServicePtr](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
-            auto wsService = wsServicePtr.lock();
-            if (!wsService)
+    jsonRpc->setBlockNotifier(blockNotifier);
+    jsonRpc->setService(_wsService);
+
+    auto blockNotifierWeakPtr = std::weak_ptr<BlockNotifier>(blockNotifier);
+
+    _wsService->registerMsgHandler(bcos::cppsdk::jsonrpc::MessageType::BLOCK_NOTIFY,
+        [blockNotifierWeakPtr](
+            std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto bi = blockNotifierWeakPtr.lock();
+            if (!bi)
             {
                 return;
             }
 
+            auto blkMsg = std::string(_msg->data()->begin(), _msg->data()->end());
+            bi->onRecvBlockNotifier(blkMsg);
+
+            BCOS_LOG(INFO) << "[WS]" << LOG_DESC("receive block notify")
+                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("blk", blkMsg);
+        });
+
+    jsonRpc->setSender(
+        [_wsService](const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
             auto data = std::make_shared<bcos::bytes>(_request.begin(), _request.end());
-            auto msg = wsService->messageFactory()->buildMessage();
-            msg->setType(ws::WsMessageType::RPC_REQUEST);
+            auto msg = _wsService->messageFactory()->buildMessage();
+            msg->setType(bcos::cppsdk::jsonrpc::MessageType::RPC_REQUEST);
             msg->setData(data);
 
-            wsService->asyncSendMessage(msg, bcos::ws::Options(-1),
-                [_respFunc](bcos::Error::Ptr _error, std::shared_ptr<bcos::ws::WsMessage> _msg,
-                    std::shared_ptr<bcos::ws::WsSession> _session) {
-                    boost::ignore_unused(_session);
+            _wsService->asyncSendMessage(msg, Options(-1),
+                [_respFunc](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+                    std::shared_ptr<WsSession> _session) {
+                    (void)_session;
                     _respFunc(_error, _msg ? _msg->data() : nullptr);
                 });
         });
     return jsonRpc;
 }
 
-bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::ws::WsService::Ptr _wsService)
+bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsService)
 {
-    auto amop = std::make_shared<AMOP>();
+    auto amop = std::make_unique<AMOP>();
+
     auto topicManager = std::make_shared<TopicManager>();
     auto requestFactory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
-    auto messageFactory = std::make_shared<bcos::ws::WsMessageFactory>();
+    auto messageFactory = std::make_shared<WsMessageFactory>();
 
     amop->setTopicManager(topicManager);
     amop->setRequestFactory(requestFactory);
     amop->setMessageFactory(messageFactory);
+    amop->setService(_wsService);
 
-    auto self = std::weak_ptr<AMOP>(amop);
-    _wsService->registerMsgHandler(WsMessageType::AMOP_REQUEST,
-        [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            auto amop = self.lock();
-            if (amop)
+    // TODO: is it safe to use raw pointer???
+    auto amopPoint = amop.get();
+
+    _wsService->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_REQUEST,
+        [amopPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            if (amopPoint)
             {
-                amop->onRecvAMOPRequest(_msg, _session);
+                amopPoint->onRecvAMOPRequest(_msg, _session);
             }
         });
-    _wsService->registerMsgHandler(WsMessageType::AMOP_RESPONSE,
-        [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            auto amop = self.lock();
-            if (amop)
+    _wsService->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_RESPONSE,
+        [amopPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            if (amopPoint)
             {
-                amop->onRecvAMOPResponse(_msg, _session);
+                amopPoint->onRecvAMOPResponse(_msg, _session);
             }
         });
-    _wsService->registerMsgHandler(WsMessageType::AMOP_BROADCAST,
-        [self](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            auto amop = self.lock();
-            if (amop)
+    _wsService->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_BROADCAST,
+        [amopPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            if (amopPoint)
             {
-                amop->onRecvAMOPBroadcast(_msg, _session);
+                amopPoint->onRecvAMOPBroadcast(_msg, _session);
             }
         });
 
-    auto amopWeakPtr = std::weak_ptr<AMOP>(amop);
-    _wsService->registerConnectHandler([amopWeakPtr](std::shared_ptr<WsSession> _session) {
-        auto amop = amopWeakPtr.lock();
-        if (amop)
+    _wsService->registerConnectHandler([amopPoint](std::shared_ptr<WsSession> _session) {
+        if (amopPoint)
         {
-            amop->updateTopicsToRemote(_session);
+            amopPoint->updateTopicsToRemote(_session);
         }
     });
-
-    auto wsServicePtr = std::weak_ptr<bcos::ws::WsService>(_wsService);
-    amop->setService(wsServicePtr);
     return amop;
+}
+
+bcos::cppsdk::event::EventSub::UniquePtr SdkFactory::buildEventSub(WsService::Ptr _wsService)
+{
+    auto es = std::make_unique<event::EventSub>();
+    auto messageFactory = std::make_shared<WsMessageFactory>();
+
+    es->setMessageFactory(messageFactory);
+    es->setWsService(_wsService);
+    es->setConfig(_wsService->config());
+    es->setIoc(_wsService->ioc());
+
+    // TODO: is it safe to use raw pointer???
+    auto eventPoint = es.get();
+
+    _wsService->registerMsgHandler(bcos::cppsdk::event::MessageType::EVENT_LOG_PUSH,
+        [eventPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            if (eventPoint)
+            {
+                eventPoint->onRecvEventSubMessage(_msg, _session);
+            }
+        });
+
+    return es;
 }

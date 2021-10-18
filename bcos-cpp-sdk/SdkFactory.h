@@ -18,10 +18,11 @@
  * @date 2021-08-21
  */
 #pragma once
-#include <bcos-cpp-sdk/SdkConfig.h>
+#include <bcos-boostssl/websocket/WsConfig.h>
+#include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
+#include <bcos-cpp-sdk/event/EventSub.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
-#include <bcos-cpp-sdk/ws/WsService.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
 
 namespace bcos
@@ -35,17 +36,20 @@ public:
 
 public:
     // construct WsService object
-    bcos::ws::WsService::Ptr buildWsService();
-    bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(bcos::ws::WsService::Ptr _wsService);
-    bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::ws::WsService::Ptr _wsService);
-    // bcos::cppsdk::event::EventPush buildEventPush(bcos::ws::WsService::Ptr _wsService);
+    bcos::boostssl::ws::WsService::Ptr buildWsService();
+
+    bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr buildJsonRpc(
+        bcos::boostssl::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::amop::AMOP::UniquePtr buildAMOP(bcos::boostssl::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::event::EventSub::UniquePtr buildEventSub(
+        bcos::boostssl::ws::WsService::Ptr _wsService);
 
 public:
-    std::shared_ptr<bcos::cppsdk::SdkConfig> config() const { return m_config; }
-    void setConfig(std::shared_ptr<bcos::cppsdk::SdkConfig> _config) { m_config = _config; }
+    std::shared_ptr<bcos::boostssl::ws::WsConfig> config() const { return m_config; }
+    void setConfig(std::shared_ptr<bcos::boostssl::ws::WsConfig> _config) { m_config = _config; }
 
 private:
-    std::shared_ptr<bcos::cppsdk::SdkConfig> m_config;
+    std::shared_ptr<bcos::boostssl::ws::WsConfig> m_config;
 };
 }  // namespace cppsdk
 }  // namespace bcos

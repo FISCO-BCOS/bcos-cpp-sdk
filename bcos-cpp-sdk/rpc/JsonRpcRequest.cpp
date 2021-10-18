@@ -26,7 +26,7 @@ using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
 
-std::string JsonRpcRequest::toJsonString()
+std::string JsonRpcRequest::toJson()
 {
     Json::Value jReq;
     jReq["jsonrpc"] = m_jsonrpc;
@@ -36,13 +36,85 @@ std::string JsonRpcRequest::toJsonString()
 
     Json::FastWriter writer;
     std::string s = writer.write(jReq);
-    RPCREQ_LOG(TRACE) << LOG_BADGE("toString") << LOG_KV("request", s);
+    RPCREQ_LOG(TRACE) << LOG_BADGE("toJson") << LOG_KV("request", s);
     return s;
 }
 
-bool JsonRpcRequest::fromJsonString(const std::string& _json)
+void JsonRpcRequest::fromJson(const std::string& _request)
 {
-    (void)_json;
-    // TODO:
-    return true;
+    Json::Value root;
+    Json::Reader jsonReader;
+    std::string errorMessage;
+
+    try
+    {
+        std::string jsonrpc = "";
+        std::string method = "";
+        int64_t id = 0;
+        do
+        {
+            if (!jsonReader.parse(_request, root))
+            {
+                errorMessage = "invalid request json object";
+                break;
+            }
+
+            if (!root.isMember("jsonrpc"))
+            {
+                errorMessage = "request has no jsonrpc field";
+                break;
+            }
+            jsonrpc = root["jsonrpc"].asString();
+
+            if (!root.isMember("method"))
+            {
+                errorMessage = "request has no method field";
+                break;
+            }
+            method = root["method"].asString();
+
+            if (root.isMember("id"))
+            {
+                id = root["id"].asInt64();
+            }
+
+            if (!root.isMember("params"))
+            {
+                errorMessage = "request has no params field";
+                break;
+            }
+
+            if (!root["params"].isArray())
+            {
+                errorMessage = "request params is not array object";
+                break;
+            }
+
+            auto jParams = root["params"];
+
+            m_jsonrpc = jsonrpc;
+            m_method = method;
+            m_id = id;
+            m_params = jParams;
+
+            // RPCREQ_LOG(DEBUG) << LOG_BADGE("fromJson") << LOG_KV("method", method)
+            //                   << LOG_KV("request", _request);
+
+            return;
+
+        } while (0);
+    }
+    catch (const std::exception& e)
+    {
+        RPCREQ_LOG(ERROR) << LOG_BADGE("fromJson") << LOG_KV("request", _request)
+                          << LOG_KV("error", boost::diagnostic_information(e));
+        BOOST_THROW_EXCEPTION(
+            JsonRpcException(JsonRpcError::ParseError, "Invalid JSON was received by the server."));
+    }
+
+    RPCREQ_LOG(ERROR) << LOG_BADGE("fromJson") << LOG_KV("request", _request)
+                      << LOG_KV("errorMessage", errorMessage);
+
+    BOOST_THROW_EXCEPTION(JsonRpcException(
+        JsonRpcError::InvalidRequest, "The JSON sent is not a valid Request object."));
 }
