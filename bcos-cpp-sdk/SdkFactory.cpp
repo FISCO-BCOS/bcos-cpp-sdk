@@ -46,6 +46,7 @@ WsService::Ptr SdkFactory::buildWsService()
     auto initializer = std::make_shared<WsInitializer>();
     initializer->setConfig(m_config);
     initializer->initWsService(wsService);
+    wsService->setWaitConnectFinish(true);
     return wsService;
 }
 
