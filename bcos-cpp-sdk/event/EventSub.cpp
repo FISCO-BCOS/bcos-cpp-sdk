@@ -54,6 +54,16 @@ void EventSub::start()
     }
     m_running = true;
 
+    if (m_wsService)
+    {  // start websocket service
+        m_wsService->start();
+    }
+    else
+    {
+        EVENT_PUSH(WARNING) << LOG_BADGE("start")
+                            << LOG_DESC("websocket service is not uninitialized");
+    }
+
     m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
         boost::posix_time::milliseconds(EP_LOOP_PERIOD(m_config)));
     auto self = std::weak_ptr<EventSub>(shared_from_this());

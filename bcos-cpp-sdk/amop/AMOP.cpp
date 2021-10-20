@@ -37,6 +37,16 @@ using namespace bcos::cppsdk::amop;
 
 void AMOP::start()
 {
+    if (m_service)
+    {  // start websocket service
+        m_service->start();
+    }
+    else
+    {
+        AMOP_CLIENT(WARNING) << LOG_BADGE("start")
+                             << LOG_DESC("websocket service is not uninitialized");
+    }
+
     // TODO:
     AMOP_CLIENT(INFO) << LOG_BADGE("start") << LOG_DESC("start amop");
 }
