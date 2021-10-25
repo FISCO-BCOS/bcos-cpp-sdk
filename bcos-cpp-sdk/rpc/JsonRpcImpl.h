@@ -20,9 +20,9 @@
 
 #pragma once
 #include <bcos-boostssl/websocket/WsService.h>
-#include <bcos-cpp-sdk/group/BlockNotifier.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcInterface.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcRequest.h>
+#include <bcos-cpp-sdk/ws/BlockNotifier.h>
 #include <functional>
 
 namespace bcos
@@ -47,8 +47,10 @@ public:
 public:
     //-------------------------------------------------------------------------------------
     virtual void genericMethod(const std::string& _data, RespFunc _respFunc) override;
+
     virtual void genericMethod(
         const std::string& _groupID, const std::string& _data, RespFunc _respFunc) override;
+
     virtual void genericMethod(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _data, RespFunc _respFunc) override;
     //-------------------------------------------------------------------------------------
@@ -98,36 +100,13 @@ public:
 
     virtual void getPeers(RespFunc _respFunc) override;
 
-    // create a new group
-    virtual void createGroup(std::string const& _groupInfo, RespFunc _respFunc) override;
-    // expand new node for the given group
-    virtual void expandGroupNode(
-        std::string const& _groupID, std::string const& _nodeInfo, RespFunc _respFunc) override;
-    // remove the given group from the given chain
-    virtual void removeGroup(std::string const& _groupID, RespFunc _respFunc) override;
-    // remove the given node from the given group
-    virtual void removeGroupNode(
-        std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
-    // recover the given group
-    virtual void recoverGroup(std::string const& _groupID, RespFunc _respFunc) override;
-    // recover the given node of the given group
-    virtual void recoverGroupNode(
-        std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
-    // start the given node
-    virtual void startNode(
-        std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
-    // stop the given node
-    virtual void stopNode(
-        std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
-    // get all the groupID list
     virtual void getGroupList(RespFunc _respFunc) override;
-    // get all the group informations
-    virtual void getGroupInfoList(RespFunc _respFunc) override;
-    // get the group information of the given group
-    virtual void getGroupInfo(std::string const& _groupID, RespFunc _respFunc) override;
-    // get the information of a given node
+
+    virtual void getGroupInfo(const std::string& _groupID, RespFunc _respFunc) override;
+
     virtual void getGroupNodeInfo(
-        std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc) override;
+        const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
+
     // TODO: temp interface , should be removed in the end
     virtual void getNodeInfo(RespFunc _respFunc) override;
 

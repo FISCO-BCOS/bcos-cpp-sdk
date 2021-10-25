@@ -323,113 +323,6 @@ void JsonRpcImpl::getPeers(RespFunc _respFunc)
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getPeers") << LOG_KV("request", s);
 }
 
-// create a new group
-void JsonRpcImpl::createGroup(std::string const& _groupInfo, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupInfo);
-
-    auto request = m_factory->buildRequest("createGroup", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("createGroup") << LOG_KV("request", s);
-}
-
-// expand new node for the given group
-void JsonRpcImpl::expandGroupNode(
-    std::string const& _groupID, std::string const& _nodeInfo, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupID);
-    params.append(_nodeInfo);
-
-    auto request = m_factory->buildRequest("expandGroupNode", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("expandGroupNode") << LOG_KV("request", s);
-}
-
-// remove the given group from the given chain
-void JsonRpcImpl::removeGroup(std::string const& _groupID, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupID);
-
-    auto request = m_factory->buildRequest("removeGroup", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("removeGroup") << LOG_KV("request", s);
-}
-
-// remove the given node from the given group
-void JsonRpcImpl::removeGroupNode(
-    std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupID);
-    params.append(_nodeName);
-
-    auto request = m_factory->buildRequest("removeGroupNode", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("removeGroupNode") << LOG_KV("request", s);
-}
-
-// recover the given group
-void JsonRpcImpl::recoverGroup(std::string const& _groupID, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupID);
-
-    auto request = m_factory->buildRequest("recoverGroup", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("recoverGroup") << LOG_KV("request", s);
-}
-
-// recover the given node of the given group
-void JsonRpcImpl::recoverGroupNode(
-    std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupID);
-    params.append(_nodeName);
-
-    auto request = m_factory->buildRequest("recoverGroupNode", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("recoverGroupNode") << LOG_KV("request", s);
-}
-
-// start the given node
-void JsonRpcImpl::startNode(
-    std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupID);
-    params.append(_nodeName);
-
-    auto request = m_factory->buildRequest("startNode", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("startNode") << LOG_KV("request", s);
-}
-
-// stop the given node
-void JsonRpcImpl::stopNode(
-    std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-    params.append(_groupID);
-    params.append(_nodeName);
-
-    auto request = m_factory->buildRequest("stopNode", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("stopNode") << LOG_KV("request", s);
-}
-
-// get all the groupID list
 void JsonRpcImpl::getGroupList(RespFunc _respFunc)
 {
     Json::Value params = Json::Value(Json::arrayValue);
@@ -440,19 +333,7 @@ void JsonRpcImpl::getGroupList(RespFunc _respFunc)
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupList") << LOG_KV("request", s);
 }
 
-// get all the group informations
-void JsonRpcImpl::getGroupInfoList(RespFunc _respFunc)
-{
-    Json::Value params = Json::Value(Json::arrayValue);
-
-    auto request = m_factory->buildRequest("getGroupInfoList", params);
-    auto s = request->toJson();
-    m_sender(s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfoList") << LOG_KV("request", s);
-}
-
-// get the group information of the given group
-void JsonRpcImpl::getGroupInfo(std::string const& _groupID, RespFunc _respFunc)
+void JsonRpcImpl::getGroupInfo(const std::string& _groupID, RespFunc _respFunc)
 {
     Json::Value params = Json::Value(Json::arrayValue);
     params.append(_groupID);
@@ -462,9 +343,8 @@ void JsonRpcImpl::getGroupInfo(std::string const& _groupID, RespFunc _respFunc)
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfo") << LOG_KV("request", s);
 }
 
-// get the information of a given node
 void JsonRpcImpl::getGroupNodeInfo(
-    std::string const& _groupID, std::string const& _nodeName, RespFunc _respFunc)
+    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
 {
     Json::Value params = Json::Value(Json::arrayValue);
     params.append(_groupID);
