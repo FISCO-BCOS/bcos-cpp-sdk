@@ -69,9 +69,8 @@ public:
     virtual bool checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
     void clearGroupInfo(const std::string& _endPoint);
-
+    void clearGroupInfo(const std::string& _groupID, const std::string& _endPoint);
     void updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
-
     void onNotifyGroupInfo(
         const std::string& _groupInfo, std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
     void onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
@@ -94,12 +93,6 @@ public:
     void removeGroupInfo(const std::string& _groupID);
 
 public:
-    uint32_t wsHandshakeTimeout() const { return m_wsHandshakeTimeout; }
-    void setWsHandshakeTimeout(uint32_t _wsHandshakeTimeout)
-    {
-        m_wsHandshakeTimeout = _wsHandshakeTimeout;
-    }
-
     bool getEndPointsByGroup(const std::string& _group, std::set<std::string>& _endPoints);
     bool getEndPointsByGroupAndNode(
         const std::string& _group, const std::string& _node, std::set<std::string>& _endPoints);
@@ -121,9 +114,17 @@ public:
         m_chainNodeInfoFactory = _chainNodeInfoFactory;
     }
 
+public:
+    uint32_t wsHandshakeTimeout() const { return m_wsHandshakeTimeout; }
+    void setWsHandshakeTimeout(uint32_t _wsHandshakeTimeout)
+    {
+        m_wsHandshakeTimeout = _wsHandshakeTimeout;
+    }
+
 private:
     uint32_t m_wsHandshakeTimeout = 10000;  // 10s
 
+private:
     mutable std::shared_mutex x_lock;
     // group => node => endpoints
     std::unordered_map<std::string, std::unordered_map<std::string, std::set<std::string>>>

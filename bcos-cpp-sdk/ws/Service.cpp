@@ -158,11 +158,10 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             auto pv = std::make_shared<ProtocolVersion>();
             if (!pv->fromJson(pvString))
             {
-                // handshake failed and close the session
                 _session->drop(bcos::boostssl::ws::WsError::UserDisconnect);
 
                 RPC_WS_LOG(ERROR) << LOG_BADGE("startHandshake")
-                                  << LOG_DESC("callback response, parser protocol version error")
+                                  << LOG_DESC("invalid protocol version json string")
                                   << LOG_KV("endpoint",
                                          session ? session->endPoint() : std::string(""));
                 return;
@@ -256,6 +255,41 @@ void Service::clearGroupInfo(const std::string& _endPoint)
     printGroupInfo();
 }
 
+void Service::clearGroupInfo(const std::string& _groupID, const std::string& _endPoint)
+{
+    RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfo") << LOG_KV("endPoint", _endPoint)
+                     << LOG_KV("groupID", _groupID);
+
+    {
+        std::unique_lock lock(x_lock);
+        auto it = m_endPointsMapper.find(_groupID);
+        if (it == m_endPointsMapper.end())
+        {
+            return;
+        }
+
+        auto& groupMapper = it->second;
+        for (auto innerIt = groupMapper.begin(); innerIt != groupMapper.end();)
+        {
+            innerIt->second.erase(_endPoint);
+            if (innerIt->second.empty())
+            {
+                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfo") << LOG_DESC("clear node")
+                                 << LOG_KV("group", it->first) << LOG_KV("endPoint", _endPoint)
+                                 << LOG_KV("node", innerIt->first);
+                innerIt = it->second.erase(innerIt);
+            }
+            else
+            {
+                innerIt++;
+            }
+        }
+    }
+
+    // Note: for debug
+    // printGroupInfo();
+}
+
 void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo)
 {
     RPC_WS_LOG(INFO) << LOG_BADGE("updateGroupInfo") << LOG_KV("endPoint", _endPoint)
@@ -264,10 +298,16 @@ void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupIn
                      << LOG_KV("genesisConfig", _groupInfo->genesisConfig())
                      << LOG_KV("initConfig", _groupInfo->iniConfig())
                      << LOG_KV("nodesNum", _groupInfo->nodesNum());
-    {
-        const auto& group = _groupInfo->groupID();
-        const auto& nodes = _groupInfo->nodeInfos();
+    const auto& group = _groupInfo->groupID();
+    const auto& nodes = _groupInfo->nodeInfos();
 
+    {
+        // remove first
+        clearGroupInfo(group, _endPoint);
+    }
+
+    {
+        // update
         std::unique_lock lock(x_lock);
         auto& groupMapper = m_endPointsMapper[group];
         for (const auto& node : nodes)
