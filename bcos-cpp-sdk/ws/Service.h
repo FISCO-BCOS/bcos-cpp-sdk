@@ -36,7 +36,7 @@ namespace service
 using BlockNotifierCallback = std::function<void(const std::string& _group, int64_t _blockNumber)>;
 using BlockNotifierCallbacks = std::vector<BlockNotifierCallback>;
 
-class Service : public bcos::boostssl::ws::WsService, public std::enable_shared_from_this<Service>
+class Service : public bcos::boostssl::ws::WsService
 {
 public:
     using Ptr = std::shared_ptr<Service>;
