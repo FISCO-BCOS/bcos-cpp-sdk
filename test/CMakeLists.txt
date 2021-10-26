@@ -22,7 +22,7 @@ include(SearchTestCases)
 set(TEST_BINARY_NAME test-bcos-rpc)
 config_test_cases("" "${SOURCES}" bin/${TEST_BINARY_NAME} "")
 
-if (BUILD_AMOP_TEST)
+if (BUILD_EXE_TEST)
     add_subdirectory(client)
 endif()
 
