@@ -144,7 +144,7 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsServ
 
     _wsService->registerConnectHandler([amopPoint](std::shared_ptr<WsSession> _session) {
         if (amopPoint)
-        {
+        {  // TODO: it should update topics info to remote when service handshake successfully
             amopPoint->updateTopicsToRemote(_session);
         }
     });
