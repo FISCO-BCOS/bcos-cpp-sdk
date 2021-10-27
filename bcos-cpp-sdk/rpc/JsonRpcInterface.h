@@ -113,6 +113,8 @@ public:
     virtual void getGroupInfo(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) = 0;
 
+    virtual void getGroupInfoList(RespFunc _respFunc) = 0;
+
     virtual void getGroupNodeInfo(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) = 0;
 };

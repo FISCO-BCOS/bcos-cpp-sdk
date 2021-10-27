@@ -359,6 +359,16 @@ void JsonRpcImpl::getGroupInfo(
     }
 }
 
+void JsonRpcImpl::getGroupInfoList(RespFunc _respFunc)
+{
+    Json::Value params = Json::Value(Json::arrayValue);
+
+    auto request = m_factory->buildRequest("getGroupInfoList", params);
+    auto s = request->toJson();
+    m_sender("", "", s, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupNodeInfo") << LOG_KV("request", s);
+}
+
 void JsonRpcImpl::getGroupNodeInfo(
     const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
 {

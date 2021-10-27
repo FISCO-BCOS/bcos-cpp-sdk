@@ -116,6 +116,8 @@ public:
     virtual void getGroupInfo(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
 
+    virtual void getGroupInfoList(RespFunc _respFunc) override;
+
     virtual void getGroupNodeInfo(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
 
