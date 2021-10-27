@@ -138,8 +138,9 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                      << LOG_KV("endpoint", _session ? _session->endPoint() : std::string(""));
 
     auto session = _session;
+    auto service = std::dynamic_pointer_cast<Service>(shared_from_this());
     _session->asyncSendMessage(message, Options(m_wsHandshakeTimeout),
-        [session](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+        [session, service](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
             {
@@ -167,16 +168,21 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                 return;
             }
 
-            // TODO: getGroupList && getGroupInfo
-
             // set protocol version
             session->setVersion(pv->protocolVersion());
+
+            auto groupInfoList = pv->groupInfoList();
+            for (auto& groupInfo : groupInfoList)
+            {
+                service->updateGroupInfo(groupInfo);
+            }
 
             RPC_WS_LOG(INFO) << LOG_BADGE("startHandshake") << LOG_DESC("handshake successfully")
                              << LOG_KV(
                                     "endpoint", _session ? _session->endPoint() : std::string(""))
-                             << LOG_KV("pv value", _session->version())
-                             << LOG_KV("pv string", pvString);
+                             << LOG_KV("handshake version", _session->version())
+                             << LOG_KV("groupInfoList size", groupInfoList.size())
+                             << LOG_KV("handshake string", pvString);
         });
 }
 

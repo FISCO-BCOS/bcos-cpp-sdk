@@ -19,6 +19,10 @@
  */
 
 #pragma once
+#include <bcos-framework/interfaces/multigroup/ChainNodeInfo.h>
+#include <bcos-framework/interfaces/multigroup/ChainNodeInfoFactory.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfo.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
 #include <json/json.h>
 #include <algorithm>
 #include <memory>
@@ -44,8 +48,19 @@ public:
     int protocolVersion() const { return m_protocolVersion; }
     void setProtocolVersion(int _protocolVersion) { m_protocolVersion = _protocolVersion; }
 
+    const std::vector<bcos::group::GroupInfo::Ptr>& groupInfoList() const
+    {
+        return m_groupInfoList;
+    }
+
+    void setGroupInfoList(const std::vector<bcos::group::GroupInfo::Ptr>& _groupInfoList)
+    {
+        m_groupInfoList = _groupInfoList;
+    }
+
 private:
     int m_protocolVersion;
+    std::vector<bcos::group::GroupInfo::Ptr> m_groupInfoList;
 };
 
 }  // namespace service
