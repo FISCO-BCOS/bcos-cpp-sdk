@@ -37,7 +37,8 @@ public:
 
 public:
     bool fromJson(const std::string& _json);
-    std::string toJson();
+    Json::Value toJson();
+    std::string toJsonString();
 
 public:
     int protocolVersion() const { return m_protocolVersion; }

@@ -70,16 +70,23 @@ bool ProtocolVersion::fromJson(const std::string& _json)
 
     return false;
 }
-std::string ProtocolVersion::toJson()
+
+Json::Value ProtocolVersion::toJson()
 {
     /*
-        {
-        "protocolVersion": 1
-        }
-    */
+       {
+       "protocolVersion": 1
+       }
+   */
     Json::Value jResult;
     // protocolVersion
     jResult["protocolVersion"] = m_protocolVersion;
+    return jResult;
+}
+
+std::string ProtocolVersion::toJsonString()
+{
+    Json::Value jResult = toJson();
 
     Json::FastWriter writer;
     std::string result = writer.write(jResult);

@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_ProtocolVersion)
         int protocolVersion = 111;
         auto pv = std::make_shared<bcos::cppsdk::service::ProtocolVersion>();
         pv->setProtocolVersion(protocolVersion);
-        auto s = pv->toJson();
+        auto s = pv->toJsonString();
 
         auto pv0 = std::make_shared<bcos::cppsdk::service::ProtocolVersion>();
         auto r = pv0->fromJson(s);
