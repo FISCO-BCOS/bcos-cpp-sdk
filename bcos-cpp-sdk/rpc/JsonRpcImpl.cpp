@@ -328,8 +328,7 @@ void JsonRpcImpl::getGroupList(RespFunc _respFunc)
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupList") << LOG_KV("request", s);
 }
 
-void JsonRpcImpl::getGroupInfo(
-    const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc)
+void JsonRpcImpl::getGroupInfo(const std::string& _groupID, RespFunc _respFunc)
 {
     auto groupInfo = m_service->getGroupInfo(_groupID);
     if (groupInfo)
@@ -351,10 +350,9 @@ void JsonRpcImpl::getGroupInfo(
         // call remote rpc
         Json::Value params = Json::Value(Json::arrayValue);
         params.append(_groupID);
-        params.append(_nodeName);
         auto request = m_factory->buildRequest("getGroupInfo", params);
         auto s = request->toJson();
-        m_sender(_groupID, _nodeName, s, _respFunc);
+        m_sender(_groupID, "", s, _respFunc);
         RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfo") << LOG_KV("request", s);
     }
 }
