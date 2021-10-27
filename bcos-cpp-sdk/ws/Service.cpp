@@ -200,6 +200,7 @@ void Service::onNotifyGroupInfo(
     catch (const std::exception& e)
     {
         RPC_WS_LOG(ERROR) << LOG_BADGE("onNotifyGroupInfo") << LOG_KV("endPoint", endPoint)
+                          << LOG_KV("e", boost::diagnostic_information(e))
                           << LOG_KV("groupInfoJson", _groupInfoJson);
     }
 }
@@ -296,7 +297,7 @@ void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupIn
                      << LOG_KV("group", _groupInfo->groupID())
                      << LOG_KV("chainID", _groupInfo->chainID())
                      << LOG_KV("genesisConfig", _groupInfo->genesisConfig())
-                     << LOG_KV("initConfig", _groupInfo->iniConfig())
+                     << LOG_KV("iniConfig", _groupInfo->iniConfig())
                      << LOG_KV("nodesNum", _groupInfo->nodesNum());
     const auto& group = _groupInfo->groupID();
     const auto& nodes = _groupInfo->nodeInfos();
