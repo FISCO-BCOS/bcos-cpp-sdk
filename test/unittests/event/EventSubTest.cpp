@@ -155,14 +155,12 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
         // task not exist
         std::promise<bool> p;
         auto f = p.get_future();
-        es->unsubscribeEvent(
-            id, [&p](bcos::Error::Ptr _error, const std::string& _id, const std::string&) {
-                (void)_error;
-                (void)_id;
-                BOOST_CHECK(_error);
-                BOOST_CHECK_EQUAL(_error->errorCode(), -1);
-                p.set_value(true);
-            });
+        es->unsubscribeEvent(id, [&p](bcos::Error::Ptr _error, const std::string&) {
+            (void)_error;
+            BOOST_CHECK(_error);
+            BOOST_CHECK_EQUAL(_error->errorCode(), -1);
+            p.set_value(true);
+        });
         f.get();
     }
 
@@ -179,13 +177,11 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
         BOOST_CHECK(es->getTask(id));
         BOOST_CHECK_EQUAL(es->suspendTasksCount(), 1);
 
-        es->unsubscribeEvent(
-            id, [&p](bcos::Error::Ptr _error, const std::string& _id, const std::string&) {
-                (void)_error;
-                (void)_id;
-                BOOST_CHECK(!_error);
-                p.set_value(true);
-            });
+        es->unsubscribeEvent(id, [&p](bcos::Error::Ptr _error, const std::string&) {
+            (void)_error;
+            BOOST_CHECK(!_error);
+            p.set_value(true);
+        });
         f.get();
 
         BOOST_CHECK(!es->getTask(id));
@@ -208,13 +204,11 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
         session->setError(error);
 
         // callback error
-        es->unsubscribeEvent(id,
-            [&p, errorCode](bcos::Error::Ptr _error, const std::string& _id, const std::string&) {
-                (void)_id;
-                BOOST_CHECK(_error);
-                BOOST_CHECK_EQUAL(_error->errorCode(), errorCode);
-                p.set_value(true);
-            });
+        es->unsubscribeEvent(id, [&p, errorCode](bcos::Error::Ptr _error, const std::string&) {
+            BOOST_CHECK(_error);
+            BOOST_CHECK_EQUAL(_error->errorCode(), errorCode);
+            p.set_value(true);
+        });
         f.get();
 
         BOOST_CHECK(!es->getTask(id));
@@ -241,13 +235,12 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
         auto respJson = resp->generateJson();
         session->setResp(std::make_shared<bcos::bytes>(respJson.begin(), respJson.end()));
 
-        es->unsubscribeEvent(id, [&p, &respJson](bcos::Error::Ptr _error, const std::string& _id,
-                                     const std::string& _resp) {
-            (void)_id;
-            BOOST_CHECK(!_error);
-            BOOST_CHECK_EQUAL(respJson, _resp);
-            p.set_value(true);
-        });
+        es->unsubscribeEvent(
+            id, [&p, &respJson](bcos::Error::Ptr _error, const std::string& _resp) {
+                BOOST_CHECK(!_error);
+                BOOST_CHECK_EQUAL(respJson, _resp);
+                p.set_value(true);
+            });
         f.get();
 
         BOOST_CHECK(!es->getTask(id));

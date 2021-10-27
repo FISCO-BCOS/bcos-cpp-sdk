@@ -23,6 +23,7 @@
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
+#include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
@@ -74,14 +75,13 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto wsService = factory->buildWsService();
+    auto wsService = factory->buildService();
     auto amop = factory->buildAMOP(wsService);
 
     wsService->start();
 
     BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
-    auto self = std::weak_ptr(amop);
-    amop->subscribe(topic, [self](bcos::Error::Ptr _error, const std::string& _endPoint,
+    amop->subscribe(topic, [&amop](bcos::Error::Ptr _error, const std::string& _endPoint,
                                const std::string& _seq, bytesConstRef _data,
                                std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
         boost::ignore_unused(_session);
@@ -100,11 +100,8 @@ int main(int argc, char** argv)
 
             BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ")
                            << LOG_DESC(" send message back to publisher... ");
-            auto amop = self.lock();
-            if (amop)
-            {
-                amop->sendResponse(_endPoint, _seq, _data);
-            }
+
+            amop->sendResponse(_endPoint, _seq, _data);
         }
     });
 

@@ -5,4 +5,4 @@ file(GLOB HEADERS "*.h")
 
 add_library(${JSON_RPC_TARGET} ${SRC_LIST} ${HEADERS})
 
-target_link_libraries(${JSON_RPC_TARGET} PUBLIC bcos-framework::utilities)
+target_link_libraries(${JSON_RPC_TARGET} PUBLIC bcos-framework::utilities jsoncpp_lib_static)

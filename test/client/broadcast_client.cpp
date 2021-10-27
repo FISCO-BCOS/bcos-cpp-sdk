@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto wsService = factory->buildWsService();
+    auto wsService = factory->buildService();
     auto amop = factory->buildAMOP(wsService);
 
     wsService->start();

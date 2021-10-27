@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file BlockNotifier.h
+ * @file BlockNumberInfo.h
  * @author: octopus
  * @date 2021-10-04
  */
@@ -31,20 +31,19 @@ namespace bcos
 {
 namespace cppsdk
 {
-namespace group
+namespace service
 {
-using BlockNotifierCallback = std::function<void(int64_t _blockNumber)>;
-using BlockNotifierCallbacks = std::vector<BlockNotifierCallback>;
-
-class BlockInfo
+class BlockNumberInfo
 {
 public:
-    using Ptr = std::shared_ptr<BlockInfo>;
-    using ConstPtr = std::shared_ptr<const BlockInfo>;
+    using Ptr = std::shared_ptr<BlockNumberInfo>;
+    using ConstPtr = std::shared_ptr<const BlockNumberInfo>;
 
 public:
     std::string group() const { return m_group; }
     void setGroup(const std::string& _group) { m_group = _group; }
+    std::string node() const { return m_node; }
+    void setNode(const std::string& _node) { m_node = _node; }
     int64_t blockNumber() const { return m_blockNumber; }
     void setBlockNumber(int64_t _blockNumber) { m_blockNumber = _blockNumber; }
 
@@ -54,28 +53,10 @@ public:
 
 private:
     std::string m_group;
+    std::string m_node;
     int64_t m_blockNumber;
 };
 
-class BlockNotifier
-{
-public:
-    using Ptr = std::shared_ptr<BlockNotifier>;
-    using ConstPtr = std::shared_ptr<const BlockNotifier>;
-
-public:
-    void onRecvBlockNotifier(const std::string& _msg);
-    void onRecvBlockNotifier(BlockInfo::Ptr _blockInfo);
-
-    bool getBlockNumberByGroup(const std::string& _group, int64_t& _blockNumber);
-    void registerCallback(const std::string& _group, BlockNotifierCallback _callback);
-    void removeGroup(const std::string& _group);
-
-private:
-    mutable std::shared_mutex x_locks;
-    std::unordered_map<std::string, BlockNotifierCallbacks> m_group2callbacks;
-    std::unordered_map<std::string, BlockInfo::Ptr> m_group2BlockInfo;
-};
-}  // namespace group
+}  // namespace service
 }  // namespace cppsdk
 }  // namespace bcos
