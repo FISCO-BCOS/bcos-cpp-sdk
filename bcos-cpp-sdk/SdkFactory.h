@@ -23,6 +23,7 @@
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/event/EventSub.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
+#include <bcos-cpp-sdk/ws/Service.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
 
 namespace bcos
@@ -35,11 +36,10 @@ public:
     using Ptr = std::shared_ptr<SdkFactory>;
 
 public:
-    // construct WsService object
-    bcos::boostssl::ws::WsService::Ptr buildWsService();
+    bcos::cppsdk::service::Service::Ptr buildService();
 
     bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr buildJsonRpc(
-        bcos::boostssl::ws::WsService::Ptr _wsService);
+        bcos::cppsdk::service::Service::Ptr _service);
     bcos::cppsdk::amop::AMOP::UniquePtr buildAMOP(bcos::boostssl::ws::WsService::Ptr _wsService);
     bcos::cppsdk::event::EventSub::UniquePtr buildEventSub(
         bcos::boostssl::ws::WsService::Ptr _wsService);

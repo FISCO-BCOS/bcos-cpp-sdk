@@ -76,10 +76,10 @@ include(InstallBcosFrameworkDependencies)
 
 set(CPP_SDK_TARGET "bcos-sdk-static")
 set(CPP_SDK_DY_TARGET "bcos-sdk")
-set(JSON_RPC_TARGET "json-rpc-client")
-set(AMOP_TARGET "amop-client")
-set(EVENT_TARGET "event-client")
-set(GROUP_TARGET "group-client")
+set(JSON_RPC_TARGET "json-rpc")
+set(AMOP_TARGET "amop")
+set(EVENT_TARGET "event")
+set(WS_SERVICE_TARGET "ws-srv")
 
 add_subdirectory(bcos-cpp-sdk)
 
@@ -142,7 +142,7 @@ install(
 )
 
 install(
-    TARGETS ${GROUP_TARGET}
+    TARGETS ${WS_SERVICE_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"

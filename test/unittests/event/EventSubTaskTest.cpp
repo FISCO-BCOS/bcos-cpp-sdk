@@ -45,8 +45,9 @@ BOOST_AUTO_TEST_CASE(test_EventSubTask)
     task->setGroup(group);
     task->setParams(params);
     task->setState(state);
-    task->setCallback([](bcos::Error::Ptr _error, const std::string& _id,
-                          const std::string& _resp) { boost::ignore_unused(_error, _id, _resp); });
+    task->setCallback([](bcos::Error::Ptr _error, const std::string& _resp) {
+        boost::ignore_unused(_error, _resp);
+    });
 
     BOOST_CHECK_EQUAL(id, task->id());
     BOOST_CHECK_EQUAL(group, task->group());
