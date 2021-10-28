@@ -22,6 +22,7 @@
 #include <bcos-boostssl/websocket/WsInitializer.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-cpp-sdk/LogInitializer.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
@@ -44,6 +45,10 @@ WsService::Ptr SdkFactory::buildWsService()
 {
     auto wsService = std::make_shared<WsService>();
     auto initializer = std::make_shared<WsInitializer>();
+
+    // Note:
+    LogInitializer::initLog();
+
     initializer->setConfig(m_config);
     initializer->initWsService(wsService);
     wsService->setWaitConnectFinish(true);
