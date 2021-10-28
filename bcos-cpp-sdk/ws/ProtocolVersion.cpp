@@ -85,7 +85,8 @@ bool ProtocolVersion::fromJson(const std::string& _json)
     {
         RPC_WS_LOG(ERROR) << LOG_BADGE("fromJson")
                           << LOG_DESC("invalid protocol version json string")
-                          << LOG_KV("json", _json) << LOG_KV("exception", e.what());
+                          << LOG_KV("json", _json)
+                          << LOG_KV("exception", boost::diagnostic_information(e));
     }
 
     return false;
