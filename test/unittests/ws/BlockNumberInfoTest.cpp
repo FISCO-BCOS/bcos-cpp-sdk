@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_BlockNumber)
         std::string node = "node";
 
         auto bni = std::make_shared<bcos::cppsdk::service::BlockNumberInfo>();
-        bni->setBlockNumber(111);
+        bni->setBlockNumber(blockNumber);
         bni->setGroup(group);
         bni->setNode(node);
 
