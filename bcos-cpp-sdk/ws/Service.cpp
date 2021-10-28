@@ -203,6 +203,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                 return;
             }
 
+            std::string endPoint = session ? session->endPoint() : std::string("");
             std::string pvString = std::string(_msg->data()->begin(), _msg->data()->end());
             auto pv = std::make_shared<ProtocolVersion>();
             if (!pv->fromJson(pvString))
@@ -211,8 +212,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
 
                 RPC_WS_LOG(ERROR) << LOG_BADGE("startHandshake")
                                   << LOG_DESC("invalid protocol version json string")
-                                  << LOG_KV("endpoint",
-                                         session ? session->endPoint() : std::string(""));
+                                  << LOG_KV("endpoint", endPoint);
                 return;
             }
 
@@ -222,14 +222,13 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             auto groupInfoList = pv->groupInfoList();
             for (auto& groupInfo : groupInfoList)
             {
-                service->updateGroupInfo(groupInfo);
+                service->updateGroupInfo(endPoint, groupInfo);
             }
 
             service->increaseHandshakeSucCount();
 
             RPC_WS_LOG(INFO) << LOG_BADGE("startHandshake") << LOG_DESC("handshake successfully")
-                             << LOG_KV(
-                                    "endpoint", _session ? _session->endPoint() : std::string(""))
+                             << LOG_KV("endPoint", endPoint)
                              << LOG_KV("handshake version", _session->version())
                              << LOG_KV("groupInfoList size", groupInfoList.size())
                              << LOG_KV("handshake string", pvString);
@@ -251,7 +250,6 @@ void Service::onNotifyGroupInfo(
         groupInfo->deserialize(_groupInfoJson);
 
         updateGroupInfo(endPoint, groupInfo);
-        updateGroupInfo(groupInfo);
     }
     catch (const std::exception& e)
     {
@@ -357,6 +355,10 @@ void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupIn
                      << LOG_KV("nodesNum", _groupInfo->nodesNum());
     const auto& group = _groupInfo->groupID();
     const auto& nodes = _groupInfo->nodeInfos();
+
+    {
+        updateGroupInfo(_groupInfo);
+    }
 
     {
         // remove first
