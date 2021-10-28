@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Initializer.h
+ * @file LogInitializer.h
  * @author: octopus
- * @date 2021-08-21
+ * @date 2021-10-27
  */
 #pragma once
 #include <bcos-framework/libutilities/BoostLogInitializer.h>
@@ -46,10 +46,9 @@ public:
             }
             catch (const std::exception& e)
             {
-                std::cerr
-                    << "Unable to find the log configuration file, it should be ./clog.ini or "
-                       "./conf/clog.ini."
-                    << std::endl;
+                std::cerr << "Cannot find the log config file, it should be ./clog.ini or "
+                             "./conf/clog.ini."
+                          << std::endl;
                 exit(0);
             }
         }
@@ -59,18 +58,12 @@ public:
 
     static void initLog(const boost::property_tree::ptree& _pt)
     {
-        std::call_once(m_flag, [_pt]() {
-            m_logInitializer = std::make_shared<BoostLogInitializer>();
-            m_logInitializer->initLog(_pt);
-        });
+        std::call_once(m_flag, [_pt]() { m_logInitializer.initLog(_pt); });
     }
 
 private:
     static std::once_flag m_flag;
-    static bcos::BoostLogInitializer::Ptr m_logInitializer;
+    static bcos::BoostLogInitializer m_logInitializer;
 };
-
-std::once_flag LogInitializer::m_flag;
-bcos::BoostLogInitializer::Ptr LogInitializer::m_logInitializer;
 }  // namespace cppsdk
 }  // namespace bcos

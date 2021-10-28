@@ -44,6 +44,10 @@ public:
 
 public:
     // ---------------------overide begin------------------------------------
+
+    virtual void start() override;
+    virtual void stop() override;
+
     virtual void onConnect(
         bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
 
@@ -53,6 +57,8 @@ public:
     virtual void onRecvMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
     // ---------------------overide end -------------------------------------
+
+    void waitForConnectionEstablish();
 
 public:
     // ---------------------send message begin-------------------------------
@@ -121,8 +127,14 @@ public:
         m_wsHandshakeTimeout = _wsHandshakeTimeout;
     }
 
+    uint32_t handshakeSucCount() const { return m_handshakeSucCount.load(); }
+
+    void increaseHandshakeSucCount() { m_handshakeSucCount++; }
+
 private:
     uint32_t m_wsHandshakeTimeout = 10000;  // 10s
+
+    std::atomic<uint32_t> m_handshakeSucCount = 0;
 
 private:
     mutable std::shared_mutex x_lock;
