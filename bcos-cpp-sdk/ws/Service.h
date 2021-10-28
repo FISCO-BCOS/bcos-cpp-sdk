@@ -74,9 +74,9 @@ public:
     virtual void startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
     virtual bool checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
-    void clearGroupInfo(const std::string& _endPoint);
-    void clearGroupInfo(const std::string& _groupID, const std::string& _endPoint);
-    void updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
+    void clearGroupInfoByEp(const std::string& _endPoint);
+    void clearGroupInfoByEp(const std::string& _groupID, const std::string& _endPoint);
+    void updateGroupInfoByEp(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
     void onNotifyGroupInfo(
         const std::string& _groupInfo, std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
     void onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,

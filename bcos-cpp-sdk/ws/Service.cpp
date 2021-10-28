@@ -98,7 +98,7 @@ void Service::onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _sessio
     std::string endPoint = _session ? _session->endPoint() : std::string();
     if (!endPoint.empty())
     {
-        clearGroupInfo(endPoint);
+        clearGroupInfoByEp(endPoint);
     }
 }
 
@@ -222,7 +222,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             auto groupInfoList = pv->groupInfoList();
             for (auto& groupInfo : groupInfoList)
             {
-                service->updateGroupInfo(endPoint, groupInfo);
+                service->updateGroupInfoByEp(endPoint, groupInfo);
             }
 
             service->increaseHandshakeSucCount();
@@ -249,7 +249,7 @@ void Service::onNotifyGroupInfo(
         groupInfo->setChainNodeInfoFactory(m_chainNodeInfoFactory);
         groupInfo->deserialize(_groupInfoJson);
 
-        updateGroupInfo(endPoint, groupInfo);
+        updateGroupInfoByEp(endPoint, groupInfo);
     }
     catch (const std::exception& e)
     {
@@ -269,9 +269,9 @@ void Service::onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _
     return onNotifyGroupInfo(groupInfo, _session);
 }
 
-void Service::clearGroupInfo(const std::string& _endPoint)
+void Service::clearGroupInfoByEp(const std::string& _endPoint)
 {
-    RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfo") << LOG_KV("endPoint", _endPoint);
+    RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint);
     {
         std::unique_lock lock(x_lock);
         for (auto it = m_endPointsMapper.begin(); it != m_endPointsMapper.end();)
@@ -283,7 +283,7 @@ void Service::clearGroupInfo(const std::string& _endPoint)
                 if (innerIt->second.empty())
                 {
                     RPC_WS_LOG(INFO)
-                        << LOG_BADGE("clearGroupInfo") << LOG_DESC("clear node")
+                        << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear node")
                         << LOG_KV("group", it->first) << LOG_KV("node", innerIt->first);
                     innerIt = it->second.erase(innerIt);
                 }
@@ -295,7 +295,7 @@ void Service::clearGroupInfo(const std::string& _endPoint)
 
             if (it->second.empty())
             {
-                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfo") << LOG_DESC("clear group")
+                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear group")
                                  << LOG_KV("group", it->first);
                 it = m_endPointsMapper.erase(it);
             }
@@ -310,9 +310,9 @@ void Service::clearGroupInfo(const std::string& _endPoint)
     printGroupInfo();
 }
 
-void Service::clearGroupInfo(const std::string& _groupID, const std::string& _endPoint)
+void Service::clearGroupInfoByEp(const std::string& _groupID, const std::string& _endPoint)
 {
-    RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfo") << LOG_KV("endPoint", _endPoint)
+    RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint)
                      << LOG_KV("groupID", _groupID);
 
     {
@@ -329,7 +329,7 @@ void Service::clearGroupInfo(const std::string& _groupID, const std::string& _en
             innerIt->second.erase(_endPoint);
             if (innerIt->second.empty())
             {
-                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfo") << LOG_DESC("clear node")
+                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear node")
                                  << LOG_KV("group", it->first) << LOG_KV("endPoint", _endPoint)
                                  << LOG_KV("node", innerIt->first);
                 innerIt = it->second.erase(innerIt);
@@ -345,9 +345,10 @@ void Service::clearGroupInfo(const std::string& _groupID, const std::string& _en
     // printGroupInfo();
 }
 
-void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo)
+void Service::updateGroupInfoByEp(
+    const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo)
 {
-    RPC_WS_LOG(INFO) << LOG_BADGE("updateGroupInfo") << LOG_KV("endPoint", _endPoint)
+    RPC_WS_LOG(INFO) << LOG_BADGE("updateGroupInfoByEp") << LOG_KV("endPoint", _endPoint)
                      << LOG_KV("group", _groupInfo->groupID())
                      << LOG_KV("chainID", _groupInfo->chainID())
                      << LOG_KV("genesisConfig", _groupInfo->genesisConfig())
@@ -362,7 +363,7 @@ void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupIn
 
     {
         // remove first
-        clearGroupInfo(group, _endPoint);
+        clearGroupInfoByEp(group, _endPoint);
     }
 
     {
