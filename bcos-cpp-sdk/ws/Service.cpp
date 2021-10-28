@@ -36,6 +36,54 @@ using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
 
 // ---------------------overide begin--------------------------------------------------------------
+
+void Service::start()
+{
+    bcos::boostssl::ws::WsService::start();
+
+    waitForConnectionEstablish();
+}
+
+void Service::stop()
+{
+    bcos::boostssl::ws::WsService::stop();
+}
+
+void Service::waitForConnectionEstablish()
+{
+    auto start = std::chrono::high_resolution_clock::now();
+    auto end = start + std::chrono::milliseconds(waitConnectFinishTimeout());
+
+    while (true)
+    {
+        // sleep for connection establish
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        if (handshakeSucCount())
+        {
+            RPC_WS_LOG(INFO) << LOG_BADGE("waitForConnectionEstablish")
+                             << LOG_DESC("wait for websocket connection handshake success")
+                             << LOG_KV("suc count", handshakeSucCount());
+            break;
+        }
+
+        if (std::chrono::high_resolution_clock::now() < end)
+        {
+            continue;
+        }
+        else
+        {
+            stop();
+            RPC_WS_LOG(ERROR) << LOG_BADGE("waitForConnectionEstablish")
+                              << LOG_DESC("wait for websocket connection handshake timeout")
+                              << LOG_KV("timeout", waitConnectFinishTimeout());
+
+            BOOST_THROW_EXCEPTION(std::runtime_error("The websocket connection handshake timeout"));
+            return;
+        }
+    }
+}
+
 void Service::onConnect(Error::Ptr _error, std::shared_ptr<WsSession> _session)
 {
     bcos::boostssl::ws::WsService::onConnect(_error, _session);
@@ -176,6 +224,8 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             {
                 service->updateGroupInfo(groupInfo);
             }
+
+            service->increaseHandshakeSucCount();
 
             RPC_WS_LOG(INFO) << LOG_BADGE("startHandshake") << LOG_DESC("handshake successfully")
                              << LOG_KV(
