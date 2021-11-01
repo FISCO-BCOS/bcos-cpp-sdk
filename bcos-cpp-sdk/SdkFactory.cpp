@@ -25,18 +25,17 @@
 #include <bcos-cpp-sdk/LogInitializer.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
-#include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/Common.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-framework/libprotocol/amop/AMOPRequest.h>
 
 using namespace bcos;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
-
-using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
+using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::jsonrpc;
 using namespace bcos::cppsdk::event;
 using namespace bcos::cppsdk::service;
@@ -108,10 +107,10 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr SdkFactory::buildJsonRpc(Service::
 
 bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsService)
 {
-    auto amop = std::make_unique<AMOP>();
+    auto amop = std::make_unique<bcos::cppsdk::amop::AMOP>();
 
     auto topicManager = std::make_shared<TopicManager>();
-    auto requestFactory = std::make_shared<bcos::cppsdk::amop::AMOPRequestFactory>();
+    auto requestFactory = std::make_shared<bcos::protocol::AMOPRequestFactory>();
     auto messageFactory = std::make_shared<WsMessageFactory>();
 
     amop->setTopicManager(topicManager);
@@ -146,7 +145,8 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsServ
 
     _wsService->registerConnectHandler([amopPoint](std::shared_ptr<WsSession> _session) {
         if (amopPoint)
-        {  // TODO: it should update topics info to remote when service handshake successfully
+        {  // TODO: it should update topics info to remote when
+           // service handshake successfully
             amopPoint->updateTopicsToRemote(_session);
         }
     });

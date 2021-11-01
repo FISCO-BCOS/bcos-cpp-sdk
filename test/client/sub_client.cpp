@@ -56,8 +56,8 @@ int main(int argc, char** argv)
     uint16_t port = atoi(argv[2]);
     std::string topic = argv[3];
 
-    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" subscribe ") << LOG_KV("ip", host)
-                   << LOG_KV("port", port) << LOG_KV("topic", topic);
+    std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" subscribe ") << LOG_KV("ip", host)
+              << LOG_KV("port", port) << LOG_KV("topic", topic) << std::endl;
 
 
     auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
@@ -80,7 +80,8 @@ int main(int argc, char** argv)
 
     wsService->start();
 
-    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!");
+    std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!")
+              << std::endl;
     amop->subscribe(topic, [&amop](bcos::Error::Ptr _error, const std::string& _endPoint,
                                const std::string& _seq, bytesConstRef _data,
                                std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
@@ -94,12 +95,13 @@ int main(int argc, char** argv)
         }
         else
         {
-            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
-                           << LOG_KV("endPoint", _endPoint)
-                           << LOG_KV("msg", std::string(_data.begin(), _data.end()));
+            std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
+                      << LOG_KV("endPoint", _endPoint)
+                      << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
 
-            BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ")
-                           << LOG_DESC(" send message back to publisher... ");
+            std::cout << LOG_BADGE(" [AMOP] ===>>>> ")
+                      << LOG_DESC(" send message back to publisher... ")
+                      << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
 
             amop->sendResponse(_endPoint, _seq, _data);
         }

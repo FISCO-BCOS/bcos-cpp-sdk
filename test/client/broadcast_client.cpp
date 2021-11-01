@@ -61,8 +61,8 @@ int main(int argc, char** argv)
         msg = argv[4];
     }
 
-    BCOS_LOG(INFO) << LOG_DESC("broadcast client") << LOG_KV("ip", host) << LOG_KV("port", port)
-                   << LOG_KV("topic", topic);
+    std::cout << LOG_DESC("broadcast client") << LOG_KV("ip", host) << LOG_KV("port", port)
+              << LOG_KV("topic", topic);
 
     auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
     config->setModel(bcos::boostssl::ws::WsModel::Client);
@@ -89,8 +89,8 @@ int main(int argc, char** argv)
     int i = 0;
     while (true)
     {
-        BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" broadcast ")
-                       << LOG_KV("topic", topic) << LOG_KV("message", msg);
+        std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" broadcast ")
+                  << LOG_KV("topic", topic) << LOG_KV("message", msg);
         amop->broadcast(topic, bytesConstRef((bcos::byte*)msg.data(), msg.size()));
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;
