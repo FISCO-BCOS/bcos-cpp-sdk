@@ -398,8 +398,8 @@ bool Service::getEndPointsByGroup(const std::string& _group, std::set<std::strin
         _endPoints.insert(nodeMapper.second.begin(), nodeMapper.second.end());
     }
 
-    RPC_WS_LOG(INFO) << LOG_BADGE("getEndPointsByGroup") << LOG_KV("group", _group)
-                     << LOG_KV("endPoints", _endPoints.size());
+    RPC_WS_LOG(TRACE) << LOG_BADGE("getEndPointsByGroup") << LOG_KV("group", _group)
+                      << LOG_KV("endPoints", _endPoints.size());
     return true;
 }
 
