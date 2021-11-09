@@ -90,9 +90,9 @@ if (TESTS)
     add_subdirectory(test)
 endif()
 
-# if (BUILD_AMOP_TEST)
-#    add_subdirectory(test/client)
-# endif()
+ if (BUILD_AMOP_TEST)
+    add_subdirectory(test/client)
+ endif()
 
 # install bcos-cpp-sdk target
 install(

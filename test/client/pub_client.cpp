@@ -61,8 +61,8 @@ int main(int argc, char** argv)
         msg = argv[4];
     }
 
-    BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ") << LOG_KV("ip", host)
-                   << LOG_KV("port", port) << LOG_KV("topic", topic);
+    std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ") << LOG_KV("ip", host)
+              << LOG_KV("port", port) << LOG_KV("topic", topic) << std::endl;
 
     auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
     config->setModel(bcos::boostssl::ws::WsModel::Client);
@@ -87,8 +87,8 @@ int main(int argc, char** argv)
     int i = 0;
     while (true)
     {
-        BCOS_LOG(INFO) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ")
-                       << LOG_KV("topic", topic) << LOG_KV("message", msg);
+        std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ")
+                  << LOG_KV("topic", topic) << LOG_KV("message", msg) << std::endl;
 
         amop->publish(topic, bytesConstRef((bcos::byte*)msg.data(), msg.size()), -1,
             [](bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
@@ -103,9 +103,21 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    BCOS_LOG(INFO)
-                        << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive response message")
-                        << LOG_KV("msg", std::string(_msg->data()->begin(), _msg->data()->end()));
+                    if (_msg->status() != 0)
+                    {
+                        std::cout << LOG_BADGE(" [AMOP] ===>>>> ")
+                                  << LOG_DESC(" receive response message error")
+                                  << LOG_KV("status", _msg->status())
+                                  << LOG_KV("msg",
+                                         std::string(_msg->data()->begin(), _msg->data()->end()))
+                                  << std::endl;
+                        return;
+                    }
+                    std::cout << LOG_BADGE(" [AMOP] ===>>>> ")
+                              << LOG_DESC(" receive response message")
+                              << LOG_KV(
+                                     "msg", std::string(_msg->data()->begin(), _msg->data()->end()))
+                              << std::endl;
                 }
             });
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));

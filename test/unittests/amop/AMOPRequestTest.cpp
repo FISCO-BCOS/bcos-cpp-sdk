@@ -18,7 +18,7 @@
  * @author: octopus
  * @date 2021-09-22
  */
-#include <bcos-cpp-sdk/amop/AMOPRequest.h>
+#include <bcos-framework/libprotocol/amop/AMOPRequest.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>
 #include <boost/beast/websocket/rfc6455.hpp>
 #include <boost/test/tools/old/interface.hpp>
@@ -26,7 +26,6 @@
 #include <memory>
 
 using namespace bcos;
-using namespace bcos::cppsdk::amop;
 using namespace bcos::test;
 
 
@@ -34,7 +33,7 @@ BOOST_FIXTURE_TEST_SUITE(AMOPRequestTest, TestPromptFixture)
 
 BOOST_AUTO_TEST_CASE(test_AMOPRequest)
 {
-    auto requestFactory = std::make_shared<AMOPRequestFactory>();
+    auto requestFactory = std::make_shared<bcos::protocol::AMOPRequestFactory>();
     {
         auto request = requestFactory->buildRequest();
 
@@ -72,7 +71,7 @@ BOOST_AUTO_TEST_CASE(test_AMOPRequest)
 
     {
         auto request = requestFactory->buildRequest();
-        std::string topic(AMOPRequest::TOPIC_MAX_LENGTH + 1, 'a');
+        std::string topic(bcos::protocol::AMOPRequest::TOPIC_MAX_LENGTH + 1, 'a');
         std::string data(1000, 'a');
 
         request->setTopic(topic);
@@ -97,7 +96,7 @@ BOOST_AUTO_TEST_CASE(test_AMOPRequest)
 
         auto decodeRequest = requestFactory->buildRequest();
         auto size = decodeRequest->decode(
-            bytesConstRef(buffer->data(), AMOPRequest::MESSAGE_MIN_LENGTH - 1));
+            bytesConstRef(buffer->data(), bcos::protocol::AMOPRequest::MESSAGE_MIN_LENGTH - 1));
         BOOST_CHECK(size < 0);
     }
 }

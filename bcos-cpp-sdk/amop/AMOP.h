@@ -23,8 +23,8 @@
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/amop/AMOPInterface.h>
-#include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/TopicManager.h>
+#include <bcos-framework/libprotocol/amop/AMOPRequest.h>
 #include <unordered_map>
 
 namespace bcos
@@ -87,11 +87,11 @@ public:
         m_messageFactory = _messageFactory;
     }
 
-    std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> requestFactory() const
+    std::shared_ptr<bcos::protocol::AMOPRequestFactory> requestFactory() const
     {
         return m_requestFactory;
     }
-    void setRequestFactory(std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> _requestFactory)
+    void setRequestFactory(std::shared_ptr<bcos::protocol::AMOPRequestFactory> _requestFactory)
     {
         m_requestFactory = _requestFactory;
     }
@@ -129,7 +129,7 @@ private:
     SubCallback m_callback;
     std::shared_ptr<TopicManager> m_topicManager;
     std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> m_messageFactory;
-    std::shared_ptr<bcos::cppsdk::amop::AMOPRequestFactory> m_requestFactory;
+    std::shared_ptr<bcos::protocol::AMOPRequestFactory> m_requestFactory;
 
     mutable std::shared_mutex x_topic2Callback;
     std::unordered_map<std::string, SubCallback> m_topic2Callback;
