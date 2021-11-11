@@ -426,8 +426,8 @@ bool Service::getEndPointsByGroupAndNode(
 
     _endPoints = innerIt->second;
 
-    RPC_WS_LOG(INFO) << LOG_BADGE("getEndPointsByGroupAndNode") << LOG_KV("group", _group)
-                     << LOG_KV("node", _node) << LOG_KV("endPoints", _endPoints.size());
+    RPC_WS_LOG(TRACE) << LOG_BADGE("getEndPointsByGroupAndNode") << LOG_KV("group", _group)
+                      << LOG_KV("node", _node) << LOG_KV("endPoints", _endPoints.size());
     return true;
 }
 
