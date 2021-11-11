@@ -379,3 +379,14 @@ void JsonRpcImpl::getGroupNodeInfo(
     m_sender(_groupID, _nodeName, s, _respFunc);
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupNodeInfo") << LOG_KV("request", s);
 }
+
+void JsonRpcImpl::getGroupPeers(std::string const& _groupID, RespFunc _respFunc)
+{
+    Json::Value params = Json::Value(Json::arrayValue);
+    params.append(_groupID);
+
+    auto request = m_factory->buildRequest("getGroupPeers", params);
+    auto requestStr = request->toJson();
+    m_sender("", "", requestStr, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupPeers") << LOG_KV("request", requestStr);
+}
