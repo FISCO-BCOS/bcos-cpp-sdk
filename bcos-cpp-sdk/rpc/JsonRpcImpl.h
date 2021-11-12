@@ -109,6 +109,7 @@ public:
     virtual void getTotalTransactionCount(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
 
+    void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) override;
     virtual void getPeers(RespFunc _respFunc) override;
 
     virtual void getGroupList(RespFunc _respFunc) override;

@@ -106,6 +106,7 @@ public:
     virtual void getTotalTransactionCount(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) = 0;
 
+    virtual void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) = 0;
     virtual void getPeers(RespFunc _respFunc) = 0;
 
     virtual void getGroupList(RespFunc _respFunc) = 0;
