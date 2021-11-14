@@ -95,7 +95,7 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr SdkFactory::buildJsonRpc(Service::
         msg->setType(bcos::cppsdk::jsonrpc::MessageType::RPC_REQUEST);
         msg->setData(data);
 
-        _service->asyncSendMessageByGroupAndNode(_group, _node, msg, Options(-1),
+        _service->asyncSendMessageByGroupAndNode(_group, _node, msg, Options(),
             [_respFunc](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
                 std::shared_ptr<WsSession> _session) {
                 (void)_session;
