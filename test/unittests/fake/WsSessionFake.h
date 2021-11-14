@@ -32,8 +32,7 @@ namespace test
 class WsSessionFake : public bcos::boostssl::ws::WsSession
 {
 public:
-    WsSessionFake(boost::beast::websocket::stream<boost::beast::tcp_stream>&& _wsStream)
-      : bcos::boostssl::ws::WsSession(std::move(_wsStream))
+    WsSessionFake() : bcos::boostssl::ws::WsSession()
     {
         WEBSOCKET_SESSION(INFO) << LOG_KV("[NEWOBJ][WSSESSION]", this);
     }

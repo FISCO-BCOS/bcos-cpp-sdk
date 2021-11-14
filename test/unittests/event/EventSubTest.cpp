@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
     {
         // task is running
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(*es->ioc());
-        auto session = std::make_shared<bcos::cppsdk::test::WsSessionFake>(std::move(stream));
+        auto session = std::make_shared<bcos::cppsdk::test::WsSessionFake>();
 
         task->setSession(session);
         es->addTask(task);
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
     {
         // task is running
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(*es->ioc());
-        auto session = std::make_shared<bcos::cppsdk::test::WsSessionFake>(std::move(stream));
+        auto session = std::make_shared<bcos::cppsdk::test::WsSessionFake>();
 
         task->setSession(session);
 
