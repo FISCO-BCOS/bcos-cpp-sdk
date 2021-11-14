@@ -386,7 +386,7 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
                      << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
     auto self = std::weak_ptr<EventSub>(shared_from_this());
-    m_wsService->asyncSendMessage(message, Options(EP_SENDMSG_TIMEOUT(m_config)),
+    m_wsService->asyncSendMessage(message, Options(),
         [id, _task, _callback, self](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
             auto es = self.lock();
@@ -490,7 +490,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
     message->setType(bcos::cppsdk::event::MessageType::EVENT_UNSUBSCRIBE);
     message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
 
-    session->asyncSendMessage(message, Options(EP_SENDMSG_TIMEOUT(m_config)),
+    session->asyncSendMessage(message, Options(),
         [_id, _callback](
             bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
