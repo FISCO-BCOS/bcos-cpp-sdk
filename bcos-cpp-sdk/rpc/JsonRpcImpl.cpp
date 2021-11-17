@@ -30,6 +30,8 @@ using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
 
+static const int32_t BLOCK_LIMIT_RANGE = 500;
+
 void JsonRpcImpl::start()
 {
     if (m_service)
@@ -189,6 +191,13 @@ void JsonRpcImpl::getBlockNumber(
     auto s = request->toJson();
     m_sender(_groupID, _nodeName, s, _respFunc);
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getBlockNumber") << LOG_KV("request", s);
+}
+
+int64_t JsonRpcImpl::getBlockLimit(const std::string& _groupID)
+{
+    int64_t blockNumber = -1;
+    m_service->getBlockNumber(_groupID, blockNumber);
+    return blockNumber > 0 ? blockNumber + BLOCK_LIMIT_RANGE : blockNumber;
 }
 
 void JsonRpcImpl::getCode(const std::string& _groupID, const std::string& _nodeName,

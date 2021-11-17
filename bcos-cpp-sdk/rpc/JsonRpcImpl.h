@@ -79,6 +79,9 @@ public:
     virtual void getBlockHashByNumber(const std::string& _groupID, const std::string& _nodeName,
         int64_t _blockNumber, RespFunc _respFunc) override;
 
+    // async call
+    virtual int64_t getBlockLimit(const std::string& _groupID) override;
+
     virtual void getBlockNumber(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
 
