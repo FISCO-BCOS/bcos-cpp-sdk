@@ -46,10 +46,17 @@ public:
             }
             catch (const std::exception& e)
             {
-                std::cerr << "Cannot find the log config file, it should be ./clog.ini or "
-                             "./conf/clog.ini."
-                          << std::endl;
-                exit(0);
+                std::string defaultIni = R"([log]
+                                enable=true
+                                log_path=./log
+                                stat_flush_interval=60
+                                level=INFO
+                                max_log_file_size=200)";
+
+                std::cerr
+                    << "Found no log config file(./clog.ini or ./conf/clog.ini) use defaut config: "
+                    << defaultIni << std::endl;
+                boost::property_tree::read_ini(defaultIni, pt);
             }
         }
 
