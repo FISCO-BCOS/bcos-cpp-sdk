@@ -18,6 +18,7 @@
  * @date 2021-09-01
  */
 
+#include "libutilities/BoostLog.h"
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
@@ -55,7 +56,7 @@ void EventSub::start()
     else
     {
         EVENT_PUSH(WARNING) << LOG_BADGE("start")
-                            << LOG_DESC("websocket service is not uninitialized");
+                            << LOG_DESC("websocket service has not been initialized");
     }
 
     m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
@@ -230,24 +231,22 @@ bool EventSub::removeSuspendTask(const std::string& _id)
 
 std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
 {
+    if (!_session)
+    {
+        return 0;
+    }
+
+    EVENT_PUSH(INFO) << LOG_BADGE("suspendTasks")
+                     << LOG_DESC("suspend event sub task for disconnection")
+                     << LOG_KV("endPoint", _session->endPoint());
+
     std::size_t count = 0;
     std::unique_lock lock(x_tasks);
     for (auto it = m_workingTasks.begin(); it != m_workingTasks.end();)
     {
         auto task = it->second;
         auto s = task->session();
-        /*
-        if (!s)
-        {
-            EVENT_PUSH(ERROR) << LOG_BADGE("suspendTasks")
-                              << LOG_DESC("something is wrong for session is nullptr")
-                              << LOG_KV("id", task->id());
-            ++it;
-            continue;
-        }
-        */
-
-        if (s.get() != _session.get())
+        if (s && s->endPoint() != _session->endPoint())
         {
             ++it;
             continue;
@@ -255,7 +254,7 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
 
         EVENT_PUSH(INFO) << LOG_BADGE("suspendTasks")
                          << LOG_DESC("suspend event sub task for session disconnect")
-                         << LOG_KV("id", task->id());
+                         << LOG_KV("id", task->id()) << LOG_KV("endPoint", _session->endPoint());
 
         it = m_workingTasks.erase(it);
         task->setSession(nullptr);
@@ -274,8 +273,7 @@ void EventSub::onRecvEventSubMessage(
         "id": "",
         "status": 0,
         "result": {
-            "blockNumber": 111,
-            "events": [
+            [
                 {},
                 {},
                 {}
@@ -331,19 +329,32 @@ void EventSub::onRecvEventSubMessage(
     {
         int64_t blockNumber = -1;
         // NOTE: update the latest blocknumber of event sub for network disconnect continue
-        const auto& jResp = resp->jResp();
-        if (jResp.isMember("result") && jResp["result"].isMember("blockNumber") &&
-            jResp["result"]["blockNumber"].isInt64())
+        auto jResp = resp->jResp();
+        try
         {
-            blockNumber = jResp["result"]["blockNumber"].asInt64();
-            task->state()->setCurrentBlockNumber(blockNumber);
+            if (jResp.isMember("result") && jResp["result"].isArray() &&
+                (jResp["result"].size() > 0) && jResp["result"][0].isMember("blockNumber") &&
+                jResp["result"][0]["blockNumber"].isInt64())
+            {
+                blockNumber = jResp["result"]["blockNumber"].asInt64();
+                task->state()->setCurrentBlockNumber(blockNumber);
+            }
+
+            task->callback()(nullptr, strResp);
+
+            EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
+                              << LOG_KV("endpoint", _session->endPoint())
+                              << LOG_KV("id", task->id()) << LOG_KV("blockNumber", blockNumber)
+                              << LOG_KV("response", strResp);
         }
-
-        task->callback()(nullptr, strResp);
-
-        EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
-                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
-                          << LOG_KV("blockNumber", blockNumber) << LOG_KV("response", strResp);
+        catch (const std::exception& e)
+        {
+            EVENT_PUSH(WARNING) << LOG_BADGE("onRecvEventSubMessage")
+                                << LOG_DESC("unrecognized response")
+                                << LOG_KV("endpoint", _session->endPoint())
+                                << LOG_KV("id", task->id()) << LOG_KV("blockNumber", blockNumber)
+                                << LOG_KV("resp", strResp);
+        }
     }
 }
 
