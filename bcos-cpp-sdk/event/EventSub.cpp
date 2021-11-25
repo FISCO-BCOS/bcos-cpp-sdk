@@ -39,11 +39,6 @@ using namespace bcos::boostssl::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
-#define EP_DEFAULT_LOOP_PERIOD (10000)
-#define EP_DEFAULT_SENDMSG_TIMEOUT (30000)
-
-#define EP_SENDMSG_TIMEOUT(config) (config ? config->reconnectPeriod() : EP_DEFAULT_SENDMSG_TIMEOUT)
-
 void EventSub::start()
 {
     if (m_running)
@@ -65,15 +60,8 @@ void EventSub::start()
 
     m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
         boost::posix_time::milliseconds(m_config->reconnectPeriod()));
-    auto self = std::weak_ptr<EventSub>(shared_from_this());
-    m_timer->async_wait([self](const boost::system::error_code&) {
-        auto es = self.lock();
-        if (!es)
-        {
-            return;
-        }
-        es->doLoop();
-    });
+
+    m_timer->async_wait([this](const boost::system::error_code&) { this->doLoop(); });
 
     EVENT_PUSH(INFO) << LOG_BADGE("start") << LOG_DESC("start event sub successfully")
                      << LOG_KV("sendMsgTimeout", m_config->sendMsgTimeout())
@@ -104,7 +92,8 @@ void EventSub::doLoop()
         return;
     }
 
-     EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("suspend tasks") << LOG_KV("count", m_suspendTasksCount.load());
+    EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("suspend tasks")
+                     << LOG_KV("count", m_suspendTasksCount.load());
 
     auto ss = m_wsService->sessions();
     if (ss.empty())
@@ -125,16 +114,8 @@ void EventSub::doLoop()
 
         m_waitRespTasks.insert(id);
 
-        auto self = std::weak_ptr<EventSub>(shared_from_this());
-        subscribeEventByTask(task, [id, self](bcos::Error::Ptr, const std::string&) {
-            auto es = self.lock();
-            if (!es)
-            {
-                return;
-            }
-
-            es->removeWaitResp(id);
-        });
+        subscribeEventByTask(
+            task, [id, this](bcos::Error::Ptr, const std::string&) { this->removeWaitResp(id); });
     }
 }
 
@@ -386,16 +367,9 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
     EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask") << LOG_DESC("subscribe event")
                      << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
-    auto self = std::weak_ptr<EventSub>(shared_from_this());
     m_wsService->asyncSendMessage(message, Options(),
-        [id, _task, _callback, self](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+        [id, _task, _callback, this](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
-            auto es = self.lock();
-            if (!es)
-            {
-                return;
-            }
-
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
             {
                 EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEventByTask")
@@ -428,7 +402,7 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
                 // subscribe event successfully, set network session for unsubscribe
                 _task->setSession(_session);
 
-                es->addTask(_task);
+                this->addTask(_task);
 
                 _callback(nullptr, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask")

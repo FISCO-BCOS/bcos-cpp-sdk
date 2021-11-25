@@ -34,7 +34,7 @@ namespace cppsdk
 {
 namespace event
 {
-class EventSub : public EventSubInterface, public std::enable_shared_from_this<EventSub>
+class EventSub : public EventSubInterface
 {
 public:
     using Ptr = std::shared_ptr<EventSub>;
