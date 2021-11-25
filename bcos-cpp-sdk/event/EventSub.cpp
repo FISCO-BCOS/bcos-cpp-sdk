@@ -236,17 +236,6 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
     {
         auto task = it->second;
         auto s = task->session();
-        /*
-        if (!s)
-        {
-            EVENT_PUSH(ERROR) << LOG_BADGE("suspendTasks")
-                              << LOG_DESC("something is wrong for session is nullptr")
-                              << LOG_KV("id", task->id());
-            ++it;
-            continue;
-        }
-        */
-
         if (s.get() != _session.get())
         {
             ++it;
@@ -274,8 +263,7 @@ void EventSub::onRecvEventSubMessage(
         "id": "",
         "status": 0,
         "result": {
-            "blockNumber": 111,
-            "events": [
+            [
                 {},
                 {},
                 {}
@@ -331,19 +319,32 @@ void EventSub::onRecvEventSubMessage(
     {
         int64_t blockNumber = -1;
         // NOTE: update the latest blocknumber of event sub for network disconnect continue
-        const auto& jResp = resp->jResp();
-        if (jResp.isMember("result") && jResp["result"].isMember("blockNumber") &&
-            jResp["result"]["blockNumber"].isInt64())
+        auto jResp = resp->jResp();
+        try
         {
-            blockNumber = jResp["result"]["blockNumber"].asInt64();
-            task->state()->setCurrentBlockNumber(blockNumber);
+            if (jResp.isMember("result") && jResp["result"].isArray() &&
+                (jResp["result"].size() > 0) && jResp["result"][0].isMember("blockNumber") &&
+                jResp["result"][0]["blockNumber"].isInt64())
+            {
+                blockNumber = jResp["result"]["blockNumber"].asInt64();
+                task->state()->setCurrentBlockNumber(blockNumber);
+            }
+
+            task->callback()(nullptr, strResp);
+
+            EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
+                              << LOG_KV("endpoint", _session->endPoint())
+                              << LOG_KV("id", task->id()) << LOG_KV("blockNumber", blockNumber)
+                              << LOG_KV("response", strResp);
         }
-
-        task->callback()(nullptr, strResp);
-
-        EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
-                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
-                          << LOG_KV("blockNumber", blockNumber) << LOG_KV("response", strResp);
+        catch (const std::exception& e)
+        {
+            EVENT_PUSH(WARNING) << LOG_BADGE("onRecvEventSubMessage")
+                                << LOG_DESC("unrecognized response")
+                                << LOG_KV("endpoint", _session->endPoint())
+                                << LOG_KV("id", task->id()) << LOG_KV("blockNumber", blockNumber)
+                                << LOG_KV("response", strResp);
+        }
     }
 }
 
