@@ -118,7 +118,6 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsServ
     amop->setMessageFactory(messageFactory);
     amop->setService(_wsService);
 
-    // TODO: is it safe to use raw pointer???
     auto amopPoint = amop.get();
 
     _wsService->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_REQUEST,
@@ -145,8 +144,8 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsServ
 
     _wsService->registerConnectHandler([amopPoint](std::shared_ptr<WsSession> _session) {
         if (amopPoint)
-        {  // TODO: it should update topics info to remote when
-           // service handshake successfully
+        {
+            // service handshake successfully
             amopPoint->updateTopicsToRemote(_session);
         }
     });
@@ -163,9 +162,7 @@ bcos::cppsdk::event::EventSub::UniquePtr SdkFactory::buildEventSub(WsService::Pt
     es->setConfig(_wsService->config());
     es->setIoc(_wsService->ioc());
 
-    // TODO: is it safe to use raw pointer???
     auto eventPoint = es.get();
-
     _wsService->registerMsgHandler(bcos::cppsdk::event::MessageType::EVENT_LOG_PUSH,
         [eventPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             if (eventPoint)

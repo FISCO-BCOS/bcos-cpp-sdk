@@ -42,7 +42,6 @@ using namespace bcos::cppsdk::event;
 #define EP_DEFAULT_LOOP_PERIOD (10000)
 #define EP_DEFAULT_SENDMSG_TIMEOUT (30000)
 
-#define EP_LOOP_PERIOD(config) (config ? config->reconnectPeriod() : EP_DEFAULT_LOOP_PERIOD)
 #define EP_SENDMSG_TIMEOUT(config) (config ? config->reconnectPeriod() : EP_DEFAULT_SENDMSG_TIMEOUT)
 
 void EventSub::start()
@@ -65,7 +64,7 @@ void EventSub::start()
     }
 
     m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(EP_LOOP_PERIOD(m_config)));
+        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
     auto self = std::weak_ptr<EventSub>(shared_from_this());
     m_timer->async_wait([self](const boost::system::error_code&) {
         auto es = self.lock();
@@ -77,8 +76,8 @@ void EventSub::start()
     });
 
     EVENT_PUSH(INFO) << LOG_BADGE("start") << LOG_DESC("start event sub successfully")
-                     << LOG_KV("sendMsgTimeout", EP_SENDMSG_TIMEOUT(m_config))
-                     << LOG_KV("reconnectPeriod", EP_LOOP_PERIOD(m_config));
+                     << LOG_KV("sendMsgTimeout", m_config->sendMsgTimeout())
+                     << LOG_KV("reconnectPeriod", m_config->reconnectPeriod());
 }
 
 void EventSub::stop()
@@ -104,6 +103,8 @@ void EventSub::doLoop()
     {
         return;
     }
+
+     EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("suspend tasks") << LOG_KV("count", m_suspendTasksCount.load());
 
     auto ss = m_wsService->sessions();
     if (ss.empty())
@@ -459,23 +460,19 @@ void EventSub::subscribeEvent(
     return subscribeEventByTask(task, _callback);
 }
 
-void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
+void EventSub::unsubscribeEvent(const std::string& _id)
 {
     auto task = getTaskAndRemove(_id);
     if (task == nullptr)
     {
-        // TODO: error code define
-        auto error = std::make_shared<Error>(-1, "event sub task not found");
-        _callback(error, "");
-        EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event sub task not found")
-                          << LOG_KV("id", _id);
+        EVENT_PUSH(WARNING) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event sub not found")
+                            << LOG_KV("id", _id);
         return;
     }
 
     auto session = task->session();
     if (!session)
     {
-        _callback(nullptr, "");
         EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("task is suspend")
                          << LOG_KV("id", _id);
         return;
@@ -491,7 +488,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
     message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
 
     session->asyncSendMessage(message, Options(),
-        [_id, _callback](
+        [_id](
             bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
             {
@@ -500,7 +497,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
 
-                _callback(_error, "");
+
                 return;
             }
 
@@ -511,9 +508,6 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                 EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent")
                                   << LOG_DESC("callback invalid response") << LOG_KV("id", _id)
                                   << LOG_KV("response", strResp);
-
-                // TODO:
-                _callback(nullptr, strResp);
             }
             else if (resp->status() != StatusCode::Success)
             {
@@ -521,12 +515,9 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_DESC("callback response error") << LOG_KV("id", _id)
                                   << LOG_KV("status", resp->status())
                                   << LOG_KV("response", strResp);
-
-                _callback(nullptr, strResp);
             }
             else
             {
-                _callback(nullptr, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent")
                                  << LOG_DESC("callback response success") << LOG_KV("id", _id)
                                  << LOG_KV("status", resp->status()) << LOG_KV("response", strResp);

@@ -45,8 +45,6 @@ enum MessageType
     // ------------jsonrpc end ---------
 };
 
-
-// TODO:: add impl class JsonResponse
 struct JsonResponse
 {
     struct Error

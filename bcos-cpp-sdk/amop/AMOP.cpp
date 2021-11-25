@@ -47,12 +47,10 @@ void AMOP::start()
                              << LOG_DESC("websocket service is not uninitialized");
     }
 
-    // TODO:
     AMOP_CLIENT(INFO) << LOG_BADGE("start") << LOG_DESC("start amop");
 }
 void AMOP::stop()
 {
-    // TODO:
     AMOP_CLIENT(INFO) << LOG_BADGE("stop") << LOG_DESC("stop amop");
 }
 
