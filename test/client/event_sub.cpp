@@ -27,6 +27,7 @@
 #include <bcos-framework/libutilities/Log.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
 #include <boost/core/ignore_unused.hpp>
+#include <cstdlib>
 #include <memory>
 #include <set>
 #include <string>
@@ -39,9 +40,11 @@ using namespace bcos::cppsdk;
 void usage()
 {
     std::cerr
-        << "Usage: event-sub <host> <port> <group> <address>\n"
+        << "Usage: event-sub <host> <port> <group> <address> <from> <to>\n"
         << "Example:\n"
-        << "    ./event-sub 127.0.0.1 20200 group 0x37a44585Bf1e9618FDb4C62c4c96189A07Dd4b48\n";
+        << "    ./event-sub 127.0.0.1 20200 group 0x37a44585Bf1e9618FDb4C62c4c96189A07Dd4b48\n"
+        << "    ./event-sub 127.0.0.1 20200 group 0x37a44585Bf1e9618FDb4C62c4c96189A07Dd4b48 1 10"
+           "10\n";
     std::exit(0);
 }
 
@@ -58,9 +61,21 @@ int main(int argc, char** argv)
     uint16_t port = atoi(argv[2]);
     std::string group = argv[3];
     std::string address = argv[4];
+    int64_t from = -1;
+    int64_t to = -1;
+    if (argc > 6)
+    {
+        from = atoi(argv[5]);
+        to = atoi(argv[6]);
+    }
+    else if (argc > 5)
+    {
+        from = atoi(argv[6]);
+    }
 
     std::cout << LOG_BADGE(" [EventSub] ===>>>> ") << LOG_KV("ip", host) << LOG_KV("port", port)
-              << LOG_KV("group", group) << LOG_KV("address", address) << std::endl;
+              << LOG_KV("group", group) << LOG_KV("address", address) << LOG_KV("from", from)
+              << LOG_KV("to", to) << std::endl;
 
     auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
     config->setModel(bcos::boostssl::ws::WsModel::Client);
@@ -85,6 +100,8 @@ int main(int argc, char** argv)
 
     auto params = std::make_shared<bcos::cppsdk::event::EventSubParams>();
     params->addAddress(address);
+    params->setFromBlock(from);
+    params->setToBlock(to);
 
     eventSub->subscribeEvent(
         group, params, [](bcos::Error::Ptr _error, const std::string& _events) {
