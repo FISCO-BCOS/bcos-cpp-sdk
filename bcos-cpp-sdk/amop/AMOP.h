@@ -33,7 +33,7 @@ namespace cppsdk
 {
 namespace amop
 {
-class AMOP : public AMOPInterface, public std::enable_shared_from_this<AMOP>
+class AMOP : public AMOPInterface
 {
 public:
     using Ptr = std::shared_ptr<AMOP>;

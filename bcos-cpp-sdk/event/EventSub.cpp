@@ -18,6 +18,7 @@
  * @date 2021-09-01
  */
 
+#include "libutilities/BoostLog.h"
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
@@ -39,12 +40,6 @@ using namespace bcos::boostssl::ws;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
-#define EP_DEFAULT_LOOP_PERIOD (10000)
-#define EP_DEFAULT_SENDMSG_TIMEOUT (30000)
-
-#define EP_LOOP_PERIOD(config) (config ? config->reconnectPeriod() : EP_DEFAULT_LOOP_PERIOD)
-#define EP_SENDMSG_TIMEOUT(config) (config ? config->reconnectPeriod() : EP_DEFAULT_SENDMSG_TIMEOUT)
-
 void EventSub::start()
 {
     if (m_running)
@@ -61,24 +56,17 @@ void EventSub::start()
     else
     {
         EVENT_PUSH(WARNING) << LOG_BADGE("start")
-                            << LOG_DESC("websocket service is not uninitialized");
+                            << LOG_DESC("websocket service has not been initialized");
     }
 
     m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(EP_LOOP_PERIOD(m_config)));
-    auto self = std::weak_ptr<EventSub>(shared_from_this());
-    m_timer->async_wait([self](const boost::system::error_code&) {
-        auto es = self.lock();
-        if (!es)
-        {
-            return;
-        }
-        es->doLoop();
-    });
+        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
+
+    m_timer->async_wait([this](const boost::system::error_code&) { this->doLoop(); });
 
     EVENT_PUSH(INFO) << LOG_BADGE("start") << LOG_DESC("start event sub successfully")
-                     << LOG_KV("sendMsgTimeout", EP_SENDMSG_TIMEOUT(m_config))
-                     << LOG_KV("reconnectPeriod", EP_LOOP_PERIOD(m_config));
+                     << LOG_KV("sendMsgTimeout", m_config->sendMsgTimeout())
+                     << LOG_KV("reconnectPeriod", m_config->reconnectPeriod());
 }
 
 void EventSub::stop()
@@ -105,6 +93,9 @@ void EventSub::doLoop()
         return;
     }
 
+    EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("suspend tasks")
+                     << LOG_KV("count", m_suspendTasksCount.load());
+
     auto ss = m_wsService->sessions();
     if (ss.empty())
     {
@@ -124,16 +115,8 @@ void EventSub::doLoop()
 
         m_waitRespTasks.insert(id);
 
-        auto self = std::weak_ptr<EventSub>(shared_from_this());
-        subscribeEventByTask(task, [id, self](bcos::Error::Ptr, const std::string&) {
-            auto es = self.lock();
-            if (!es)
-            {
-                return;
-            }
-
-            es->removeWaitResp(id);
-        });
+        subscribeEventByTask(
+            task, [id, this](bcos::Error::Ptr, const std::string&) { this->removeWaitResp(id); });
     }
 }
 
@@ -248,32 +231,30 @@ bool EventSub::removeSuspendTask(const std::string& _id)
 
 std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
 {
+    if (!_session)
+    {
+        return 0;
+    }
+
+    EVENT_PUSH(INFO) << LOG_BADGE("suspendTasks")
+                     << LOG_DESC("suspend event sub task for disconnection")
+                     << LOG_KV("endPoint", _session->endPoint());
+
     std::size_t count = 0;
     std::unique_lock lock(x_tasks);
     for (auto it = m_workingTasks.begin(); it != m_workingTasks.end();)
     {
         auto task = it->second;
         auto s = task->session();
-        /*
-        if (!s)
-        {
-            EVENT_PUSH(ERROR) << LOG_BADGE("suspendTasks")
-                              << LOG_DESC("something is wrong for session is nullptr")
-                              << LOG_KV("id", task->id());
-            ++it;
-            continue;
-        }
-        */
-
-        if (s.get() != _session.get())
+        if (s && s->endPoint() != _session->endPoint())
         {
             ++it;
             continue;
         }
 
         EVENT_PUSH(INFO) << LOG_BADGE("suspendTasks")
-                         << LOG_DESC("suspend event sub task for session disconnect")
-                         << LOG_KV("id", task->id());
+                         << LOG_DESC("suspend event sub task for disconnection")
+                         << LOG_KV("id", task->id()) << LOG_KV("endPoint", _session->endPoint());
 
         it = m_workingTasks.erase(it);
         task->setSession(nullptr);
@@ -292,8 +273,7 @@ void EventSub::onRecvEventSubMessage(
         "id": "",
         "status": 0,
         "result": {
-            "blockNumber": 111,
-            "events": [
+            [
                 {},
                 {},
                 {}
@@ -349,19 +329,30 @@ void EventSub::onRecvEventSubMessage(
     {
         int64_t blockNumber = -1;
         // NOTE: update the latest blocknumber of event sub for network disconnect continue
-        const auto& jResp = resp->jResp();
-        if (jResp.isMember("result") && jResp["result"].isMember("blockNumber") &&
-            jResp["result"]["blockNumber"].isInt64())
+        auto jResp = resp->jResp();
+        try
         {
-            blockNumber = jResp["result"]["blockNumber"].asInt64();
-            task->state()->setCurrentBlockNumber(blockNumber);
+            if (jResp["result"][0]["blockNumber"].isInt64())
+            {
+                blockNumber = jResp["result"][0]["blockNumber"].asInt64();
+                task->state()->setCurrentBlockNumber(blockNumber);
+            }
+
+            task->callback()(nullptr, strResp);
+
+            EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
+                              << LOG_KV("endpoint", _session->endPoint())
+                              << LOG_KV("id", task->id()) << LOG_KV("blockNumber", blockNumber)
+                              << LOG_KV("response", strResp);
         }
-
-        task->callback()(nullptr, strResp);
-
-        EVENT_PUSH(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
-                          << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("id", task->id())
-                          << LOG_KV("blockNumber", blockNumber) << LOG_KV("response", strResp);
+        catch (const std::exception& e)
+        {
+            EVENT_PUSH(WARNING) << LOG_BADGE("onRecvEventSubMessage")
+                                << LOG_DESC("unrecognized response")
+                                << LOG_KV("endpoint", _session->endPoint())
+                                << LOG_KV("id", task->id()) << LOG_KV("blockNumber", blockNumber)
+                                << LOG_KV("resp", strResp);
+        }
     }
 }
 
@@ -385,16 +376,9 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
     EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask") << LOG_DESC("subscribe event")
                      << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
-    auto self = std::weak_ptr<EventSub>(shared_from_this());
     m_wsService->asyncSendMessage(message, Options(),
-        [id, _task, _callback, self](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+        [id, _task, _callback, this](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
-            auto es = self.lock();
-            if (!es)
-            {
-                return;
-            }
-
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
             {
                 EVENT_PUSH(ERROR) << LOG_BADGE("subscribeEventByTask")
@@ -427,7 +411,7 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
                 // subscribe event successfully, set network session for unsubscribe
                 _task->setSession(_session);
 
-                es->addTask(_task);
+                this->addTask(_task);
 
                 _callback(nullptr, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("subscribeEventByTask")
@@ -459,23 +443,19 @@ void EventSub::subscribeEvent(
     return subscribeEventByTask(task, _callback);
 }
 
-void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
+void EventSub::unsubscribeEvent(const std::string& _id)
 {
     auto task = getTaskAndRemove(_id);
     if (task == nullptr)
     {
-        // TODO: error code define
-        auto error = std::make_shared<Error>(-1, "event sub task not found");
-        _callback(error, "");
-        EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event sub task not found")
-                          << LOG_KV("id", _id);
+        EVENT_PUSH(WARNING) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("event sub not found")
+                            << LOG_KV("id", _id);
         return;
     }
 
     auto session = task->session();
     if (!session)
     {
-        _callback(nullptr, "");
         EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent") << LOG_DESC("task is suspend")
                          << LOG_KV("id", _id);
         return;
@@ -491,7 +471,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
     message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
 
     session->asyncSendMessage(message, Options(),
-        [_id, _callback](
+        [_id](
             bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
             if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
             {
@@ -500,7 +480,7 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
 
-                _callback(_error, "");
+
                 return;
             }
 
@@ -511,9 +491,6 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                 EVENT_PUSH(ERROR) << LOG_BADGE("unsubscribeEvent")
                                   << LOG_DESC("callback invalid response") << LOG_KV("id", _id)
                                   << LOG_KV("response", strResp);
-
-                // TODO:
-                _callback(nullptr, strResp);
             }
             else if (resp->status() != StatusCode::Success)
             {
@@ -521,12 +498,9 @@ void EventSub::unsubscribeEvent(const std::string& _id, Callback _callback)
                                   << LOG_DESC("callback response error") << LOG_KV("id", _id)
                                   << LOG_KV("status", resp->status())
                                   << LOG_KV("response", strResp);
-
-                _callback(nullptr, strResp);
             }
             else
             {
-                _callback(nullptr, strResp);
                 EVENT_PUSH(INFO) << LOG_BADGE("unsubscribeEvent")
                                  << LOG_DESC("callback response success") << LOG_KV("id", _id)
                                  << LOG_KV("status", resp->status()) << LOG_KV("response", strResp);

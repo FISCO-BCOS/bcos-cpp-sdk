@@ -74,8 +74,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # install dependencies
 include(InstallBcosFrameworkDependencies)
 
-set(CPP_SDK_TARGET "bcos-sdk-static")
-set(CPP_SDK_DY_TARGET "bcos-sdk")
+set(CPP_SDK_TARGET "bcos-sdk")
+# set(CPP_SDK_DY_TARGET "bcos-sdk")
 set(JSON_RPC_TARGET "json-rpc")
 set(AMOP_TARGET "amop")
 set(EVENT_TARGET "event")
@@ -105,14 +105,14 @@ install(
 )
 
 # install bcos-cpp-sdk dynamic target
-install(
-    TARGETS ${CPP_SDK_DY_TARGET}
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
+# install(
+#     TARGETS ${CPP_SDK_DY_TARGET}
+#     EXPORT "${TARGETS_EXPORT_NAME}"
+#     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+#     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+#     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+#     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+# )
 
 install(
     TARGETS ${JSON_RPC_TARGET}

@@ -118,7 +118,6 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsServ
     amop->setMessageFactory(messageFactory);
     amop->setService(_wsService);
 
-    // TODO: is it safe to use raw pointer???
     auto amopPoint = amop.get();
 
     _wsService->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_REQUEST,
@@ -145,8 +144,8 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsServ
 
     _wsService->registerConnectHandler([amopPoint](std::shared_ptr<WsSession> _session) {
         if (amopPoint)
-        {  // TODO: it should update topics info to remote when
-           // service handshake successfully
+        {
+            // service handshake successfully
             amopPoint->updateTopicsToRemote(_session);
         }
     });
@@ -155,17 +154,15 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(WsService::Ptr _wsServ
 
 bcos::cppsdk::event::EventSub::UniquePtr SdkFactory::buildEventSub(WsService::Ptr _wsService)
 {
-    auto es = std::make_unique<event::EventSub>();
+    auto eventSub = std::make_unique<event::EventSub>();
     auto messageFactory = std::make_shared<WsMessageFactory>();
 
-    es->setMessageFactory(messageFactory);
-    es->setWsService(_wsService);
-    es->setConfig(_wsService->config());
-    es->setIoc(_wsService->ioc());
+    eventSub->setMessageFactory(messageFactory);
+    eventSub->setWsService(_wsService);
+    eventSub->setConfig(_wsService->config());
+    eventSub->setIoc(_wsService->ioc());
 
-    // TODO: is it safe to use raw pointer???
-    auto eventPoint = es.get();
-
+    auto eventPoint = eventSub.get();
     _wsService->registerMsgHandler(bcos::cppsdk::event::MessageType::EVENT_LOG_PUSH,
         [eventPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             if (eventPoint)
@@ -174,5 +171,12 @@ bcos::cppsdk::event::EventSub::UniquePtr SdkFactory::buildEventSub(WsService::Pt
             }
         });
 
-    return es;
+    _wsService->registerDisconnectHandler([eventPoint](std::shared_ptr<WsSession> _session) {
+        if (eventPoint)
+        {
+            eventPoint->suspendTasks(_session);
+        }
+    });
+
+    return eventSub;
 }

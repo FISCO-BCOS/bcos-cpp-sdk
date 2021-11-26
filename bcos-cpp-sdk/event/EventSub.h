@@ -34,7 +34,7 @@ namespace cppsdk
 {
 namespace event
 {
-class EventSub : public EventSubInterface, public std::enable_shared_from_this<EventSub>
+class EventSub : public EventSubInterface
 {
 public:
     using Ptr = std::shared_ptr<EventSub>;
@@ -51,7 +51,7 @@ public:
         const std::string& _group, const std::string& _params, Callback _callback) override;
     virtual void subscribeEvent(
         const std::string& _group, EventSubParams::ConstPtr _params, Callback _callback) override;
-    virtual void unsubscribeEvent(const std::string& _id, Callback _callback) override;
+    virtual void unsubscribeEvent(const std::string& _id) override;
 
 public:
     void doLoop();

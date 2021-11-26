@@ -48,7 +48,6 @@ void JsonRpcImpl::start()
 
 void JsonRpcImpl::stop()
 {
-    // TODO:
     RPCIMPL_LOG(INFO) << LOG_BADGE("stop") << LOG_DESC("stop rpc");
 }
 

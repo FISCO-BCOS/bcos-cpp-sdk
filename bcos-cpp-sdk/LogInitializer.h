@@ -46,10 +46,8 @@ public:
             }
             catch (const std::exception& e)
             {
-                std::cerr << "Cannot find the log config file, it should be ./clog.ini or "
-                             "./conf/clog.ini."
+                std::cerr << "Found no available log config(./clog.ini or ./conf/clog.ini)"
                           << std::endl;
-                exit(0);
             }
         }
 
