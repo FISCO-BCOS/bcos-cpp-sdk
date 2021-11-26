@@ -31,6 +31,7 @@
 #include <bcos-framework/libutilities/Common.h>
 #include <bcos-framework/libutilities/Log.h>
 #include <json/reader.h>
+#include <memory>
 #include <mutex>
 #include <shared_mutex>
 
@@ -421,26 +422,28 @@ void EventSub::subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback)
         });
 }
 
-void EventSub::subscribeEvent(
+std::string EventSub::subscribeEvent(
     const std::string& _group, const std::string& _params, Callback _callback)
 {
     std::ignore = _params;
+    EventSubParams::Ptr params = std::make_shared<EventSubParams>();
     // TODO:
-    EventSubParams::ConstPtr params = nullptr;
-    subscribeEvent(_group, params, _callback);
+    return subscribeEvent(_group, params, _callback);
 }
 
-void EventSub::subscribeEvent(
+std::string EventSub::subscribeEvent(
     const std::string& _group, EventSubParams::ConstPtr _params, Callback _callback)
 {
+    auto taskId = m_messagefactory->newSeq();
     auto task = std::make_shared<EventSubTask>();
-    task->setId(m_messagefactory->newSeq());
+    task->setId(taskId);
     task->setGroup(_group);
     task->setParams(_params);
     task->setCallback(_callback);
     task->setState(std::make_shared<EventSubTaskState>());
 
-    return subscribeEventByTask(task, _callback);
+    subscribeEventByTask(task, _callback);
+    return taskId;
 }
 
 void EventSub::unsubscribeEvent(const std::string& _id)
@@ -479,8 +482,6 @@ void EventSub::unsubscribeEvent(const std::string& _id)
                                   << LOG_DESC("callback response error") << LOG_KV("id", _id)
                                   << LOG_KV("errorCode", _error->errorCode())
                                   << LOG_KV("errorMessage", _error->errorMessage());
-
-
                 return;
             }
 
