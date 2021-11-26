@@ -27,6 +27,9 @@
 #include <bcos-framework/libutilities/Log.h>
 #include <bcos-framework/libutilities/ThreadPool.h>
 #include <boost/core/ignore_unused.hpp>
+#include <cstddef>
+#include <cstdlib>
+#include <fstream>
 #include <memory>
 #include <set>
 #include <string>
@@ -39,28 +42,55 @@ using namespace bcos::cppsdk;
 void usage()
 {
     std::cerr
-        << "Usage: event-sub <host> <port> <group> <address>\n"
+        << "Usage: event-sub <host> <port> <group> <address> <from> <to> <topics>\n"
         << "Example:\n"
-        << "    ./event-sub 127.0.0.1 20200 group 0x37a44585Bf1e9618FDb4C62c4c96189A07Dd4b48\n";
+        << "    ./event-sub 127.0.0.1 20200 group 1 10 0x37a44585Bf1e9618FDb4C62c4c96189A07Dd4b48 "
+           "\n";
     std::exit(0);
 }
 
 
 int main(int argc, char** argv)
 {
-    if (argc < 5)
+    if (argc < 6)
     {
         usage();
     }
 
-    std::vector<std::string> topics;
     std::string host = argv[1];
     uint16_t port = atoi(argv[2]);
     std::string group = argv[3];
-    std::string address = argv[4];
 
-    std::cout << LOG_BADGE(" [EventSub] ===>>>> ") << LOG_KV("ip", host) << LOG_KV("port", port)
-              << LOG_KV("group", group) << LOG_KV("address", address) << std::endl;
+    int64_t from = atoi(argv[4]);
+    int64_t to = atoi(argv[5]);
+
+    std::string address;
+    std::vector<std::string> topics;
+
+    if (argc > 7)
+    {
+        address = argv[6];
+        for (int i = 7; i < argc; i++)
+        {
+            topics.push_back(argv[i]);
+        }
+    }
+    else if (argc > 6)
+    {
+        address = argv[6];
+    }
+
+    std::cout << LOG_BADGE(" [EventSub] parameters ===>>>> ") << LOG_KV("\n\t # ip", host)
+              << LOG_KV("\n\t # port", port) << LOG_KV("\n\t # group", group)
+              << LOG_KV("\n\t # address", address) << LOG_KV("\n\t # from", from)
+              << LOG_KV("\n\t # to", to) << std::endl;
+
+
+    std::cout << LOG_DESC("\n\t # topics: ");
+    for (auto& topic : topics)
+    {
+        std::cout << topic << " ";
+    }
 
     auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
     config->setModel(bcos::boostssl::ws::WsModel::Client);
@@ -85,15 +115,27 @@ int main(int argc, char** argv)
 
     auto params = std::make_shared<bcos::cppsdk::event::EventSubParams>();
     params->addAddress(address);
+    params->setFromBlock(from);
+    params->setToBlock(to);
+    for (std::size_t i = 0 : i < topics.size() : ++i)
+    {
+        params->addTopic(i, topics[i]);
+    }
 
     eventSub->subscribeEvent(
         group, params, [](bcos::Error::Ptr _error, const std::string& _events) {
             std::cout << LOG_BADGE(" response ===>>>> ") << std::endl;
-            std::cout << LOG_BADGE(" \t ===>>>> ")
-                      << LOG_KV("errorCode", _error ? _error->errorCode() : 0) << std::endl;
-            std::cout << LOG_BADGE(" \t ===>>>> ")
-                      << LOG_KV("errorMessage", _error ? _error->errorMessage() : "") << std::endl;
-            std::cout << LOG_BADGE(" \t ===>>>> ") << LOG_KV("events", _events) << std::endl;
+            if (error)
+            {
+                std::cout << LOG_BADGE(" \t ===>>>> ") << LOG_KV("errorCode", _error->errorCode())
+                          << std::endl;
+                std::cout << LOG_BADGE(" \t ===>>>> ")
+                          << LOG_KV("errorMessage", _error->errorMessage()) << std::endl;
+            }
+            else
+            {
+                std::cout << LOG_BADGE(" \t ===>>>> ") << LOG_KV("events", _events) << std::endl;
+            }
         });
 
     int i = 0;
