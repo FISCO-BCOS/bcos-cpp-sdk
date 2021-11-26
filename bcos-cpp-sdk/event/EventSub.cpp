@@ -253,7 +253,7 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
         }
 
         EVENT_PUSH(INFO) << LOG_BADGE("suspendTasks")
-                         << LOG_DESC("suspend event sub task for session disconnect")
+                         << LOG_DESC("suspend event sub task for disconnection")
                          << LOG_KV("id", task->id()) << LOG_KV("endPoint", _session->endPoint());
 
         it = m_workingTasks.erase(it);
@@ -332,11 +332,9 @@ void EventSub::onRecvEventSubMessage(
         auto jResp = resp->jResp();
         try
         {
-            if (jResp.isMember("result") && jResp["result"].isArray() &&
-                (jResp["result"].size() > 0) && jResp["result"][0].isMember("blockNumber") &&
-                jResp["result"][0]["blockNumber"].isInt64())
+            if (jResp["result"][0]["blockNumber"].isInt64())
             {
-                blockNumber = jResp["result"]["blockNumber"].asInt64();
+                blockNumber = jResp["result"][0]["blockNumber"].asInt64();
                 task->state()->setCurrentBlockNumber(blockNumber);
             }
 
