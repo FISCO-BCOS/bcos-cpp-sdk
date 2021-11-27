@@ -23,8 +23,8 @@
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/amop/AMOPInterface.h>
+#include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/TopicManager.h>
-#include <bcos-framework/libprotocol/amop/AMOPRequest.h>
 #include <unordered_map>
 
 namespace bcos

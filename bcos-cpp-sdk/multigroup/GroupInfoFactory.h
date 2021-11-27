@@ -1,4 +1,4 @@
-/*
+/**
  *  Copyright (C) 2021 FISCO BCOS.
  *  SPDX-License-Identifier: Apache-2.0
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,38 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Common.h
- * @author: octopus
- * @date 2021-08-25
+ * @brief factory to build the GroupInfo
+ * @file GroupInfoFactory.h
+ * @author: yujiechen
+ * @date 2021-09-18
  */
 #pragma once
-
-#include <bcos-boostssl/utilities/BoostLog.h>
-
-#define AMOP_CLIENT(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][CLIENT]"
-#define AMOP_TOPIC_MANAGER(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][TOPICMANAGER]"
-
+#include "ChainNodeInfoFactory.h"
+#include "GroupInfo.h"
 namespace bcos
 {
-namespace cppsdk
+namespace group
 {
-namespace amop
+class GroupInfoFactory
 {
-/**
- * @brief: amop message types
- */
-enum MessageType
-{
-    // ------------AMOP begin ---------
-
-    AMOP_SUBTOPIC = 0x110,   // 272
-    AMOP_REQUEST = 0x111,    // 273
-    AMOP_BROADCAST = 0x112,  // 274
-    AMOP_RESPONSE = 0x113    // 275
-
-    // ------------AMOP end ---------
-
+public:
+    using Ptr = std::shared_ptr<GroupInfoFactory>;
+    GroupInfoFactory() = default;
+    virtual ~GroupInfoFactory() {}
+    virtual GroupInfo::Ptr createGroupInfo() { return std::make_shared<GroupInfo>(); }
+    virtual GroupInfo::Ptr createGroupInfo(std::string const& _chainID, std::string const& _groupID)
+    {
+        return std::make_shared<GroupInfo>(_chainID, _groupID);
+    }
 };
-}  // namespace amop
-}  // namespace cppsdk
+}  // namespace group
 }  // namespace bcos

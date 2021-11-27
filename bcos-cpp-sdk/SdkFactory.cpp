@@ -25,11 +25,11 @@
 #include <bcos-cpp-sdk/LogInitializer.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
+#include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/Common.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
-#include <bcos-framework/libprotocol/amop/AMOPRequest.h>
 
 using namespace bcos;
 using namespace bcos::boostssl;

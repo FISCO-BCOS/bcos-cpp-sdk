@@ -19,10 +19,10 @@
  */
 
 #pragma once
-#include <bcos-framework/interfaces/multigroup/ChainNodeInfo.h>
-#include <bcos-framework/interfaces/multigroup/ChainNodeInfoFactory.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfo.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
+#include <bcos-cpp-sdk/multigroup/multigroup/ChainNodeInfo.h>
+#include <bcos-cpp-sdk/multigroup/multigroup/ChainNodeInfoFactory.h>
+#include <bcos-cpp-sdk/multigroup/multigroup/GroupInfo.h>
+#include <bcos-cpp-sdk/multigroup/multigroup/GroupInfoFactory.h>
 #include <json/json.h>
 #include <algorithm>
 #include <memory>

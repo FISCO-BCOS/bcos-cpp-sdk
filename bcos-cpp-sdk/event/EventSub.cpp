@@ -18,7 +18,8 @@
  * @date 2021-09-01
  */
 
-#include "libutilities/BoostLog.h"
+#include <bcos-boostssl/utilities/BoostLog.h>
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
@@ -27,9 +28,6 @@
 #include <bcos-cpp-sdk/event/EventSubRequest.h>
 #include <bcos-cpp-sdk/event/EventSubResponse.h>
 #include <bcos-cpp-sdk/event/EventSubStatus.h>
-#include <bcos-framework/interfaces/protocol/CommonError.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/Log.h>
 #include <json/reader.h>
 #include <memory>
 #include <mutex>
@@ -255,7 +253,6 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
             EVENT_SUB(INFO) << LOG_BADGE("suspendTasks")
                             << LOG_DESC("suspend event sub task for disconnection")
                             << LOG_KV("id", task->id()) << LOG_KV("endPoint", _session->endPoint());
-
             it = m_workingTasks.erase(it);
             task->setSession(nullptr);
             addSuspendTask(task);
@@ -334,12 +331,12 @@ void EventSub::onRecvEventSubMessage(
         auto jResp = resp->jResp();
         try
         {
-            int64_t blockNumber = -1;
-            if (jResp["result"].size() > 0)
-            {
-                blockNumber = jResp["result"][0]["blockNumber"].asInt64();
-                task->state()->setCurrentBlockNumber(blockNumber);
-            }
+            if (jResp["result"][0]["blockNumber"].isInt64())
+                ==
+                {
+                    blockNumber = jResp["result"][0]["blockNumber"].asInt64();
+                    task->state()->setCurrentBlockNumber(blockNumber);
+                }
             task->callback()(nullptr, strResp);
 
             EVENT_SUB(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")

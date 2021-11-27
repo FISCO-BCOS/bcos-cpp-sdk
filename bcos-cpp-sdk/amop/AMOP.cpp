@@ -17,15 +17,13 @@
  * @author: octopus
  * @date 2021-08-23
  */
+#include <bcos-boostssl/utilities/BoostLog.h>
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/Common.h>
-#include <bcos-framework/interfaces/protocol/CommonError.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/DataConvertUtility.h>
-#include <bcos-framework/libutilities/Log.h>
 #include <json/json.h>
 
 
@@ -191,9 +189,7 @@ void AMOP::onRecvAMOPRequest(
     {
         AMOP_CLIENT(ERROR) << LOG_BADGE("onRecvAMOPRequest")
                            << LOG_DESC("decode amop request message error")
-                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
-                           << LOG_KV(
-                                  "data", *toHexString(_msg->data()->begin(), _msg->data()->end()));
+                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq);
         return;
     }
     auto topic = request->topic();
@@ -238,9 +234,7 @@ void AMOP::onRecvAMOPBroadcast(
     {
         AMOP_CLIENT(ERROR) << LOG_BADGE("onRecvAMOPBroadcast")
                            << LOG_DESC("decode amop request message error")
-                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
-                           << LOG_KV(
-                                  "data", *toHexString(_msg->data()->begin(), _msg->data()->end()));
+                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq);
         return;
     }
 

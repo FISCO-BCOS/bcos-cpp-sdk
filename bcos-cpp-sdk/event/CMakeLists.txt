@@ -5,4 +5,4 @@ file(GLOB HEADERS "*.h")
 
 add_library(${EVENT_TARGET} ${SRC_LIST} ${HEADERS})
 
-target_link_libraries(${EVENT_TARGET} PUBLIC bcos-framework::utilities)
+target_link_libraries(${EVENT_TARGET} PUBLIC bcos-boostssl::utilities)

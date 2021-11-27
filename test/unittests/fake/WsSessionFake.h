@@ -18,7 +18,7 @@
  * @date 2021-09-24
  */
 #pragma once
-#include "libutilities/Common.h"
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>

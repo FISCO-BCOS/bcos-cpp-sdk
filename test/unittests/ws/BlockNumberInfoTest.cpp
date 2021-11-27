@@ -18,7 +18,7 @@
  * @date 2021-10-26
  */
 
-#include "libutilities/Common.h"
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>

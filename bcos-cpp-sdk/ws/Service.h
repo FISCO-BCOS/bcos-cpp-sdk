@@ -20,9 +20,9 @@
 
 #pragma once
 #include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-cpp-sdk/multigroup/multigroup/GroupInfo.h>
+#include <bcos-cpp-sdk/multigroup/multigroup/GroupInfoFactory.h>
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfo.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
 #include <functional>
 #include <set>
 #include <unordered_map>

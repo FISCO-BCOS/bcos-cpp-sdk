@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <bcos-framework/libutilities/Log.h>
+#include <bcos-boostssl/utilities/BoostLog.h>
 
 namespace bcos
 {

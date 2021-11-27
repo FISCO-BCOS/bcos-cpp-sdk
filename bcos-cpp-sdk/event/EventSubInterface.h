@@ -19,9 +19,9 @@
  */
 
 #pragma once
+#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/Error.h>
 #include <bcos-cpp-sdk/event/EventSubParams.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/Error.h>
 
 namespace bcos
 {

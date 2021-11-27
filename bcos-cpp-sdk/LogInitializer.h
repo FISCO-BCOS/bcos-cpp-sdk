@@ -18,7 +18,7 @@
  * @date 2021-10-27
  */
 #pragma once
-#include <bcos-framework/libutilities/BoostLogInitializer.h>
+#include <bcos-boostssl/utilities/BoostLogInitializer.h>
 #include <exception>
 #include <mutex>
 #include <string>

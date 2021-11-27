@@ -19,9 +19,8 @@
  */
 
 #pragma once
-#include <bcos-framework/interfaces/protocol/CommonError.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/Error.h>
+#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/Error.h>
 #include <functional>
 #include <memory>
 

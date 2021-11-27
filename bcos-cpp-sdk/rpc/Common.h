@@ -19,7 +19,7 @@
  */
 
 #pragma once
-#include <bcos-framework/libutilities/Common.h>
+#include <bcos-boostssl/utilities/Common.h>
 #include <json/json.h>
 
 #define RPCREQ_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][REQUEST]"

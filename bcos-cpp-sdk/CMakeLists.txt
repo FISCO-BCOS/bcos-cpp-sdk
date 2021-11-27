@@ -9,12 +9,7 @@ add_subdirectory(amop)
 add_subdirectory(event)
 add_subdirectory(ws)
 
-# dynamic link
-# add_library(${CPP_SDK_DY_TARGET} SHARED ${SRC_LIST} ${HEADERS})
-# target_link_libraries(${CPP_SDK_DY_TARGET} PUBLIC bcos-framework::utilities bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-httpserver bcos-boostssl::boostssl-context ${JSON_RPC_TARGET} ${AMOP_TARGET} ${EVENT_TARGET} ${WS_SERVICE_TARGET} jsoncpp_lib_static)
-
-# static link
 add_library(${CPP_SDK_TARGET} ${SRC_LIST} ${HEADERS})
-target_link_libraries(${CPP_SDK_TARGET} PUBLIC bcos-framework::utilities bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-httpserver bcos-boostssl::boostssl-context ${JSON_RPC_TARGET} ${AMOP_TARGET} ${EVENT_TARGET} ${WS_SERVICE_TARGET} jsoncpp_lib_static)
+target_link_libraries(${CPP_SDK_TARGET} PUBLIC bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-httpserver bcos-boostssl::boostssl-context bcos-boostssl::utilities ${JSON_RPC_TARGET} ${AMOP_TARGET} ${EVENT_TARGET} ${WS_SERVICE_TARGET} jsoncpp_lib_static)
 
 

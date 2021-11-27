@@ -18,13 +18,12 @@
  * @date 2021-10-22
  */
 
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsError.h>
+#include <bcos-cpp-sdk/multigroup/multigroup/GroupInfo.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/ProtocolVersion.h>
 #include <bcos-cpp-sdk/ws/Service.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfo.h>
-#include <bcos-framework/interfaces/protocol/CommonError.h>
-#include <bcos-framework/libutilities/Common.h>
 #include <memory>
 #include <shared_mutex>
 #include <type_traits>

@@ -19,11 +19,11 @@
  */
 #pragma once
 
+#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/Error.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/Error.h>
 #include <functional>
 #include <memory>
 #include <mutex>
