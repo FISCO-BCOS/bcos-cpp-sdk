@@ -127,17 +127,17 @@ int main(int argc, char** argv)
 
     eventSub->subscribeEvent(
         group, params, [](bcos::Error::Ptr _error, const std::string& _events) {
-            std::cout << LOG_BADGE(" response ===>>>> ") << std::endl;
+            std::cout << " response ===>>>> " << std::endl;
             if (_error)
             {
-                std::cout << LOG_BADGE(" \t ===>>>> ") << LOG_KV("errorCode", _error->errorCode())
+                std::cout << " \t ===>>>> " << LOG_KV("errorCode", _error->errorCode())
                           << std::endl;
-                std::cout << LOG_BADGE(" \t ===>>>> ")
-                          << LOG_KV("errorMessage", _error->errorMessage()) << std::endl;
+                std::cout << " \t ===>>>> " << LOG_KV("errorMessage", _error->errorMessage())
+                          << std::endl;
             }
             else
             {
-                std::cout << LOG_BADGE(" \t ===>>>> ") << LOG_KV("events", _events) << std::endl;
+                std::cout << " \t ===>>>> " << LOG_KV("events", _events) << std::endl;
             }
         });
 
