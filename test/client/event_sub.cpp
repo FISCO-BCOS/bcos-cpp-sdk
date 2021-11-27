@@ -114,10 +114,13 @@ int main(int argc, char** argv)
     eventSub->start();
 
     auto params = std::make_shared<bcos::cppsdk::event::EventSubParams>();
-    params->addAddress(address);
+    if (!address.empty())
+    {
+        params->addAddress(address);
+    }
     params->setFromBlock(from);
     params->setToBlock(to);
-    for (std::size_t i = 0 : i < topics.size() : ++i)
+    for (std::size_t i = 0; i < topics.size(); ++i)
     {
         params->addTopic(i, topics[i]);
     }
@@ -125,7 +128,7 @@ int main(int argc, char** argv)
     eventSub->subscribeEvent(
         group, params, [](bcos::Error::Ptr _error, const std::string& _events) {
             std::cout << LOG_BADGE(" response ===>>>> ") << std::endl;
-            if (error)
+            if (_error)
             {
                 std::cout << LOG_BADGE(" \t ===>>>> ") << LOG_KV("errorCode", _error->errorCode())
                           << std::endl;
