@@ -90,7 +90,7 @@ void EventSub::stop()
 void EventSub::doLoop()
 {
     {
-        std::unique_lock lock(x_tasks);
+        std::shared_lock lock(x_tasks);
         EVENT_PUSH(INFO) << LOG_BADGE("doLoop") << LOG_DESC("event sub tasks report")
                          << LOG_KV("working event sub count", m_workingTasks.size())
                          << LOG_KV("suspend event sub count", m_suspendTasks.size());
@@ -114,12 +114,10 @@ void EventSub::doLoop()
             {
                 auto task = taskEntry.second;
                 std::string id = task->id();
-                if (m_waitRespTasks.find(id) != m_waitRespTasks.end())
+                if (!this->addWaitResp(id))
                 {
                     continue;
                 }
-
-                m_waitRespTasks.insert(id);
 
                 subscribeEvent(task,
                     [id, this](bcos::Error::Ptr, const std::string&) { this->removeWaitResp(id); });
@@ -182,7 +180,7 @@ EventSubTask::Ptr EventSub::getTaskAndRemove(const std::string& _id, bool includ
 {
     EventSubTask::Ptr task = nullptr;
 
-    std::shared_lock lock(x_tasks);
+    std::unique_lock lock(x_tasks);
     auto it = m_workingTasks.find(_id);
     if (it != m_workingTasks.end())
     {  // remove from m_workingTasks
@@ -208,12 +206,6 @@ EventSubTask::Ptr EventSub::getTaskAndRemove(const std::string& _id, bool includ
     }
 
     return task;
-}
-
-bool EventSub::removeWaitResp(const std::string& _id)
-{
-    std::unique_lock lock(x_tasks);
-    return 0 != m_waitRespTasks.erase(_id);
 }
 
 bool EventSub::addSuspendTask(EventSubTask::Ptr _task)

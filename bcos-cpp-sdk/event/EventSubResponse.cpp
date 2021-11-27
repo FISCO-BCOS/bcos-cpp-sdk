@@ -85,9 +85,9 @@ bool EventSubResponse::fromJson(const std::string& _response)
             m_status = status;
             m_jResp = root;
 
-            EVENT_RESPONSE(INFO) << LOG_BADGE("fromJson")
-                                 << LOG_DESC("parse event sub response success")
-                                 << LOG_KV("id", m_id) << LOG_KV("status", m_status);
+            EVENT_RESPONSE(TRACE) << LOG_BADGE("fromJson")
+                                  << LOG_DESC("parse event sub response success")
+                                  << LOG_KV("id", m_id) << LOG_KV("status", m_status);
 
             return true;
 

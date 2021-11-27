@@ -25,6 +25,7 @@
 #include <bcos-cpp-sdk/event/EventSubTask.h>
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <utility>
 
@@ -66,9 +67,22 @@ public:
     bool addTask(EventSubTask::Ptr _task);
     EventSubTask::Ptr getTask(const std::string& _id, bool includeSuspendTask = true);
     EventSubTask::Ptr getTaskAndRemove(const std::string& _id, bool includeSuspendTask = true);
-    bool removeWaitResp(const std::string& _id);
+
     bool addSuspendTask(EventSubTask::Ptr _task);
     bool removeSuspendTask(const std::string& _id);
+
+    bool removeWaitResp(const std::string& _id)
+    {
+        std::lock_guard lock(x_waitRespTasks);
+        return 0 != m_waitRespTasks.erase(_id);
+    }
+
+    bool addWaitResp(const std::string& _id)
+    {
+        std::lock_guard lock(x_waitRespTasks);
+        auto r = m_waitRespTasks.insert(_id);
+        return r.second;
+    }
 
     std::size_t suspendTasks(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
@@ -102,11 +116,16 @@ public:
 
 private:
     bool m_running = false;
+
+    std::atomic<uint32_t> m_suspendTasksCount{0};
+
     mutable std::shared_mutex x_tasks;
     std::unordered_map<std::string, EventSubTask::Ptr> m_workingTasks;
-    std::atomic<uint32_t> m_suspendTasksCount{0};
     std::unordered_map<std::string, EventSubTask::Ptr> m_suspendTasks;
+
+    mutable std::mutex x_waitRespTasks;
     std::set<std::string> m_waitRespTasks;
+
     // timer
     std::shared_ptr<boost::asio::deadline_timer> m_timer;
     // io context
