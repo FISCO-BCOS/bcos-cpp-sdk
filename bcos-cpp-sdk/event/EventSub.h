@@ -47,6 +47,8 @@ public:
     virtual void start() override;
     virtual void stop() override;
 
+    void doLoop();
+
     virtual std::string subscribeEvent(
         const std::string& _group, const std::string& _params, Callback _callback) override;
     virtual std::string subscribeEvent(
@@ -54,10 +56,9 @@ public:
     virtual void unsubscribeEvent(const std::string& _id) override;
 
 public:
-    void doLoop();
+    void subscribeEvent(EventSubTask::Ptr _task, Callback _callback);
 
 public:
-    void subscribeEventByTask(EventSubTask::Ptr _task, Callback _callback);
     void onRecvEventSubMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
