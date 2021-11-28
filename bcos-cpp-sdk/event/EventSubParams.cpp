@@ -19,64 +19,170 @@
  */
 
 #include <bcos-cpp-sdk/event/EventSubParams.h>
+#include <bcos-cpp-sdk/event/EventSubTopicTools.h>
+#include <json/json.h>
+#include <exception>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
-bool EventSubParams::fromJson(const std::string &_jsonString) {
+bool EventSubParams::verifyParams()
+{
+    // topic
+    if (m_topics.size() > EVENT_LOG_TOPICS_MAX_INDEX)
+    {
+        return false;
+    }
 
-  try {
+    for (std::size_t i = 0; i < m_topics.size(); ++i)
+    {
+        for (const auto& topic : m_topics[i])
+        {
+            if (!EvenSubTopicTools::validTopic(topic))
+            {
+                return false;
+            }
+        }
+    }
+
+    // TODO: address
+    // for (const auto& addr : m_addresses)
+    // {
+    //     //
+    // }
+
+    // from to range check
+    if (m_fromBlock > 0 && m_toBlock > 0)
+    {
+        return m_fromBlock <= m_toBlock;
+    }
+
+    return true;
+}
+
+bool EventSubParams::fromJsonString(const std::string& _jsonString)
+{
     Json::Value root;
     Json::Reader jsonReader;
 
-    if (!jsonReader.parse(_jsonString, root)) {
+    try
+    {
+        if (!jsonReader.parse(_jsonString, root))
+        {
+            EVENT_PARAMS(ERROR) << LOG_BADGE("fromJsonString") << LOG_DESC("invalid json object")
+                                << LOG_KV("jsonString", _jsonString);
+            return false;
+        }
 
-      break;
+        fromJson(root);
+
+        EVENT_PARAMS(INFO) << LOG_BADGE("fromJsonString") << LOG_KV("jsonString", _jsonString)
+                           << LOG_KV("params", *this);
+        return true;
     }
-
-  } catch (const std::exception &e) {
-    //
-  }
-
-  return false;
+    catch (const std::exception& _e)
+    {
+        EVENT_PARAMS(ERROR) << LOG_BADGE("fromJsonString")
+                            << LOG_DESC("invalid event sub params json object")
+                            << LOG_KV("jsonString", _jsonString)
+                            << LOG_KV("error", std::string(_e.what()));
+        return false;
+    }
 }
 
-bool EventSubParams::fromJson(const Json::Value &jParams) {
-
-  if (jParams.isMember("fromBlock")) {
-    setFromBlock(jParams["fromBlock"].asInt64());
-  }
-
-  if (jParams.isMember("toBlock")) {
-    params->setToBlock(jParams["toBlock"].asInt64());
-  }
-
-  if (jParams.isMember("addresses")) {
-    auto &jAddresses = jParams["addresses"];
-    for (Json::Value::ArrayIndex index = 0; index < jAddresses.size();
-         ++index) {
-      params->addAddress(jAddresses[index].asString());
+void EventSubParams::fromJson(const Json::Value& jParams)
+{
+    if (jParams.isMember("fromBlock"))
+    {
+        setFromBlock(jParams["fromBlock"].asInt64());
     }
-  }
 
-  if (jParams.isMember("topics")) {
-    auto &jTopics = jParams["topics"];
+    if (jParams.isMember("toBlock"))
+    {
+        setToBlock(jParams["toBlock"].asInt64());
+    }
 
-    for (Json::Value::ArrayIndex index = 0; index < jTopics.size(); ++index) {
-      auto &jIndex = jTopics[index];
-      if (jIndex.isNull()) {
-        continue;
-      }
-
-      if (jIndex.isArray()) { // array topics
-        for (Json::Value::ArrayIndex innerIndex = 0; innerIndex < jIndex.size();
-             ++innerIndex) {
-          params->addTopic(index, jIndex[innerIndex].asString());
+    if (jParams.isMember("addresses"))
+    {
+        auto& jAddr = jParams["addresses"];
+        for (Json::Value::ArrayIndex index = 0; index < jAddr.size(); ++index)
+        {
+            addAddress(jAddr[index].asString());
         }
-      } else { // single topic, string value
-        params->addTopic(index, jIndex.asString());
-      }
     }
-  }
+
+    if (jParams.isMember("topics"))
+    {
+        auto& jTopics = jParams["topics"];
+        for (Json::Value::ArrayIndex index = 0; index < jTopics.size(); ++index)
+        {
+            auto& jIndex = jTopics[index];
+            if (jIndex.isNull())
+            {
+                continue;
+            }
+
+            if (jIndex.isArray())
+            {  // array topics
+                for (Json::Value::ArrayIndex innerIndex = 0; innerIndex < jIndex.size();
+                     ++innerIndex)
+                {
+                    addTopic(index, jIndex[innerIndex].asString());
+                }
+            }
+            else
+            {  // single topic, string value
+                addTopic(index, jIndex.asString());
+            }
+        }
+    }
+
+    EVENT_PARAMS(DEBUG) << LOG_BADGE("fromJson") << LOG_KV("EventSubParams", *this);
+}
+
+std::string EventSubParams::toJsonString()
+{
+    Json::FastWriter writer;
+    std::string result = writer.write(toJson());
+    return result;
+}
+
+Json::Value EventSubParams::toJson()
+{
+    Json::Value jParams;
+    // fromBlock
+    jParams["fromBlock"] = fromBlock();
+    // toBlock
+    jParams["toBlock"] = toBlock();
+
+    // addresses
+    Json::Value jAddresses(Json::arrayValue);
+    for (const auto& addr : addresses())
+    {
+        jAddresses.append(addr);
+    }
+    jParams["addresses"] = jAddresses;
+
+    // topics
+    Json::Value jTopics(Json::arrayValue);
+    for (const auto& inTopics : topics())
+    {
+        if (inTopics.empty())
+        {
+            Json::Value jInTopics(Json::nullValue);
+            jTopics.append(jInTopics);
+            continue;
+        }
+
+        Json::Value jInTopics(Json::arrayValue);
+        for (const auto& topic : inTopics)
+        {
+            jInTopics.append(topic);
+        }
+        jTopics.append(jInTopics);
+    }
+
+    jParams["topics"] = jTopics;
+    return jParams;
 }

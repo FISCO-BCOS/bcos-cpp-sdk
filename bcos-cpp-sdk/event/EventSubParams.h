@@ -20,6 +20,7 @@
 
 #pragma once
 #include <bcos-cpp-sdk/event/Common.h>
+#include <json/value.h>
 #include <set>
 #include <string>
 #include <vector>
@@ -49,19 +50,21 @@ public:
     void addAddress(const std::string& _address) { m_addresses.insert(_address); }
     bool addTopic(std::size_t _index, const std::string& _topic)
     {
-        if (_index >= EVENT_LOG_TOPICS_MAX_INDEX)
-        {
-            return false;
-        }
-
         m_topics.resize(_index + 1);
         m_topics[_index].insert(_topic);
-        return true;
+
+        return _index < EVENT_LOG_TOPICS_MAX_INDEX;
     }
 
 public:
-    bool fromJson(const std::string& _jsonString);
-    bool fromJson(const Json::Value& _json);
+    bool fromJsonString(const std::string& _jsonString);
+    void fromJson(const Json::Value& _json);
+
+    std::string toJsonString();
+    Json::Value toJson();
+
+public:
+    bool verifyParams();
 
 private:
     int64_t m_fromBlock = -1;
@@ -69,6 +72,33 @@ private:
     std::set<std::string> m_addresses;
     std::vector<std::set<std::string>> m_topics;
 };
+
+inline std::ostream& operator<<(std::ostream& _out, const EventSubParams& _params)
+{
+    _out << "{";
+    _out << "fromBlock: " << _params.fromBlock();
+    _out << "toBlock: " << _params.toBlock();
+
+    _out << "addresses: ";
+    for (const auto& addr : _params.addresses())
+    {
+        _out << addr << " ";
+    }
+
+    _out << "topics: ";
+    for (std::size_t i = 0; i < _params.topics().size(); ++i)
+    {
+        _out << "index: " << i;
+        for (const auto& topic : _params.topics()[i])
+        {
+            _out << topic << " " << i;
+        }
+        _out << ",";
+    }
+
+    _out << "}";
+    return _out;
+}
 
 }  // namespace event
 }  // namespace cppsdk
