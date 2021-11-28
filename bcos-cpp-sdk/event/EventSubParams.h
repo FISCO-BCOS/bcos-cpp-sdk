@@ -59,6 +59,10 @@ public:
         return true;
     }
 
+public:
+    bool fromJson(const std::string& _jsonString);
+    bool fromJson(const Json::Value& _json);
+
 private:
     int64_t m_fromBlock = -1;
     int64_t m_toBlock = -1;
