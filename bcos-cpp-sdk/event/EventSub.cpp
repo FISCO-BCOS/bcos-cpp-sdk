@@ -423,15 +423,29 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
 std::string EventSub::subscribeEvent(
     const std::string& _group, const std::string& _params, Callback _callback)
 {
-    std::ignore = _params;
     EventSubParams::Ptr params = std::make_shared<EventSubParams>();
-    // TODO:
+    if (!params->fromJsonString(_params))
+    {
+        // invalid request params string format
+        auto error = std::make_shared<Error>(-1, "invalid request JSON string");
+        _callback(error, nullptr);
+        return "";
+    }
+
     return subscribeEvent(_group, params, _callback);
 }
 
 std::string EventSub::subscribeEvent(
-    const std::string& _group, EventSubParams::ConstPtr _params, Callback _callback)
+    const std::string& _group, EventSubParams::Ptr _params, Callback _callback)
 {
+    // invalid request params string format
+    if (!_params->verifyParams())
+    {
+        auto error = std::make_shared<Error>(-1, "params verification failure");
+        _callback(error, nullptr);
+        return "";
+    }
+
     auto taskId = m_messagefactory->newSeq();
     auto task = std::make_shared<EventSubTask>();
 
