@@ -85,6 +85,8 @@ set(AMOP_TARGET "amop")
 set(EVENT_TARGET "event")
 
 add_subdirectory(bcos-cpp-sdk)
+# sample exec binary
+add_subdirectory(test/client)
 
 # if(TESTS)
 #    include(InstallBcosCryptoDependencies)
@@ -92,10 +94,6 @@ add_subdirectory(bcos-cpp-sdk)
 #    set(CTEST_OUTPUT_ON_FAILURE TRUE)
 #    add_subdirectory(test)
 # endif()
-
-if (BUILD_EXEC_TEST)
-    add_subdirectory(test/client)
-endif()
 
 # install bcos-cpp-sdk target
 install(
