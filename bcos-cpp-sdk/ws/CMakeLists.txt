@@ -5,4 +5,4 @@ file(GLOB HEADERS "*.h")
 
 add_library(${WS_SERVICE_TARGET} ${SRC_LIST} ${HEADERS})
 
-target_link_libraries(${WS_SERVICE_TARGET} PUBLIC boostssl-utilities jsoncpp_lib_static)
+target_link_libraries(${WS_SERVICE_TARGET} PUBLIC jsoncpp_lib_static)

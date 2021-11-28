@@ -19,8 +19,6 @@
  */
 
 #pragma once
-
-#include <bcos-boostssl/utilities/BoostLog.h>
 #include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventSubInterface.h>

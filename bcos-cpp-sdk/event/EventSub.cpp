@@ -18,7 +18,6 @@
  * @date 2021-09-01
  */
 
-#include <bcos-boostssl/utilities/BoostLog.h>
 #include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>

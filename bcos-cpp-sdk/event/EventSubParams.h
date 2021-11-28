@@ -21,6 +21,8 @@
 #pragma once
 #include <bcos-cpp-sdk/event/Common.h>
 #include <set>
+#include <string>
+#include <vector>
 
 namespace bcos
 {

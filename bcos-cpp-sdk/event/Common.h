@@ -21,7 +21,6 @@
 #pragma once
 
 #include <bcos-boostssl/utilities/BoostLog.h>
-
 namespace bcos
 {
 namespace cppsdk

@@ -19,8 +19,6 @@
  */
 #pragma once
 
-#include <bcos-boostssl/utilities/BoostLog.h>
-
 #define AMOP_CLIENT(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][CLIENT]"
 #define AMOP_TOPIC_MANAGER(LEVEL) BCOS_LOG(LEVEL) << "[AMOP][TOPICMANAGER]"
 
