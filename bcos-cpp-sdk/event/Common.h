@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include <bcos-framework/libutilities/Log.h>
-
+#include <bcos-boostssl/utilities/BoostLog.h>
 namespace bcos
 {
 namespace cppsdk
@@ -52,4 +51,4 @@ enum MessageType
 #define EVENT_TASK(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][TASK]"
 #define EVENT_REQUEST(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][REQUEST]"
 #define EVENT_RESPONSE(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][RESPONSE]"
-#define EVENT_PUSH(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][PUSH]"
+#define EVENT_SUB(LEVEL) BCOS_LOG(LEVEL) << "[EVENT][SUB]"

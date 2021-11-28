@@ -20,4 +20,4 @@
 #include <bcos-cpp-sdk/LogInitializer.h>
 
 std::once_flag bcos::cppsdk::LogInitializer::m_flag;
-bcos::BoostLogInitializer* bcos::cppsdk::LogInitializer::m_logInitializer;
+bcos::boostssl::utilities::BoostLogInitializer* bcos::cppsdk::LogInitializer::m_logInitializer;

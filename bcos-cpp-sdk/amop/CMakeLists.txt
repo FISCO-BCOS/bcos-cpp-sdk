@@ -5,4 +5,4 @@ file(GLOB HEADERS "*.h")
 
 add_library(${AMOP_TARGET} ${SRC_LIST} ${HEADERS})
 
-target_link_libraries(${AMOP_TARGET} PUBLIC bcos-framework::utilities bcos-framework::protocol)
+target_link_libraries(${AMOP_TARGET} PUBLIC bcos-boostssl::boostssl-utilities)

@@ -260,7 +260,7 @@ bool EventSubSubRequest::fromJson(const std::string& _request)
 
             setId(id);
             setGroup(group);
-            m_params = params;
+            setParams(params);
 
             EVENT_REQUEST(INFO) << LOG_BADGE("fromJson")
                                 << LOG_DESC("parse event sub request success")

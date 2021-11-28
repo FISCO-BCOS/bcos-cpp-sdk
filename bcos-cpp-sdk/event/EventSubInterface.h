@@ -19,9 +19,9 @@
  */
 
 #pragma once
+#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/Error.h>
 #include <bcos-cpp-sdk/event/EventSubParams.h>
-#include <bcos-framework/libutilities/Common.h>
-#include <bcos-framework/libutilities/Error.h>
 
 namespace bcos
 {
@@ -29,7 +29,7 @@ namespace cppsdk
 {
 namespace event
 {
-using Callback = std::function<void(bcos::Error::Ptr, const std::string&)>;
+using Callback = std::function<void(bcos::boostssl::utilities::Error::Ptr, const std::string&)>;
 
 class EventSubInterface
 {
@@ -44,9 +44,9 @@ public:
     virtual void stop() = 0;
 
 public:
-    virtual void subscribeEvent(
+    virtual std::string subscribeEvent(
         const std::string& _group, const std::string& _params, Callback _callback) = 0;
-    virtual void subscribeEvent(
+    virtual std::string subscribeEvent(
         const std::string& _group, EventSubParams::ConstPtr _params, Callback _callback) = 0;
     virtual void unsubscribeEvent(const std::string& _id) = 0;
 };

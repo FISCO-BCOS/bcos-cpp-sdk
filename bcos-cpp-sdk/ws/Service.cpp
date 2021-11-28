@@ -18,13 +18,12 @@
  * @date 2021-10-22
  */
 
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsError.h>
+#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/ProtocolVersion.h>
 #include <bcos-cpp-sdk/ws/Service.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfo.h>
-#include <bcos-framework/interfaces/protocol/CommonError.h>
-#include <bcos-framework/libutilities/Common.h>
 #include <memory>
 #include <shared_mutex>
 #include <type_traits>
@@ -34,8 +33,10 @@ using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::service;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
+using namespace bcos::boostssl::utilities;
 
-// ---------------------overide begin--------------------------------------------------------------
+// ---------------------overide
+// begin--------------------------------------------------------------
 
 void Service::start()
 {
@@ -188,9 +189,10 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
     auto session = _session;
     auto service = std::dynamic_pointer_cast<Service>(shared_from_this());
     _session->asyncSendMessage(message, Options(m_wsHandshakeTimeout),
-        [session, service](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+        [session, service](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
-            if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
+            if (_error &&
+                _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
             {
                 RPC_WS_LOG(ERROR) << LOG_BADGE("startHandshake")
                                   << LOG_DESC("callback response error")

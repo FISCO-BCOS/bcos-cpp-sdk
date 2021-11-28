@@ -20,8 +20,9 @@
 
 #pragma once
 #include <bcos-cpp-sdk/event/Common.h>
-#include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
 #include <set>
+#include <string>
+#include <vector>
 
 namespace bcos
 {
@@ -59,8 +60,8 @@ public:
     }
 
 private:
-    bcos::protocol::BlockNumber m_fromBlock = -1;
-    bcos::protocol::BlockNumber m_toBlock = -1;
+    int64_t m_fromBlock = -1;
+    int64_t m_toBlock = -1;
     std::set<std::string> m_addresses;
     std::vector<std::set<std::string>> m_topics;
 };

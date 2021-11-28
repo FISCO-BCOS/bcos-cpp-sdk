@@ -18,7 +18,7 @@
  * @date 2021-08-10
  */
 
-#include "libutilities/Common.h"
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <boost/core/ignore_unused.hpp>
@@ -29,6 +29,7 @@
 using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
+using namespace bcos::boostssl::utilities;
 
 static const int32_t BLOCK_LIMIT_RANGE = 500;
 
@@ -68,7 +69,6 @@ void JsonRpcImpl::genericMethod(
 void JsonRpcImpl::genericMethod(const std::string& _groupID, const std::string& _nodeName,
     const std::string& _data, RespFunc _respFunc)
 {
-    boost::ignore_unused(_nodeName);
     m_sender(_groupID, _nodeName, _data, _respFunc);
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("genericMethod") << LOG_KV("group", _groupID)
                        << LOG_KV("nodeName", _nodeName) << LOG_KV("request", _data);
@@ -347,7 +347,7 @@ void JsonRpcImpl::getGroupInfo(const std::string& _groupID, RespFunc _respFunc)
         jsonResp.result = groupInfo->serialize();
 
         auto jsonString = toStringResponse(jsonResp);
-        auto jsonData = std::make_shared<bcos::bytes>(jsonString.begin(), jsonString.end());
+        auto jsonData = std::make_shared<bytes>(jsonString.begin(), jsonString.end());
         _respFunc(nullptr, jsonData);
 
         RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfo") << LOG_BADGE("get group info from cache")
