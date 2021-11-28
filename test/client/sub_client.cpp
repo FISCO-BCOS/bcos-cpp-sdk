@@ -17,10 +17,8 @@
  * @author: octopus
  * @date 2021-08-24
  */
-
-#include <bcos-boostssl/libutilities/Log.h>
-#include <bcos-boostssl/libutilities/ThreadPool.h>
 #include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/ThreadPool.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
@@ -34,6 +32,8 @@
 
 using namespace bcos;
 using namespace bcos::cppsdk;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::utilities;
 //------------------------------------------------------------------------------
 
 void usage()
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
     std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!")
               << std::endl;
-    amop->subscribe(topic, [&amop](bcos::Error::Ptr _error, const std::string& _endPoint,
+    amop->subscribe(topic, [&amop](Error::Ptr _error, const std::string& _endPoint,
                                const std::string& _seq, bytesConstRef _data,
                                std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
         boost::ignore_unused(_session);

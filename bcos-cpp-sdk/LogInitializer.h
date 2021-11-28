@@ -57,14 +57,14 @@ public:
     static void initLog(const boost::property_tree::ptree& _pt)
     {
         std::call_once(m_flag, [_pt]() {
-            m_logInitializer = new bcos::BoostLogInitializer();
+            m_logInitializer = new bcos::boostssl::utilities::BoostLogInitializer();
             m_logInitializer->initLog(_pt);
         });
     }
 
 private:
     static std::once_flag m_flag;
-    static bcos::BoostLogInitializer* m_logInitializer;
+    static bcos::boostssl::utilities::BoostLogInitializer* m_logInitializer;
 };
 }  // namespace cppsdk
 }  // namespace bcos

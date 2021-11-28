@@ -19,8 +19,7 @@
  * @date 2021-09-16
  */
 #pragma once
-#include "../utilities/Exceptions.h"
-#include "../utilities/Log.h"
+#include <bcos-boostssl/utilities/Exceptions.h>
 #include <memory>
 
 #define GROUP_LOG(LEVEL) BCOS_LOG(LEVEL) << LOG_BADGE("GROUP")
@@ -29,7 +28,7 @@ namespace bcos
 {
 namespace group
 {
-DERIVE_BCOS_EXCEPTION(InvalidGroupInfo);
-DERIVE_BCOS_EXCEPTION(InvalidChainNodeInfo);
+// DERIVE_BCOS_EXCEPTION(InvalidGroupInfo);
+// DERIVE_BCOS_EXCEPTION(InvalidChainNodeInfo);
 }  // namespace group
 }  // namespace bcos

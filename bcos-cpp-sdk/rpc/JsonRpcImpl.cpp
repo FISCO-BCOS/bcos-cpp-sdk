@@ -29,6 +29,7 @@
 using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
+using namespace bcos::boostssl::utilities;
 
 static const int32_t BLOCK_LIMIT_RANGE = 500;
 
@@ -346,7 +347,7 @@ void JsonRpcImpl::getGroupInfo(const std::string& _groupID, RespFunc _respFunc)
         jsonResp.result = groupInfo->serialize();
 
         auto jsonString = toStringResponse(jsonResp);
-        auto jsonData = std::make_shared<bcos::bytes>(jsonString.begin(), jsonString.end());
+        auto jsonData = std::make_shared<bytes>(jsonString.begin(), jsonString.end());
         _respFunc(nullptr, jsonData);
 
         RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfo") << LOG_BADGE("get group info from cache")

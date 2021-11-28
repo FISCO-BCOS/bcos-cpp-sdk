@@ -18,9 +18,8 @@
  * @date 2021-08-24
  */
 
-#include <bcos-boostssl/libutilities/Log.h>
-#include <bcos-boostssl/libutilities/ThreadPool.h>
 #include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/ThreadPool.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
@@ -36,6 +35,8 @@
 
 using namespace bcos;
 using namespace bcos::cppsdk;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::utilities;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -125,21 +126,19 @@ int main(int argc, char** argv)
         params->addTopic(i, topics[i]);
     }
 
-    eventSub->subscribeEvent(
-        group, params, [](bcos::Error::Ptr _error, const std::string& _events) {
-            std::cout << " response ===>>>> " << std::endl;
-            if (_error)
-            {
-                std::cout << " \t ===>>>> " << LOG_KV("errorCode", _error->errorCode())
-                          << std::endl;
-                std::cout << " \t ===>>>> " << LOG_KV("errorMessage", _error->errorMessage())
-                          << std::endl;
-            }
-            else
-            {
-                std::cout << " \t ===>>>> " << LOG_KV("events", _events) << std::endl;
-            }
-        });
+    eventSub->subscribeEvent(group, params, [](Error::Ptr _error, const std::string& _events) {
+        std::cout << " response ===>>>> " << std::endl;
+        if (_error)
+        {
+            std::cout << " \t ===>>>> " << LOG_KV("errorCode", _error->errorCode()) << std::endl;
+            std::cout << " \t ===>>>> " << LOG_KV("errorMessage", _error->errorMessage())
+                      << std::endl;
+        }
+        else
+        {
+            std::cout << " \t ===>>>> " << LOG_KV("events", _events) << std::endl;
+        }
+    });
 
     int i = 0;
     while (true)

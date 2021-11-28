@@ -19,9 +19,9 @@
  * @date 2021-09-08
  */
 #pragma once
-#include "../utilities/Common.h"
 #include "GroupTypeDef.h"
 #include "ServiceDesc.h"
+#include <bcos-boostssl/utilities/Common.h>
 #include <json/json.h>
 #include <memory>
 namespace bcos
@@ -86,22 +86,25 @@ public:
         Json::Reader jsonReader;
         if (!jsonReader.parse(_json, value))
         {
-            BOOST_THROW_EXCEPTION(InvalidChainNodeInfo() << errinfo_comment(
-                                      "The chain node information must be valid json string."));
+            BOOST_THROW_EXCEPTION(
+                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
+                    "The chain node information must be valid json string."));
         }
         // required: parse nodeName
         if (!value.isMember("name"))
         {
-            BOOST_THROW_EXCEPTION(InvalidChainNodeInfo() << errinfo_comment(
-                                      "The chain node information must set the chain node name."));
+            BOOST_THROW_EXCEPTION(
+                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
+                    "The chain node information must set the chain node name."));
         }
         setNodeName(value["name"].asString());
 
         // required: parse nodeType
         if (!value.isMember("type"))
         {
-            BOOST_THROW_EXCEPTION(InvalidChainNodeInfo() << errinfo_comment(
-                                      "The chain node information must set the chain node type."));
+            BOOST_THROW_EXCEPTION(
+                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
+                    "The chain node information must set the chain node type."));
         }
         NodeType type = (NodeType)(value["type"].asUInt());
         setNodeType(type);
@@ -109,22 +112,25 @@ public:
         // required: parse iniConfig
         if (!value.isMember("iniConfig"))
         {
-            BOOST_THROW_EXCEPTION(InvalidChainNodeInfo() << errinfo_comment(
-                                      "The chain node information must set the init config info"));
+            BOOST_THROW_EXCEPTION(
+                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
+                    "The chain node information must set the init config info"));
         }
         setIniConfig(value["iniConfig"].asString());
 
         // required: parse deployInfo
         if (!value.isMember("serviceInfo"))
         {
-            BOOST_THROW_EXCEPTION(InvalidChainNodeInfo() << errinfo_comment(
-                                      "The chain node information must set the service info"));
+            BOOST_THROW_EXCEPTION(
+                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
+                    "The chain node information must set the service info"));
         }
 
         if (!value["serviceInfo"].isArray())
         {
             BOOST_THROW_EXCEPTION(
-                InvalidChainNodeInfo() << errinfo_comment("The service info must be array."));
+                boostssl::utilities::InvalidParameter()
+                << boostssl::utilities::errinfo_comment("The service info must be array."));
         }
 
         auto const& serviceInfo = value["serviceInfo"];
@@ -135,7 +141,7 @@ public:
                 !serviceInfoItem.isMember("serviceName"))
             {
                 BOOST_THROW_EXCEPTION(
-                    InvalidChainNodeInfo() << errinfo_comment(
+                    boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
                         "Invalid service info: must contain the service type and name"));
             }
             appendServiceInfo((bcos::protocol::ServiceType)serviceInfoItem["type"].asInt(),

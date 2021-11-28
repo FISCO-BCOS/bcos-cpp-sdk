@@ -18,9 +18,8 @@
  * @date 2021-08-24
  */
 
-#include <bcos-boostssl/libutilities/Log.h>
-#include <bcos-boostssl/libutilities/ThreadPool.h>
 #include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/ThreadPool.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
@@ -33,6 +32,8 @@
 
 using namespace bcos;
 using namespace bcos::cppsdk;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::utilities;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -90,8 +91,8 @@ int main(int argc, char** argv)
         std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ")
                   << LOG_KV("topic", topic) << LOG_KV("message", msg) << std::endl;
 
-        amop->publish(topic, bytesConstRef((bcos::byte*)msg.data(), msg.size()), -1,
-            [](bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+        amop->publish(topic, bytesConstRef((byte*)msg.data(), msg.size()), -1,
+            [](Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
                 std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
                 boost::ignore_unused(_session);
                 if (_error)

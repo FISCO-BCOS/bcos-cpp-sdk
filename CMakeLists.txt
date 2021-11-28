@@ -23,13 +23,14 @@ if (NOT DEFINED URL_BASE)
     # set(URL_BASE "github.com")
     set(URL_BASE "github.com.cnpmjs.org")
 endif()
-set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts)
-FetchContent_Declare(bcos-cmake-scripts
-    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
-    GIT_TAG dev
-    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
-)
-FetchContent_MakeAvailable(bcos-cmake-scripts)
+
+# set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts)
+# FetchContent_Declare(bcos-cmake-scripts
+#    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
+#    GIT_TAG dev
+#    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
+# )
+# FetchContent_MakeAvailable(bcos-cmake-scripts)
 
 # set(HUNTER_PACKAGE_LOG_BUILD ON CACHE STRING "Hunter output build info to log")
 # set(HUNTER_PACKAGE_LOG_INSTALL ON CACHE STRING "Hunter output install info to log")
@@ -50,6 +51,9 @@ HunterGate(
 )
 project(bcos-cpp-sdk VERSION "3.0.0")
 set(VERSION_SUFFIX "")
+
+hunter_add_package(Boost COMPONENTS all)
+find_package(Boost CONFIG REQUIRED log chrono system filesystem thread iostreams)
 
 hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
@@ -72,7 +76,7 @@ include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # install dependencies
-# include(InstallBcosFrameworkDependencies) //
+# include(InstallBcosFrameworkDependencies)
 
 set(CPP_SDK_TARGET "bcos-sdk")
 set(WS_SERVICE_TARGET "ws")
@@ -89,7 +93,7 @@ add_subdirectory(bcos-cpp-sdk)
 #    add_subdirectory(test)
 # endif()
 
-if (BUILD_EXE_TEST)
+if (BUILD_EXEC_TEST)
     add_subdirectory(test/client)
 endif()
 
@@ -140,7 +144,7 @@ install(
 )
 
 # for doxygen
-include(BuildDocs)
+# include(BuildDocs)
 
 # for code coverage
 if (COVERAGE)

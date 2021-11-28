@@ -30,7 +30,8 @@ namespace cppsdk
 {
 namespace jsonrpc
 {
-using RespFunc = std::function<void(bcos::Error::Ptr, std::shared_ptr<bcos::bytes>)>;
+using RespFunc = std::function<void(
+    bcos::boostssl::utilities::Error::Ptr, std::shared_ptr<bcos::boostssl::utilities::bytes>)>;
 
 class JsonRpcInterface
 {

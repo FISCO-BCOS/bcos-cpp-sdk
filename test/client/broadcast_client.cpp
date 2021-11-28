@@ -17,10 +17,8 @@
  * @author: octopus
  * @date 2021-08-24
  */
-
-#include <bcos-boostssl/libutilities/Log.h>
-#include <bcos-boostssl/libutilities/ThreadPool.h>
 #include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/ThreadPool.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
@@ -33,6 +31,8 @@
 
 using namespace bcos;
 using namespace bcos::cppsdk;
+using namespace bcos::boostssl;
+using namespace bcos::boostssl::utilities;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     config->setConnectedPeers(peers);
     config->setThreadPoolSize(4);
 
-    auto threadPool = std::make_shared<bcos::ThreadPool>("t_sub", 4);
+    auto threadPool = std::make_shared<ThreadPool>("t_sub", 4);
 
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
     {
         std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" broadcast ")
                   << LOG_KV("topic", topic) << LOG_KV("message", msg);
-        amop->broadcast(topic, bytesConstRef((bcos::byte*)msg.data(), msg.size()));
+        amop->broadcast(topic, bytesConstRef((byte*)msg.data(), msg.size()));
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;
     }

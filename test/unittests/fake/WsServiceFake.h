@@ -48,7 +48,7 @@ public:
     }
 
 public:
-    void setError(bcos::Error::Ptr _error) { m_error = _error; }
+    void setError(bcos::boostssl::utilities::Error::Ptr _error) { m_error = _error; }
     void setResp(std::shared_ptr<bcos::bytes> _resp) { m_resp = _resp; }
     void setSession(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
     {
@@ -56,8 +56,8 @@ public:
     }
 
 private:
-    bcos::Error::Ptr m_error;
-    std::shared_ptr<bcos::bytes> m_resp;
+    bcos::boostssl::utilities::Error::Ptr m_error;
+    std::shared_ptr<bcos::boostssl::utilities::bytes> m_resp;
     std::shared_ptr<bcos::boostssl::ws::WsSession> m_session;
 };
 }  // namespace test

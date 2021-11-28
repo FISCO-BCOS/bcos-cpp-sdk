@@ -36,6 +36,7 @@
 using namespace bcos;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
+using namespace bcos::boostssl::utilities;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
@@ -116,8 +117,8 @@ void EventSub::doLoop()
                     continue;
                 }
 
-                subscribeEvent(task,
-                    [id, this](bcos::Error::Ptr, const std::string&) { this->removeWaitResp(id); });
+                subscribeEvent(
+                    task, [id, this](Error::Ptr, const std::string&) { this->removeWaitResp(id); });
             }
         }
     }
@@ -331,12 +332,12 @@ void EventSub::onRecvEventSubMessage(
         auto jResp = resp->jResp();
         try
         {
+            int64_t blockNumber = -1;
             if (jResp["result"][0]["blockNumber"].isInt64())
-                ==
-                {
-                    blockNumber = jResp["result"][0]["blockNumber"].asInt64();
-                    task->state()->setCurrentBlockNumber(blockNumber);
-                }
+            {
+                blockNumber = jResp["result"][0]["blockNumber"].asInt64();
+                task->state()->setCurrentBlockNumber(blockNumber);
+            }
             task->callback()(nullptr, strResp);
 
             EVENT_SUB(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("event sub")
@@ -369,15 +370,16 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
 
     auto message = m_messagefactory->buildMessage();
     message->setType(bcos::cppsdk::event::MessageType::EVENT_SUBSCRIBE);
-    message->setData(std::make_shared<bcos::bytes>(jsonReq.begin(), jsonReq.end()));
+    message->setData(std::make_shared<bytes>(jsonReq.begin(), jsonReq.end()));
 
     EVENT_SUB(INFO) << LOG_BADGE("subscribeEvent") << LOG_DESC("subscribe event")
                     << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
     m_wsService->asyncSendMessage(message, Options(),
-        [id, _task, _callback, this](bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+        [id, _task, _callback, this](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
-            if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
+            if (_error &&
+                _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
             {
                 EVENT_SUB(ERROR) << LOG_BADGE("subscribeEvent")
                                  << LOG_DESC("callback response error") << LOG_KV("id", id)
@@ -469,12 +471,12 @@ void EventSub::unsubscribeEvent(const std::string& _id)
 
     auto message = m_messagefactory->buildMessage();
     message->setType(bcos::cppsdk::event::MessageType::EVENT_UNSUBSCRIBE);
-    message->setData(std::make_shared<bcos::bytes>(strReq.begin(), strReq.end()));
+    message->setData(std::make_shared<bytes>(strReq.begin(), strReq.end()));
 
     session->asyncSendMessage(message, Options(),
-        [_id](
-            bcos::Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
-            if (_error && _error->errorCode() != bcos::protocol::CommonError::SUCCESS)
+        [_id](Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
+            if (_error &&
+                _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
             {
                 EVENT_SUB(ERROR) << LOG_BADGE("unsubscribeEvent")
                                  << LOG_DESC("callback response error") << LOG_KV("id", _id)

@@ -34,11 +34,12 @@
 
 using namespace bcos;
 using namespace bcos::protocol;
+using namespace bcos::boostssl::utilities;
 
 const std::size_t AMOPRequest::TOPIC_MAX_LENGTH;
 const std::size_t AMOPRequest::MESSAGE_MIN_LENGTH;
 
-bool AMOPRequest::encode(bcos::bytes& _buffer)
+bool AMOPRequest::encode(bytes& _buffer)
 {
     if (m_topic.size() > TOPIC_MAX_LENGTH)
     {
@@ -53,7 +54,7 @@ bool AMOPRequest::encode(bcos::bytes& _buffer)
     return true;
 }
 
-ssize_t AMOPRequest::decode(bytesConstRef _data)
+ssize_t AMOPRequest::decode(bcos::boostssl::utilities::bytesConstRef _data)
 {
     if (_data.size() < MESSAGE_MIN_LENGTH)
     {

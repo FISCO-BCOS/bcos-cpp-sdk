@@ -53,13 +53,14 @@ public:
     // subscribe topic with callback
     virtual void subscribe(const std::string& _topic, SubCallback _callback) override;
     // publish message
-    virtual void publish(const std::string& _topic, bytesConstRef _data, uint32_t timeout,
-        PubCallback _callback) override;
+    virtual void publish(const std::string& _topic, bcos::boostssl::utilities::bytesConstRef _data,
+        uint32_t timeout, PubCallback _callback) override;
     // broadcast message
-    virtual void broadcast(const std::string& _topic, bytesConstRef _data) override;
+    virtual void broadcast(
+        const std::string& _topic, bcos::boostssl::utilities::bytesConstRef _data) override;
     //
-    virtual void sendResponse(
-        const std::string& _endPoint, const std::string& _seq, bytesConstRef _data) override;
+    virtual void sendResponse(const std::string& _endPoint, const std::string& _seq,
+        bcos::boostssl::utilities::bytesConstRef _data) override;
     // query all subscribed topics
     virtual void querySubTopics(std::set<std::string>& _topics) override;
     // set default callback
