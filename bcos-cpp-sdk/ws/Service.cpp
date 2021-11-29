@@ -126,49 +126,69 @@ void Service::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsS
 // ---------------------overide end ---------------------------------------------------------------
 
 // ---------------------send message begin---------------------------------------------------------
-void Service::asyncSendMessageByGroup(const std::string& _group,
-    std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
-    bcos::boostssl::ws::RespCallBack _respFunc)
-{
-    std::set<std::string> endPoints;
-    auto b = getEndPointsByGroup(_group, endPoints);
-    if (!b)
-    {
-        auto error = std::make_shared<Error>(
-            WsError::EndPointNotExist, "there has no connection available for the group");
-        _respFunc(error, nullptr, nullptr);
-        return;
-    }
-
-    asyncSendMessage(endPoints, _msg, _options, _respFunc);
-}
-
 void Service::asyncSendMessageByGroupAndNode(const std::string& _group, const std::string& _node,
     std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
     bcos::boostssl::ws::RespCallBack _respFunc)
 {
+    std::set<std::string> endPoints;
     if (_group.empty())
-    {  // random send
-        asyncSendMessage(_msg, _options, _respFunc);
-    }
-    else if (_node.empty())
-    {  // send message by group
-        asyncSendMessageByGroup(_group, _msg, _options, _respFunc);
-    }
-    else
-    {  // send message by group and node
-        std::set<std::string> endPoints;
-        auto ok = getEndPointsByGroupAndNode(_group, _node, endPoints);
-        if (!ok)
+    {
+        // asyncSendMessage(_msg, _options, _respFunc);
+        auto ss = sessions();
+        for (const auto& session : ss)
         {
-            auto error = std::make_shared<Error>(
-                WsError::EndPointNotExist, "there has no connection available for the group/node");
+            if (session->isConnected())
+            {
+                endPoints.insert(session->endPoint());
+            }
+        }
+
+        if (endPoints.empty())
+        {
+            auto error = std::make_shared<Error>(WsError::EndPointNotExist,
+                "there has no connection available, maybe all connections disconnected");
             _respFunc(error, nullptr, nullptr);
             return;
         }
-
-        asyncSendMessage(endPoints, _msg, _options, _respFunc);
     }
+    else if (_node.empty())
+    {
+        // all connections available for the group
+        getEndPointsByGroup(_group, endPoints);
+        if (endPoints.empty())
+        {
+            auto error = std::make_shared<Error>(WsError::EndPointNotExist,
+                "there has no connection available for the group, maybe all connections "
+                "disconnected or "
+                "the group does not exist, group: " +
+                    _group);
+            _respFunc(error, nullptr, nullptr);
+            return;
+        }
+    }
+    else
+    {
+        // all connections available for the node
+        getEndPointsByGroupAndNode(_group, _node, endPoints);
+        if (endPoints.empty())
+        {
+            auto error = std::make_shared<Error>(WsError::EndPointNotExist,
+                "there has no connection available for the node of the group, maybe all "
+                "connections "
+                "disconnected or the node does not exist, group: " +
+                    _group + " ,node: " + _node);
+            _respFunc(error, nullptr, nullptr);
+            return;
+        }
+    }
+
+    std::vector<std::string> vecEndPoints(endPoints.begin(), endPoints.end());
+
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine e(seed);
+    std::shuffle(vecEndPoints.begin(), vecEndPoints.end(), e);
+
+    asyncSendMessageByEndPoint(*vecEndPoints.begin(), _msg, _options, _respFunc);
 }
 // ---------------------send message end---------------------------------------------------------
 
