@@ -64,9 +64,6 @@ public:
 
 public:
     // ---------------------send message begin-------------------------------
-    virtual void asyncSendMessageByGroup(const std::string& _group,
-        std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
-        bcos::boostssl::ws::RespCallBack _respFunc);
     virtual void asyncSendMessageByGroupAndNode(const std::string& _group, const std::string& _node,
         std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
         bcos::boostssl::ws::RespCallBack _respFunc);
