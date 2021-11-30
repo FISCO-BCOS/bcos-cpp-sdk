@@ -23,13 +23,14 @@ if (NOT DEFINED URL_BASE)
     # set(URL_BASE "github.com")
     set(URL_BASE "github.com.cnpmjs.org")
 endif()
-set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts)
-FetchContent_Declare(bcos-cmake-scripts
-    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
-    GIT_TAG dev
-    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
-)
-FetchContent_MakeAvailable(bcos-cmake-scripts)
+
+# set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts)
+# FetchContent_Declare(bcos-cmake-scripts
+#    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
+#    GIT_TAG dev
+#    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
+# )
+# FetchContent_MakeAvailable(bcos-cmake-scripts)
 
 # set(HUNTER_PACKAGE_LOG_BUILD ON CACHE STRING "Hunter output build info to log")
 # set(HUNTER_PACKAGE_LOG_INSTALL ON CACHE STRING "Hunter output install info to log")
@@ -44,12 +45,16 @@ list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
 #init hunter
 include(HunterGate)
 HunterGate(
-    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/2602eee11f811c631d9f3cb5835675cb12a72d2b.tar.gz"
-    SHA1 "79b0c2a45338ccc05fb89301e05d067ad69d51ba"
+    URL https://${URL_BASE}/FISCO-BCOS/hunter/archive/dc287864f0ba12853f04a84cfce3b905abd4924e.tar.gz
+    SHA1 204d782665324062da4fac56b0991b25dbcca471
     FILEPATH "${CMAKE_SOURCE_DIR}/cmake/config.cmake"
 )
+
 project(bcos-cpp-sdk VERSION "3.0.0")
 set(VERSION_SUFFIX "")
+
+hunter_add_package(Boost COMPONENTS all)
+find_package(Boost CONFIG REQUIRED log chrono system filesystem thread iostreams)
 
 hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
@@ -72,27 +77,24 @@ include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # install dependencies
-include(InstallBcosFrameworkDependencies)
+# include(InstallBcosFrameworkDependencies)
 
 set(CPP_SDK_TARGET "bcos-sdk")
-# set(CPP_SDK_DY_TARGET "bcos-sdk")
+set(WS_SERVICE_TARGET "ws")
 set(JSON_RPC_TARGET "json-rpc")
 set(AMOP_TARGET "amop")
 set(EVENT_TARGET "event")
-set(WS_SERVICE_TARGET "ws-srv")
 
 add_subdirectory(bcos-cpp-sdk)
+# sample exec binary
+add_subdirectory(test/client)
 
-if (TESTS)
-    include(InstallBcosCryptoDependencies)
-    enable_testing()
-    set(CTEST_OUTPUT_ON_FAILURE TRUE)
-    add_subdirectory(test)
-endif()
-
- if (BUILD_AMOP_TEST)
-    add_subdirectory(test/client)
- endif()
+# if(TESTS)
+#    include(InstallBcosCryptoDependencies)
+#    enable_testing()
+#    set(CTEST_OUTPUT_ON_FAILURE TRUE)
+#    add_subdirectory(test)
+# endif()
 
 # install bcos-cpp-sdk target
 install(
@@ -103,16 +105,6 @@ install(
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
-
-# install bcos-cpp-sdk dynamic target
-# install(
-#     TARGETS ${CPP_SDK_DY_TARGET}
-#     EXPORT "${TARGETS_EXPORT_NAME}"
-#     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-#     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-#     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-#     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-# )
 
 install(
     TARGETS ${JSON_RPC_TARGET}
@@ -151,7 +143,7 @@ install(
 )
 
 # for doxygen
-include(BuildDocs)
+# include(BuildDocs)
 
 # for code coverage
 if (COVERAGE)

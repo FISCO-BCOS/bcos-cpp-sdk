@@ -20,7 +20,7 @@
  */
 #include "../fake/WsServiceFake.h"
 #include "../fake/WsSessionFake.h"
-#include "libutilities/Common.h"
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-cpp-sdk/event/EventSub.h>
 #include <bcos-cpp-sdk/event/EventSubResponse.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>

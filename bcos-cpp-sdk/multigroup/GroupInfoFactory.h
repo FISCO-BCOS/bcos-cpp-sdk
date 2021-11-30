@@ -1,4 +1,4 @@
-/*
+/**
  *  Copyright (C) 2021 FISCO BCOS.
  *  SPDX-License-Identifier: Apache-2.0
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,34 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Common.h
- * @author: octopus
- * @date 2021-08-10
+ * @brief factory to build the GroupInfo
+ * @file GroupInfoFactory.h
+ * @author: yujiechen
+ * @date 2021-09-18
  */
-
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
-
-#define RPC_WS_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPCWS][SERVICE]"
-#define RPC_BLOCKNUM_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][BLOCK][NUMBER]"
-
+#include "ChainNodeInfoFactory.h"
+#include "GroupInfo.h"
 namespace bcos
 {
-namespace cppsdk
+namespace group
 {
-namespace ws
+class GroupInfoFactory
 {
-/**
- * @brief: jsonrpc message types
- */
-enum MessageType
-{
-    // ------------ ws begin ----------
-
-    HANDESHAKE = 0x100  // 256
-
-    // ------------ ws end ------------
+public:
+    using Ptr = std::shared_ptr<GroupInfoFactory>;
+    GroupInfoFactory() = default;
+    virtual ~GroupInfoFactory() {}
+    virtual GroupInfo::Ptr createGroupInfo() { return std::make_shared<GroupInfo>(); }
+    virtual GroupInfo::Ptr createGroupInfo(std::string const& _chainID, std::string const& _groupID)
+    {
+        return std::make_shared<GroupInfo>(_chainID, _groupID);
+    }
 };
-}  // namespace ws
-}  // namespace cppsdk
+}  // namespace group
 }  // namespace bcos

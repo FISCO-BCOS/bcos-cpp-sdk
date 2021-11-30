@@ -19,10 +19,12 @@
  */
 
 #pragma once
+#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/Error.h>
 #include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
+#include <bcos-cpp-sdk/multigroup/GroupInfoFactory.h>
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfo.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
 #include <functional>
 #include <set>
 #include <unordered_map>
@@ -48,11 +50,11 @@ public:
     virtual void start() override;
     virtual void stop() override;
 
-    virtual void onConnect(
-        bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
+    virtual void onConnect(bcos::boostssl::utilities::Error::Ptr _error,
+        std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
 
-    virtual void onDisconnect(
-        bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
+    virtual void onDisconnect(bcos::boostssl::utilities::Error::Ptr _error,
+        std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
 
     virtual void onRecvMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
@@ -62,9 +64,6 @@ public:
 
 public:
     // ---------------------send message begin-------------------------------
-    virtual void asyncSendMessageByGroup(const std::string& _group,
-        std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
-        bcos::boostssl::ws::RespCallBack _respFunc);
     virtual void asyncSendMessageByGroupAndNode(const std::string& _group, const std::string& _node,
         std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
         bcos::boostssl::ws::RespCallBack _respFunc);

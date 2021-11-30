@@ -1,4 +1,4 @@
-/*
+/**
  *  Copyright (C) 2021 FISCO BCOS.
  *  SPDX-License-Identifier: Apache-2.0
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,34 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Common.h
- * @author: octopus
- * @date 2021-08-10
+ * @brief define the basic type of the GroupManager
+ * @file GroupTypeDef.h
+ * @author: yujiechen
+ * @date 2021-09-16
  */
-
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-boostssl/utilities/Exceptions.h>
+#include <memory>
 
-#define RPC_WS_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPCWS][SERVICE]"
-#define RPC_BLOCKNUM_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][BLOCK][NUMBER]"
+#define GROUP_LOG(LEVEL) BCOS_LOG(LEVEL) << LOG_BADGE("GROUP")
 
 namespace bcos
 {
-namespace cppsdk
+namespace group
 {
-namespace ws
-{
-/**
- * @brief: jsonrpc message types
- */
-enum MessageType
-{
-    // ------------ ws begin ----------
-
-    HANDESHAKE = 0x100  // 256
-
-    // ------------ ws end ------------
-};
-}  // namespace ws
-}  // namespace cppsdk
+// DERIVE_BCOS_EXCEPTION(InvalidGroupInfo);
+// DERIVE_BCOS_EXCEPTION(InvalidChainNodeInfo);
+}  // namespace group
 }  // namespace bcos

@@ -18,7 +18,7 @@
  * @date 2021-09-24
  */
 #pragma once
-#include "libutilities/Common.h"
+#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
@@ -56,12 +56,12 @@ public:
     virtual bool isConnected() override { return true; }
 
 public:
-    void setError(bcos::Error::Ptr _error) { m_error = _error; }
-    void setResp(std::shared_ptr<bcos::bytes> _resp) { m_resp = _resp; }
+    void setError(bcos::boostssl::utilities::Error::Ptr _error) { m_error = _error; }
+    void setResp(std::shared_ptr<bcos::boostssl::utilities::bytes> _resp) { m_resp = _resp; }
 
 private:
-    bcos::Error::Ptr m_error;
-    std::shared_ptr<bcos::bytes> m_resp;
+    bcos::boostssl::utilities::Error::Ptr m_error;
+    std::shared_ptr<bcos::boostssl::utilities::bytes> m_resp;
 };
 }  // namespace test
 }  // namespace cppsdk
