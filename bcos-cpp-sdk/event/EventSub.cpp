@@ -428,7 +428,7 @@ std::string EventSub::subscribeEvent(
     {
         // invalid request params string format
         auto error = std::make_shared<Error>(-1, "invalid request JSON string");
-        _callback(error, nullptr);
+        _callback(error, "");
         return "";
     }
 
@@ -442,7 +442,7 @@ std::string EventSub::subscribeEvent(
     if (!_params->verifyParams())
     {
         auto error = std::make_shared<Error>(-1, "params verification failure");
-        _callback(error, nullptr);
+        _callback(error, "");
         return "";
     }
 
