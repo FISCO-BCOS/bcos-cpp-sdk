@@ -48,15 +48,8 @@ void EventSub::start()
     }
     m_running = true;
 
-    if (m_wsService)
-    {  // start websocket service
-        m_wsService->start();
-    }
-    else
-    {
-        EVENT_SUB(WARNING) << LOG_BADGE("start")
-                           << LOG_DESC("websocket service has not been initialized");
-    }
+    // start websocket service
+    m_service->start();
 
     m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
         boost::posix_time::milliseconds(m_config->reconnectPeriod()));
@@ -96,7 +89,7 @@ void EventSub::doLoop()
 
     if (m_suspendTasksCount.load())
     {
-        auto ss = m_wsService->sessions();
+        auto ss = m_service->sessions();
         if (ss.empty())
         {
             EVENT_SUB(INFO)
@@ -374,7 +367,7 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
     EVENT_SUB(INFO) << LOG_BADGE("subscribeEvent") << LOG_DESC("subscribe event")
                     << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
-    m_wsService->asyncSendMessage(message, Options(),
+    m_service->asyncSendMessageByGroupAndNode(_task->group(), "", message, Options(),
         [id, _task, _callback, this](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
             if (_error &&
