@@ -109,8 +109,8 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto wsService = factory->buildService();
-    auto eventSub = factory->buildEventSub(wsService);
+    auto service = factory->buildService();
+    auto eventSub = factory->buildEventSub(service);
 
     eventSub->start();
 

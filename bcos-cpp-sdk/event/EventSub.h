@@ -23,6 +23,7 @@
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/event/EventSubInterface.h>
 #include <bcos-cpp-sdk/event/EventSubTask.h>
+#include <bcos-cpp-sdk/ws/Service.h>
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -86,8 +87,8 @@ public:
 
     std::size_t suspendTasks(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
-    void setWsService(bcos::boostssl::ws::WsService::Ptr _wsService) { m_wsService = _wsService; }
-    bcos::boostssl::ws::WsService::Ptr wsService() const { return m_wsService; }
+    void setService(bcos::cppsdk::service::Service::Ptr _service) { m_service = _service; }
+    bcos::cppsdk::service::Service::Ptr service() const { return m_service; }
 
     void setIoc(std::shared_ptr<boost::asio::io_context> _ioc) { m_ioc = _ioc; }
     std::shared_ptr<boost::asio::io_context> ioc() const { return m_ioc; }
@@ -133,7 +134,7 @@ private:
     // message factory
     std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> m_messagefactory;
     // websocket service
-    bcos::boostssl::ws::WsService::Ptr m_wsService;
+    bcos::cppsdk::service::Service::Ptr m_service;
     //
     boostssl::ws::WsConfig::ConstPtr m_config;
 };
