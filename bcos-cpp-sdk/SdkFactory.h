@@ -40,9 +40,9 @@ public:
 
     bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr buildJsonRpc(
         bcos::cppsdk::service::Service::Ptr _service);
-    bcos::cppsdk::amop::AMOP::UniquePtr buildAMOP(bcos::boostssl::ws::WsService::Ptr _wsService);
+    bcos::cppsdk::amop::AMOP::UniquePtr buildAMOP(bcos::cppsdk::service::Service::Ptr _service);
     bcos::cppsdk::event::EventSub::UniquePtr buildEventSub(
-        bcos::boostssl::ws::WsService::Ptr _wsService);
+        bcos::cppsdk::service::Service::Ptr _service);
 
 public:
     std::shared_ptr<bcos::boostssl::ws::WsConfig> config() const { return m_config; }
