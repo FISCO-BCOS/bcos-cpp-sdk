@@ -74,7 +74,7 @@ public:
     virtual bool checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
     void clearGroupInfoByEp(const std::string& _endPoint);
-    void clearGroupInfoByEp(const std::string& _groupID, const std::string& _endPoint);
+    void clearGroupInfoByEp(const std::string& _endPoint, const std::string& _groupID);
     void updateGroupInfoByEp(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
     void onNotifyGroupInfo(
         const std::string& _groupInfo, std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
@@ -94,8 +94,7 @@ public:
 
 public:
     bcos::group::GroupInfo::Ptr getGroupInfo(const std::string& _groupID);
-    void updateGroupInfo(bcos::group::GroupInfo::Ptr _groupInfo);
-    void removeGroupInfo(const std::string& _groupID);
+    void updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
 
 public:
     bool getEndPointsByGroup(const std::string& _group, std::set<std::string>& _endPoints);
@@ -139,9 +138,11 @@ private:
     mutable std::shared_mutex x_lock;
     // group => node => endpoints
     std::unordered_map<std::string, std::unordered_map<std::string, std::set<std::string>>>
-        m_endPointsMapper;
-    // group => groupInfo
-    std::unordered_map<std::string, bcos::group::GroupInfo::Ptr> m_group2GroupInfo;
+        m_group2Node2Endpoints;
+
+    // endpoint => group => groupInfo
+    std::unordered_map<std::string, std::unordered_map<std::string, bcos::group::GroupInfo::Ptr>>
+        m_endPoint2GroupId2GroupInfo;
     //
     bcos::group::GroupInfoFactory::Ptr m_groupInfoFactory;
     //

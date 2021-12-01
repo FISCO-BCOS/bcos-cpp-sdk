@@ -18,6 +18,7 @@
  * @date 2021-10-22
  */
 
+#include <bcos-boostssl/utilities/BoostLog.h>
 #include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsError.h>
 #include <bcos-cpp-sdk/multigroup/GroupInfo.h>
@@ -27,6 +28,7 @@
 #include <memory>
 #include <shared_mutex>
 #include <type_traits>
+#include <vector>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
@@ -294,9 +296,9 @@ void Service::onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _
 void Service::clearGroupInfoByEp(const std::string& _endPoint)
 {
     RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint);
+    std::unique_lock lock(x_lock);
     {
-        std::unique_lock lock(x_lock);
-        for (auto it = m_endPointsMapper.begin(); it != m_endPointsMapper.end();)
+        for (auto it = m_group2Node2Endpoints.begin(); it != m_group2Node2Endpoints.end();)
         {
             for (auto innerIt = it->second.begin(); innerIt != it->second.end();)
             {
@@ -305,7 +307,8 @@ void Service::clearGroupInfoByEp(const std::string& _endPoint)
                 if (innerIt->second.empty())
                 {
                     RPC_WS_LOG(INFO)
-                        << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear node")
+                        << LOG_BADGE("clearGroupInfoByEp")
+                        << LOG_DESC("group2Node2Endpoints, clear node")
                         << LOG_KV("group", it->first) << LOG_KV("node", innerIt->first);
                     innerIt = it->second.erase(innerIt);
                 }
@@ -317,9 +320,10 @@ void Service::clearGroupInfoByEp(const std::string& _endPoint)
 
             if (it->second.empty())
             {
-                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear group")
+                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp")
+                                 << LOG_DESC("group2Node2Endpoints, clear group")
                                  << LOG_KV("group", it->first);
-                it = m_endPointsMapper.erase(it);
+                it = m_group2Node2Endpoints.erase(it);
             }
             else
             {
@@ -328,19 +332,30 @@ void Service::clearGroupInfoByEp(const std::string& _endPoint)
         }
     }
 
+    {
+        auto it = m_endPoint2GroupId2GroupInfo.find(_endPoint);
+        if (it != m_endPoint2GroupId2GroupInfo.end())
+        {
+            m_endPoint2GroupId2GroupInfo.erase(it);
+
+            RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear endPoint")
+                             << LOG_KV("endPoint", _endPoint);
+        }
+    }
+
     // Note: for debug
     printGroupInfo();
 }
 
-void Service::clearGroupInfoByEp(const std::string& _groupID, const std::string& _endPoint)
+void Service::clearGroupInfoByEp(const std::string& _endPoint, const std::string& _groupID)
 {
     RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint)
                      << LOG_KV("groupID", _groupID);
 
+    std::unique_lock lock(x_lock);
     {
-        std::unique_lock lock(x_lock);
-        auto it = m_endPointsMapper.find(_groupID);
-        if (it == m_endPointsMapper.end())
+        auto it = m_group2Node2Endpoints.find(_groupID);
+        if (it == m_group2Node2Endpoints.end())
         {
             return;
         }
@@ -380,18 +395,18 @@ void Service::updateGroupInfoByEp(
     const auto& nodes = _groupInfo->nodeInfos();
 
     {
-        updateGroupInfo(_groupInfo);
+        updateGroupInfo(_endPoint, _groupInfo);
     }
 
     {
         // remove first
-        clearGroupInfoByEp(group, _endPoint);
+        clearGroupInfoByEp(_endPoint, group);
     }
 
     {
         // update
         std::unique_lock lock(x_lock);
-        auto& groupMapper = m_endPointsMapper[group];
+        auto& groupMapper = m_group2Node2Endpoints[group];
         for (const auto& node : nodes)
         {
             auto& nodeMapper = groupMapper[node.first];
@@ -407,8 +422,8 @@ bool Service::getEndPointsByGroup(const std::string& _group, std::set<std::strin
 {
     // std::unique_lock lock(x_lock);
     std::shared_lock lock(x_lock);
-    auto it = m_endPointsMapper.find(_group);
-    if (it == m_endPointsMapper.end())
+    auto it = m_group2Node2Endpoints.find(_group);
+    if (it == m_group2Node2Endpoints.end())
     {
         RPC_WS_LOG(WARNING) << LOG_BADGE("getEndPointsByGroup") << LOG_DESC("group not exist")
                             << LOG_KV("group", _group);
@@ -429,8 +444,8 @@ bool Service::getEndPointsByGroupAndNode(
     const std::string& _group, const std::string& _node, std::set<std::string>& _endPoints)
 {
     std::shared_lock lock(x_lock);
-    auto it = m_endPointsMapper.find(_group);
-    if (it == m_endPointsMapper.end())
+    auto it = m_group2Node2Endpoints.find(_group);
+    if (it == m_group2Node2Endpoints.end())
     {
         RPC_WS_LOG(WARNING) << LOG_BADGE("getEndPointsByGroupAndNode")
                             << LOG_DESC("group not exist") << LOG_KV("group", _group)
@@ -458,9 +473,9 @@ void Service::printGroupInfo()
     std::shared_lock lock(x_lock);
 
     RPC_WS_LOG(INFO) << LOG_BADGE("printGroupInfo")
-                     << LOG_KV("total count", m_endPointsMapper.size());
+                     << LOG_KV("total count", m_group2Node2Endpoints.size());
 
-    for (const auto& groupMapper : m_endPointsMapper)
+    for (const auto& groupMapper : m_group2Node2Endpoints)
     {
         RPC_WS_LOG(INFO) << LOG_BADGE("printGroupInfo") << LOG_DESC("group list")
                          << LOG_KV("group", groupMapper.first)
@@ -477,30 +492,63 @@ void Service::printGroupInfo()
 
 bcos::group::GroupInfo::Ptr Service::getGroupInfo(const std::string& _groupID)
 {
-    std::shared_lock lock(x_lock);
-    auto it = m_group2GroupInfo.find(_groupID);
-    if (it != m_group2GroupInfo.end())
+    std::vector<bcos::group::GroupInfo::Ptr> groupInfos;
     {
-        return it->second;
+        std::shared_lock lock(x_lock);
+        for (const auto& group2GroupInfoMapper : m_endPoint2GroupId2GroupInfo)
+        {
+            auto& group2GroupInfo = group2GroupInfoMapper.second;
+            auto it = group2GroupInfo.find(_groupID);
+            if (it == group2GroupInfo.end())
+            {
+                continue;
+            }
+
+            groupInfos.push_back(it->second);
+        }
     }
 
-    return nullptr;
+    if (groupInfos.empty())
+    {
+        RPC_WS_LOG(INFO) << LOG_BADGE("getGroupInfo") << LOG_DESC("group not exist")
+                         << LOG_KV("groupID", _groupID);
+        return nullptr;
+    }
+
+    RPC_WS_LOG(INFO) << LOG_BADGE("getGroupInfo") << LOG_KV("count", groupInfos.size());
+
+    auto firstGroupInfo = *groupInfos.begin();
+    auto groupInfo =
+        m_groupInfoFactory->createGroupInfo(firstGroupInfo->chainID(), firstGroupInfo->groupID());
+    groupInfo->setGenesisConfig(firstGroupInfo->genesisConfig());
+    groupInfo->setIniConfig(firstGroupInfo->iniConfig());
+
+    for (const auto& g : groupInfos)
+    {
+        for (const auto& node : g->nodeInfos())
+        {
+            if (groupInfo->nodeInfo(node.second->nodeName()))
+            {
+                continue;
+            }
+
+            groupInfo->appendNodeInfo(node.second);
+        }
+    }
+
+    return groupInfo;
 }
 
-void Service::updateGroupInfo(bcos::group::GroupInfo::Ptr _groupInfo)
+void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo)
 {
-    RPC_WS_LOG(INFO) << LOG_BADGE("updateGroupInfo") << LOG_KV("groupID", _groupInfo->groupID())
+    RPC_WS_LOG(INFO) << LOG_BADGE("updateGroupInfo") << LOG_KV("endPoint", _endPoint)
+                     << LOG_KV("groupID", _groupInfo->groupID())
                      << LOG_KV("chainID", _groupInfo->chainID())
                      << LOG_KV("nodesNum", _groupInfo->nodesNum());
-    std::unique_lock lock(x_lock);
-    m_group2GroupInfo[_groupInfo->groupID()] = _groupInfo;
-}
-
-void Service::removeGroupInfo(const std::string& _groupID)
-{
-    RPC_WS_LOG(INFO) << LOG_BADGE("removeGroupInfo") << LOG_KV("groupID", _groupID);
-    std::unique_lock lock(x_lock);
-    m_group2GroupInfo.erase(_groupID);
+    {
+        std::unique_lock lock(x_lock);
+        m_endPoint2GroupId2GroupInfo[_endPoint][_groupInfo->groupID()] = _groupInfo;
+    }
 }
 
 //------------------------------ Block Notifier Begin --------------------------
