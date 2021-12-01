@@ -612,7 +612,7 @@ void Service::onRecvBlockNotifier(BlockNumberInfo::Ptr _blockNumber)
 
     if (blockNumberUpdate)
     {
-        RPC_WS_LOG(INFO) << LOG_BADGE("onRecvBlockNotifier") << LOG_DESC("update blockNumber")
+        RPC_WS_LOG(INFO) << LOG_BADGE("onRecvBlockNotifier") << LOG_DESC("block notifier callback")
                          << LOG_KV("group", _blockNumber->group())
                          << LOG_KV("node", _blockNumber->node())
                          << LOG_KV("blockNumber", _blockNumber->blockNumber());
