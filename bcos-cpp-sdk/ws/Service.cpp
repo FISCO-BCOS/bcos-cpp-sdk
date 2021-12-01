@@ -296,50 +296,52 @@ void Service::onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _
 void Service::clearGroupInfoByEp(const std::string& _endPoint)
 {
     RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint);
-    std::unique_lock lock(x_lock);
     {
-        for (auto it = m_group2Node2Endpoints.begin(); it != m_group2Node2Endpoints.end();)
+        std::unique_lock lock(x_lock);
         {
-            for (auto innerIt = it->second.begin(); innerIt != it->second.end();)
+            for (auto it = m_group2Node2Endpoints.begin(); it != m_group2Node2Endpoints.end();)
             {
-                innerIt->second.erase(_endPoint);
-
-                if (innerIt->second.empty())
+                for (auto innerIt = it->second.begin(); innerIt != it->second.end();)
                 {
-                    RPC_WS_LOG(INFO)
-                        << LOG_BADGE("clearGroupInfoByEp")
-                        << LOG_DESC("group2Node2Endpoints, clear node")
-                        << LOG_KV("group", it->first) << LOG_KV("node", innerIt->first);
-                    innerIt = it->second.erase(innerIt);
+                    innerIt->second.erase(_endPoint);
+
+                    if (innerIt->second.empty())
+                    {
+                        RPC_WS_LOG(INFO)
+                            << LOG_BADGE("clearGroupInfoByEp")
+                            << LOG_DESC("group2Node2Endpoints, clear node")
+                            << LOG_KV("group", it->first) << LOG_KV("node", innerIt->first);
+                        innerIt = it->second.erase(innerIt);
+                    }
+                    else
+                    {
+                        innerIt++;
+                    }
+                }
+
+                if (it->second.empty())
+                {
+                    RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp")
+                                     << LOG_DESC("group2Node2Endpoints, clear group")
+                                     << LOG_KV("group", it->first);
+                    it = m_group2Node2Endpoints.erase(it);
                 }
                 else
                 {
-                    innerIt++;
+                    it++;
                 }
             }
-
-            if (it->second.empty())
-            {
-                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp")
-                                 << LOG_DESC("group2Node2Endpoints, clear group")
-                                 << LOG_KV("group", it->first);
-                it = m_group2Node2Endpoints.erase(it);
-            }
-            else
-            {
-                it++;
-            }
         }
-    }
 
-    {
-        auto it = m_endPoint2GroupId2GroupInfo.find(_endPoint);
-        if (it != m_endPoint2GroupId2GroupInfo.end())
         {
-            m_endPoint2GroupId2GroupInfo.erase(it);
+            auto it = m_endPoint2GroupId2GroupInfo.find(_endPoint);
+            if (it != m_endPoint2GroupId2GroupInfo.end())
+            {
+                m_endPoint2GroupId2GroupInfo.erase(it);
 
-            RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear endPoint")
-                             << LOG_KV("endPoint", _endPoint);
+                RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_DESC("clear endPoint")
+                                 << LOG_KV("endPoint", _endPoint);
+            }
         }
     }
 
@@ -352,8 +354,8 @@ void Service::clearGroupInfoByEp(const std::string& _endPoint, const std::string
     RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint)
                      << LOG_KV("groupID", _groupID);
 
-    std::unique_lock lock(x_lock);
     {
+        std::unique_lock lock(x_lock);
         auto it = m_group2Node2Endpoints.find(_groupID);
         if (it == m_group2Node2Endpoints.end())
         {
