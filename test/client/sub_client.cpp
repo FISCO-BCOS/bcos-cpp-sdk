@@ -75,16 +75,15 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto wsService = factory->buildService();
-    auto amop = factory->buildAMOP(wsService);
+    auto sdk = factory->buildSdk();
 
-    wsService->start();
+    sdk->start();
 
     std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!")
               << std::endl;
-    amop->subscribe(topic, [&amop](Error::Ptr _error, const std::string& _endPoint,
-                               const std::string& _seq, bytesConstRef _data,
-                               std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
+    sdk->amop()->subscribe(topic, [&sdk](Error::Ptr _error, const std::string& _endPoint,
+                                      const std::string& _seq, bytesConstRef _data,
+                                      std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
         boost::ignore_unused(_session);
         if (_error)
         {
@@ -103,7 +102,7 @@ int main(int argc, char** argv)
                       << LOG_DESC(" send message back to publisher... ")
                       << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
 
-            amop->sendResponse(_endPoint, _seq, _data);
+            sdk->amop()->sendResponse(_endPoint, _seq, _data);
         }
     });
 

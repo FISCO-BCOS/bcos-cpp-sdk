@@ -81,17 +81,16 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto wsService = factory->buildService();
-    auto amop = factory->buildAMOP(wsService);
+    auto sdk = factory->buildSdk();
 
-    wsService->start();
+    sdk->start();
 
     int i = 0;
     while (true)
     {
         std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" broadcast ")
                   << LOG_KV("topic", topic) << LOG_KV("message", msg);
-        amop->broadcast(topic, bytesConstRef((byte*)msg.data(), msg.size()));
+        sdk->amop()->broadcast(topic, bytesConstRef((byte*)msg.data(), msg.size()));
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;
     }
