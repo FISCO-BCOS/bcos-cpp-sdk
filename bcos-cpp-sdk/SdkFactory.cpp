@@ -31,6 +31,8 @@
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <memory>
+#include <mutex>
 
 using namespace bcos;
 using namespace bcos::boostssl;
@@ -42,9 +44,24 @@ using namespace bcos::cppsdk::jsonrpc;
 using namespace bcos::cppsdk::event;
 using namespace bcos::cppsdk::service;
 
+bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk()
+{
+    auto service = buildService();
+    auto amop = buildAMOP(service);
+    auto jsonRpc = buildJsonRpc(service);
+    auto eventSub = buildEventSub(service);
+
+    auto sdk = std::make_unique<bcos::cppsdk::Sdk>();
+    sdk->setService(service);
+    sdk->setAmop(amop);
+    sdk->setEventSub(eventSub);
+    sdk->setJsonRpc(jsonRpc);
+    return sdk;
+}
+
 Service::Ptr SdkFactory::buildService()
 {
-    // Note:
+    // TODO: how to init log in cpp sdk
     LogInitializer::initLog();
 
     auto service = std::make_shared<Service>();
@@ -83,9 +100,9 @@ Service::Ptr SdkFactory::buildService()
     return service;
 }
 
-bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr SdkFactory::buildJsonRpc(Service::Ptr _service)
+bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _service)
 {
-    auto jsonRpc = std::make_unique<JsonRpcImpl>();
+    auto jsonRpc = std::make_shared<JsonRpcImpl>();
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
     jsonRpc->setService(_service);
@@ -107,10 +124,9 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr SdkFactory::buildJsonRpc(Service::
     return jsonRpc;
 }
 
-bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(
-    bcos::cppsdk::service::Service::Ptr _service)
+bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Service::Ptr _service)
 {
-    auto amop = std::make_unique<bcos::cppsdk::amop::AMOP>();
+    auto amop = std::make_shared<bcos::cppsdk::amop::AMOP>();
 
     auto topicManager = std::make_shared<TopicManager>();
     auto requestFactory = std::make_shared<bcos::protocol::AMOPRequestFactory>();
@@ -121,42 +137,46 @@ bcos::cppsdk::amop::AMOP::UniquePtr SdkFactory::buildAMOP(
     amop->setMessageFactory(messageFactory);
     amop->setService(_service);
 
-    auto amopPoint = amop.get();
+    auto amopWeakPtr = std::weak_ptr<bcos::cppsdk::amop::AMOP>(amop);
 
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_REQUEST,
-        [amopPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            if (amopPoint)
+        [amopWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto amop = amopWeakPtr.lock();
+            if (amop)
             {
-                amopPoint->onRecvAMOPRequest(_msg, _session);
+                amop->onRecvAMOPRequest(_msg, _session);
             }
         });
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_RESPONSE,
-        [amopPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            if (amopPoint)
+        [amopWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto amop = amopWeakPtr.lock();
+            if (amop)
             {
-                amopPoint->onRecvAMOPResponse(_msg, _session);
+                amop->onRecvAMOPResponse(_msg, _session);
             }
         });
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_BROADCAST,
-        [amopPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            if (amopPoint)
+        [amopWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto amop = amopWeakPtr.lock();
+            if (amop)
             {
-                amopPoint->onRecvAMOPBroadcast(_msg, _session);
+                amop->onRecvAMOPBroadcast(_msg, _session);
             }
         });
-    _service->registerConnectHandler([amopPoint](std::shared_ptr<WsSession> _session) {
-        if (amopPoint)
+    _service->registerConnectHandler([amopWeakPtr](std::shared_ptr<WsSession> _session) {
+        auto amop = amopWeakPtr.lock();
+        if (amop)
         {
             // service handshake successfully
-            amopPoint->updateTopicsToRemote(_session);
+            amop->updateTopicsToRemote(_session);
         }
     });
     return amop;
 }
 
-bcos::cppsdk::event::EventSub::UniquePtr SdkFactory::buildEventSub(Service::Ptr _service)
+bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(Service::Ptr _service)
 {
-    auto eventSub = std::make_unique<event::EventSub>();
+    auto eventSub = std::make_shared<event::EventSub>();
     auto messageFactory = std::make_shared<WsMessageFactory>();
 
     eventSub->setMessageFactory(messageFactory);
@@ -164,19 +184,21 @@ bcos::cppsdk::event::EventSub::UniquePtr SdkFactory::buildEventSub(Service::Ptr 
     eventSub->setConfig(_service->config());
     eventSub->setIoc(_service->ioc());
 
-    auto eventPoint = eventSub.get();
+    auto eventWeakPtr = std::weak_ptr<bcos::cppsdk::event::EventSub>(eventSub);
     _service->registerMsgHandler(bcos::cppsdk::event::MessageType::EVENT_LOG_PUSH,
-        [eventPoint](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            if (eventPoint)
+        [eventWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+            auto eventSub = eventWeakPtr.lock();
+            if (eventSub)
             {
-                eventPoint->onRecvEventSubMessage(_msg, _session);
+                eventSub->onRecvEventSubMessage(_msg, _session);
             }
         });
 
-    _service->registerDisconnectHandler([eventPoint](std::shared_ptr<WsSession> _session) {
-        if (eventPoint)
+    _service->registerDisconnectHandler([eventWeakPtr](std::shared_ptr<WsSession> _session) {
+        auto eventSub = eventWeakPtr.lock();
+        if (eventSub)
         {
-            eventPoint->suspendTasks(_session);
+            eventSub->suspendTasks(_session);
         }
     });
 

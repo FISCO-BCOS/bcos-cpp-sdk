@@ -80,10 +80,10 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto service = factory->buildService();
-    service->start();
+    auto sdk = factory->buildSdk();
+    sdk->start();
 
-    service->registerBlockNumberNotifier(
+    sdk->service()->registerBlockNumberNotifier(
         group, [](const std::string& _group, int64_t _blockNumber) {
             std::cout << LOG_BADGE(" [Block] ===>>>> ") << LOG_KV("group", _group)
                       << LOG_KV("blockNumber", _blockNumber) << std::endl;

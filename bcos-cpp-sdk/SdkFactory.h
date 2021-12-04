@@ -21,6 +21,7 @@
 #include <bcos-boostssl/utilities/ThreadPool.h>
 #include <bcos-boostssl/websocket/WsConfig.h>
 #include <bcos-boostssl/websocket/WsService.h>
+#include <bcos-cpp-sdk/Sdk.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/event/EventSub.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
@@ -37,12 +38,13 @@ public:
 
 public:
     bcos::cppsdk::service::Service::Ptr buildService();
+    bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(
+        bcos::cppsdk::service::Service::Ptr _service);
+    bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::cppsdk::service::Service::Ptr _service);
+    bcos::cppsdk::event::EventSub::Ptr buildEventSub(bcos::cppsdk::service::Service::Ptr _service);
 
-    bcos::cppsdk::jsonrpc::JsonRpcImpl::UniquePtr buildJsonRpc(
-        bcos::cppsdk::service::Service::Ptr _service);
-    bcos::cppsdk::amop::AMOP::UniquePtr buildAMOP(bcos::cppsdk::service::Service::Ptr _service);
-    bcos::cppsdk::event::EventSub::UniquePtr buildEventSub(
-        bcos::cppsdk::service::Service::Ptr _service);
+public:
+    bcos::cppsdk::Sdk::UniquePtr buildSdk();
 
 public:
     std::shared_ptr<bcos::boostssl::ws::WsConfig> config() const { return m_config; }

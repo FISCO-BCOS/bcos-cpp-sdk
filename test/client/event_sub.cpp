@@ -109,10 +109,9 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto service = factory->buildService();
-    auto eventSub = factory->buildEventSub(service);
+    auto sdk = factory->buildSdk();
 
-    eventSub->start();
+    sdk->start();
 
     auto params = std::make_shared<bcos::cppsdk::event::EventSubParams>();
     if (!address.empty())
@@ -126,19 +125,21 @@ int main(int argc, char** argv)
         params->addTopic(i, topics[i]);
     }
 
-    eventSub->subscribeEvent(group, params, [](Error::Ptr _error, const std::string& _events) {
-        std::cout << " response ===>>>> " << std::endl;
-        if (_error)
-        {
-            std::cout << " \t ===>>>> " << LOG_KV("errorCode", _error->errorCode()) << std::endl;
-            std::cout << " \t ===>>>> " << LOG_KV("errorMessage", _error->errorMessage())
-                      << std::endl;
-        }
-        else
-        {
-            std::cout << " \t ===>>>> " << LOG_KV("events", _events) << std::endl;
-        }
-    });
+    sdk->eventSub()->subscribeEvent(
+        group, params, [](Error::Ptr _error, const std::string& _events) {
+            std::cout << " response ===>>>> " << std::endl;
+            if (_error)
+            {
+                std::cout << " \t ===>>>> " << LOG_KV("errorCode", _error->errorCode())
+                          << std::endl;
+                std::cout << " \t ===>>>> " << LOG_KV("errorMessage", _error->errorMessage())
+                          << std::endl;
+            }
+            else
+            {
+                std::cout << " \t ===>>>> " << LOG_KV("events", _events) << std::endl;
+            }
+        });
 
     int i = 0;
     while (true)
