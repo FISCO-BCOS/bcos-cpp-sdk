@@ -80,10 +80,9 @@ int main(int argc, char** argv)
     auto factory = std::make_shared<SdkFactory>();
     factory->setConfig(config);
 
-    auto wsService = factory->buildService();
-    auto amop = factory->buildAMOP(wsService);
+    auto sdk = factory->buildSdk();
 
-    wsService->start();
+    sdk->start();
 
     int i = 0;
     while (true)
@@ -91,7 +90,7 @@ int main(int argc, char** argv)
         std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish ")
                   << LOG_KV("topic", topic) << LOG_KV("message", msg) << std::endl;
 
-        amop->publish(topic, bytesConstRef((byte*)msg.data(), msg.size()), -1,
+        sdk->amop()->publish(topic, bytesConstRef((byte*)msg.data(), msg.size()), -1,
             [](Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
                 std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
                 boost::ignore_unused(_session);
