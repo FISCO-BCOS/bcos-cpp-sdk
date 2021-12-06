@@ -96,7 +96,7 @@ int main(int argc, char** argv)
                 boost::ignore_unused(_session);
                 if (_error)
                 {
-                    BCOS_LOG(ERROR)
+                    BCOS_LOG(WARNING)
                         << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" publish callback error ")
                         << LOG_KV("errorCode", _error->errorCode())
                         << LOG_KV("errorMessage", _error->errorMessage());

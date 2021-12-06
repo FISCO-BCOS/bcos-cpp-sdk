@@ -93,14 +93,14 @@ bool EventSubResponse::fromJson(const std::string& _response)
 
         } while (0);
 
-        EVENT_RESPONSE(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid event sub reponse")
-                              << LOG_KV("response", _response) << LOG_KV("error", errorMessage);
+        EVENT_RESPONSE(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid event sub reponse")
+                                << LOG_KV("response", _response) << LOG_KV("error", errorMessage);
     }
     catch (const std::exception& e)
     {
-        EVENT_RESPONSE(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
-                              << LOG_KV("response", _response)
-                              << LOG_KV("error", std::string(e.what()));
+        EVENT_RESPONSE(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
+                                << LOG_KV("response", _response)
+                                << LOG_KV("error", std::string(e.what()));
     }
 
     return false;

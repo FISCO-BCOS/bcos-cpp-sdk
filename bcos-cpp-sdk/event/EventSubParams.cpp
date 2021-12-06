@@ -70,8 +70,8 @@ bool EventSubParams::fromJsonString(const std::string& _jsonString)
     {
         if (!jsonReader.parse(_jsonString, root))
         {
-            EVENT_PARAMS(ERROR) << LOG_BADGE("fromJsonString") << LOG_DESC("invalid json object")
-                                << LOG_KV("jsonString", _jsonString);
+            EVENT_PARAMS(WARNING) << LOG_BADGE("fromJsonString") << LOG_DESC("invalid json object")
+                                  << LOG_KV("jsonString", _jsonString);
             return false;
         }
 
@@ -83,10 +83,10 @@ bool EventSubParams::fromJsonString(const std::string& _jsonString)
     }
     catch (const std::exception& _e)
     {
-        EVENT_PARAMS(ERROR) << LOG_BADGE("fromJsonString")
-                            << LOG_DESC("invalid event sub params json object")
-                            << LOG_KV("jsonString", _jsonString)
-                            << LOG_KV("error", std::string(_e.what()));
+        EVENT_PARAMS(WARNING) << LOG_BADGE("fromJsonString")
+                              << LOG_DESC("invalid event sub params json object")
+                              << LOG_KV("jsonString", _jsonString)
+                              << LOG_KV("error", std::string(_e.what()));
         return false;
     }
 }

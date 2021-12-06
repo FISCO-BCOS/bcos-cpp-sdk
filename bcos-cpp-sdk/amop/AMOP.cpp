@@ -190,9 +190,9 @@ void AMOP::onRecvAMOPRequest(
         bcos::boostssl::utilities::bytesConstRef(_msg->data()->data(), _msg->data()->size()));
     if (ret < 0)
     {
-        AMOP_CLIENT(ERROR) << LOG_BADGE("onRecvAMOPRequest")
-                           << LOG_DESC("decode amop request message error")
-                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq);
+        AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPRequest")
+                             << LOG_DESC("decode amop request message error")
+                             << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq);
         return;
     }
     auto topic = request->topic();
@@ -212,9 +212,9 @@ void AMOP::onRecvAMOPRequest(
     }
     else
     {
-        AMOP_CLIENT(ERROR) << LOG_BADGE("onRecvAMOPRequest")
-                           << LOG_DESC("there has no callback register for the topic")
-                           << LOG_KV("topic", topic);
+        AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPRequest")
+                             << LOG_DESC("there has no callback register for the topic")
+                             << LOG_KV("topic", topic);
     }
 }
 
@@ -236,9 +236,9 @@ void AMOP::onRecvAMOPBroadcast(
         bcos::boostssl::utilities::bytesConstRef(_msg->data()->data(), _msg->data()->size()));
     if (ret < 0)
     {
-        AMOP_CLIENT(ERROR) << LOG_BADGE("onRecvAMOPBroadcast")
-                           << LOG_DESC("decode amop request message error")
-                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq);
+        AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPBroadcast")
+                             << LOG_DESC("decode amop request message error")
+                             << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq);
         return;
     }
 
@@ -260,9 +260,9 @@ void AMOP::onRecvAMOPBroadcast(
     }
     else
     {
-        AMOP_CLIENT(ERROR) << LOG_BADGE("onRecvAMOPBroadcast")
-                           << LOG_DESC("there has no callback register for the topic")
-                           << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
-                           << LOG_KV("topic", topic);
+        AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPBroadcast")
+                             << LOG_DESC("there has no callback register for the topic")
+                             << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("seq", seq)
+                             << LOG_KV("topic", topic);
     }
 }

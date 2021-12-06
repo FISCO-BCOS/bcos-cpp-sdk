@@ -19,10 +19,10 @@
  */
 #pragma once
 
+#include <boost/thread/thread.hpp>
 #include <memory>
 #include <mutex>
 #include <set>
-#include <shared_mutex>
 
 namespace bcos
 {
@@ -45,7 +45,7 @@ public:
 
 private:
     // mutex for m_sessions
-    mutable std::shared_mutex x_topics;
+    mutable boost::shared_mutex x_topics;
     std::set<std::string> m_topics;
 };
 

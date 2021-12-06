@@ -27,20 +27,20 @@ using namespace bcos::cppsdk::amop;
 
 bool TopicManager::addTopic(const std::string& _topic)
 {
-    std::unique_lock lock(x_topics);
+    boost::unique_lock<boost::shared_mutex> lock(x_topics);
     auto result = m_topics.insert(_topic);
     return result.second;
 }
 bool TopicManager::addTopics(const std::set<std::string>& _topics)
 {
-    std::unique_lock lock(x_topics);
+    boost::unique_lock<boost::shared_mutex> lock(x_topics);
     auto oldSize = m_topics.size();
     m_topics.insert(_topics.begin(), _topics.end());
     return m_topics.size() > oldSize;
 }
 bool TopicManager::removeTopic(const std::string& _topic)
 {
-    std::unique_lock lock(x_topics);
+    boost::unique_lock<boost::shared_mutex> lock(x_topics);
     auto result = m_topics.erase(_topic);
     return result > 0;
 }
@@ -56,7 +56,7 @@ bool TopicManager::removeTopics(const std::set<std::string>& _topics)
 }
 std::set<std::string> TopicManager::topics() const
 {
-    std::shared_lock lock(x_topics);
+    boost::shared_lock<boost::shared_mutex> lock(x_topics);
     return m_topics;
 }
 

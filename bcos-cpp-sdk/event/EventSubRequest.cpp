@@ -92,15 +92,16 @@ bool EventSubUnsubRequest::fromJson(const std::string& _request)
 
         } while (0);
 
-        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid event sub request")
-                             << LOG_KV("request", _request) << LOG_KV("errorMessage", errorMessage);
+        EVENT_REQUEST(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid event sub request")
+                               << LOG_KV("request", _request)
+                               << LOG_KV("errorMessage", errorMessage);
     }
     catch (const std::exception& e)
     {
-        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
+        EVENT_REQUEST(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
 
-                             << LOG_KV("request", _request)
-                             << LOG_KV("error", std::string(e.what()));
+                               << LOG_KV("request", _request)
+                               << LOG_KV("error", std::string(e.what()));
     }
 
     return false;
@@ -270,15 +271,16 @@ bool EventSubSubRequest::fromJson(const std::string& _request)
 
         } while (0);
 
-        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid event sub request")
-                             << LOG_KV("request", _request) << LOG_KV("errorMessage", errorMessage);
+        EVENT_REQUEST(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid event sub request")
+                               << LOG_KV("request", _request)
+                               << LOG_KV("errorMessage", errorMessage);
     }
     catch (const std::exception& e)
     {
-        EVENT_REQUEST(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
+        EVENT_REQUEST(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
 
-                             << LOG_KV("request", _request)
-                             << LOG_KV("error", std::string(e.what()));
+                               << LOG_KV("request", _request)
+                               << LOG_KV("error", std::string(e.what()));
     }
 
     return false;

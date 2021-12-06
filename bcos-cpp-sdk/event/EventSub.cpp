@@ -28,9 +28,9 @@
 #include <bcos-cpp-sdk/event/EventSubResponse.h>
 #include <bcos-cpp-sdk/event/EventSubStatus.h>
 #include <json/reader.h>
+#include <boost/thread/thread.hpp>
 #include <memory>
 #include <mutex>
-#include <shared_mutex>
 
 using namespace bcos;
 using namespace bcos::boostssl;
@@ -81,7 +81,7 @@ void EventSub::stop()
 void EventSub::doLoop()
 {
     {
-        std::shared_lock lock(x_tasks);
+        boost::shared_lock<boost::shared_mutex> lock(x_tasks);
         EVENT_SUB(INFO) << LOG_BADGE("doLoop") << LOG_DESC("event sub tasks report")
                         << LOG_KV("working event sub count", m_workingTasks.size())
                         << LOG_KV("suspend event sub count", m_suspendTasks.size());
@@ -99,7 +99,7 @@ void EventSub::doLoop()
         }
         else
         {
-            std::shared_lock lock(x_tasks);
+            boost::shared_lock<boost::shared_mutex> lock(x_tasks);
             for (const auto& taskEntry : m_suspendTasks)
             {
                 auto task = taskEntry.second;
@@ -122,7 +122,7 @@ void EventSub::doLoop()
 
 bool EventSub::addTask(EventSubTask::Ptr _task)
 {
-    std::unique_lock lock(x_tasks);
+    boost::unique_lock<boost::shared_mutex> lock(x_tasks);
     removeSuspendTask(_task->id());
     if (m_workingTasks.find(_task->id()) == m_workingTasks.end())
     {
@@ -137,7 +137,7 @@ EventSubTask::Ptr EventSub::getTask(const std::string& _id, bool includeSuspendT
 {
     EventSubTask::Ptr task = nullptr;
 
-    std::shared_lock lock(x_tasks);
+    boost::shared_lock<boost::shared_mutex> lock(x_tasks);
     auto it = m_workingTasks.find(_id);
     if (it != m_workingTasks.end())
     {
@@ -170,7 +170,7 @@ EventSubTask::Ptr EventSub::getTaskAndRemove(const std::string& _id, bool includ
 {
     EventSubTask::Ptr task = nullptr;
 
-    std::unique_lock lock(x_tasks);
+    boost::unique_lock<boost::shared_mutex> lock(x_tasks);
     auto it = m_workingTasks.find(_id);
     if (it != m_workingTasks.end())
     {  // remove from m_workingTasks
@@ -232,7 +232,7 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
 
     std::size_t count = 0;
     {
-        std::unique_lock lock(x_tasks);
+        boost::unique_lock<boost::shared_mutex> lock(x_tasks);
         for (auto it = m_workingTasks.begin(); it != m_workingTasks.end();)
         {
             auto task = it->second;
@@ -284,9 +284,10 @@ void EventSub::onRecvEventSubMessage(
     auto resp = std::make_shared<EventSubResponse>();
     if (!resp->fromJson(strResp))
     {
-        EVENT_SUB(ERROR) << LOG_BADGE("onRecvEventSubMessage")
-                         << LOG_DESC("recv invalid event sub message")
-                         << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("response", strResp);
+        EVENT_SUB(WARNING) << LOG_BADGE("onRecvEventSubMessage")
+                           << LOG_DESC("recv invalid event sub message")
+                           << LOG_KV("endpoint", _session->endPoint())
+                           << LOG_KV("response", strResp);
         return;
     }
 
@@ -294,9 +295,10 @@ void EventSub::onRecvEventSubMessage(
     auto task = getTask(resp->id());
     if (task == nullptr)
     {
-        EVENT_SUB(ERROR) << LOG_BADGE("onRecvEventSubMessage")
-                         << LOG_DESC("event sub task not exist") << LOG_KV("id", task->id())
-                         << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("response", strResp);
+        EVENT_SUB(WARNING) << LOG_BADGE("onRecvEventSubMessage")
+                           << LOG_DESC("event sub task not exist") << LOG_KV("id", task->id())
+                           << LOG_KV("endpoint", _session->endPoint())
+                           << LOG_KV("response", strResp);
         return;
     }
 
@@ -373,10 +375,10 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
             if (_error &&
                 _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
             {
-                EVENT_SUB(ERROR) << LOG_BADGE("subscribeEvent")
-                                 << LOG_DESC("callback response error") << LOG_KV("id", id)
-                                 << LOG_KV("errorCode", _error->errorCode())
-                                 << LOG_KV("errorMessage", _error->errorMessage());
+                EVENT_SUB(WARNING)
+                    << LOG_BADGE("subscribeEvent") << LOG_DESC("callback response error")
+                    << LOG_KV("id", id) << LOG_KV("errorCode", _error->errorCode())
+                    << LOG_KV("errorMessage", _error->errorMessage());
 
                 _callback(_error, "");
                 return;
@@ -386,17 +388,17 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
             auto resp = std::make_shared<EventSubResponse>();
             if (!resp->fromJson(strResp))
             {
-                EVENT_SUB(ERROR) << LOG_BADGE("subscribeEvent")
-                                 << LOG_DESC("invalid subscribe event response") << LOG_KV("id", id)
-                                 << LOG_KV("response", strResp);
+                EVENT_SUB(WARNING)
+                    << LOG_BADGE("subscribeEvent") << LOG_DESC("invalid subscribe event response")
+                    << LOG_KV("id", id) << LOG_KV("response", strResp);
                 _callback(nullptr, strResp);
             }
             else if (resp->status() != StatusCode::Success)
             {
                 _callback(nullptr, strResp);
-                EVENT_SUB(ERROR) << LOG_BADGE("subscribeEvent")
-                                 << LOG_DESC("callback response error") << LOG_KV("id", id)
-                                 << LOG_KV("response", strResp);
+                EVENT_SUB(WARNING)
+                    << LOG_BADGE("subscribeEvent") << LOG_DESC("callback response error")
+                    << LOG_KV("id", id) << LOG_KV("response", strResp);
             }
             else
             {
@@ -484,10 +486,10 @@ void EventSub::unsubscribeEvent(const std::string& _id)
             if (_error &&
                 _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
             {
-                EVENT_SUB(ERROR) << LOG_BADGE("unsubscribeEvent")
-                                 << LOG_DESC("callback response error") << LOG_KV("id", _id)
-                                 << LOG_KV("errorCode", _error->errorCode())
-                                 << LOG_KV("errorMessage", _error->errorMessage());
+                EVENT_SUB(WARNING)
+                    << LOG_BADGE("unsubscribeEvent") << LOG_DESC("callback response error")
+                    << LOG_KV("id", _id) << LOG_KV("errorCode", _error->errorCode())
+                    << LOG_KV("errorMessage", _error->errorMessage());
                 return;
             }
 
@@ -495,17 +497,18 @@ void EventSub::unsubscribeEvent(const std::string& _id)
             auto resp = std::make_shared<EventSubResponse>();
             if (!resp->fromJson(strResp))
             {
-                EVENT_SUB(ERROR) << LOG_BADGE("unsubscribeEvent")
-                                 << LOG_DESC("callback invalid response") << LOG_KV("id", _id)
-                                 << LOG_KV("response", strResp);
+                EVENT_SUB(WARNING)
+                    << LOG_BADGE("unsubscribeEvent") << LOG_DESC("callback invalid response")
+                    << LOG_KV("id", _id) << LOG_KV("response", strResp);
                 return;
             }
 
             if (resp->status() != StatusCode::Success)
             {
-                EVENT_SUB(ERROR) << LOG_BADGE("unsubscribeEvent")
-                                 << LOG_DESC("callback response error") << LOG_KV("id", _id)
-                                 << LOG_KV("status", resp->status()) << LOG_KV("response", strResp);
+                EVENT_SUB(WARNING)
+                    << LOG_BADGE("unsubscribeEvent") << LOG_DESC("callback response error")
+                    << LOG_KV("id", _id) << LOG_KV("status", resp->status())
+                    << LOG_KV("response", strResp);
             }
             else
             {

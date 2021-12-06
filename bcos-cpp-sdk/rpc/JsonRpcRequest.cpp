@@ -106,14 +106,14 @@ void JsonRpcRequest::fromJson(const std::string& _request)
     }
     catch (const std::exception& e)
     {
-        RPCREQ_LOG(ERROR) << LOG_BADGE("fromJson") << LOG_KV("request", _request)
-                          << LOG_KV("error", boost::diagnostic_information(e));
+        RPCREQ_LOG(WARNING) << LOG_BADGE("fromJson") << LOG_KV("request", _request)
+                            << LOG_KV("error", boost::diagnostic_information(e));
         BOOST_THROW_EXCEPTION(
             JsonRpcException(JsonRpcError::ParseError, "Invalid JSON was received by the server."));
     }
 
-    RPCREQ_LOG(ERROR) << LOG_BADGE("fromJson") << LOG_KV("request", _request)
-                      << LOG_KV("errorMessage", errorMessage);
+    RPCREQ_LOG(WARNING) << LOG_BADGE("fromJson") << LOG_KV("request", _request)
+                        << LOG_KV("errorMessage", errorMessage);
 
     BOOST_THROW_EXCEPTION(JsonRpcException(
         JsonRpcError::InvalidRequest, "The JSON sent is not a valid Request object."));

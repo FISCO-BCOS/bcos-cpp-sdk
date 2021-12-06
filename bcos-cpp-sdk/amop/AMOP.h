@@ -111,13 +111,13 @@ public:
 
     void addTopicCallback(const std::string& _topic, SubCallback _callback)
     {
-        std::unique_lock lock(x_topic2Callback);
+        boost::unique_lock<boost::shared_mutex> lock(x_topic2Callback);
         m_topic2Callback[_topic] = _callback;
     }
 
     SubCallback getCallbackByTopic(const std::string& _topic)
     {
-        std::shared_lock lock(x_topic2Callback);
+        boost::shared_lock<boost::shared_mutex> lock(x_topic2Callback);
         auto it = m_topic2Callback.find(_topic);
         if (it == m_topic2Callback.end())
         {
@@ -132,7 +132,7 @@ private:
     std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> m_messageFactory;
     std::shared_ptr<bcos::protocol::AMOPRequestFactory> m_requestFactory;
 
-    mutable std::shared_mutex x_topic2Callback;
+    mutable boost::shared_mutex x_topic2Callback;
     std::unordered_map<std::string, SubCallback> m_topic2Callback;
 
     std::shared_ptr<bcos::boostssl::ws::WsService> m_service;

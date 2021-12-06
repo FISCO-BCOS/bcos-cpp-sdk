@@ -24,10 +24,10 @@
 #include <bcos-cpp-sdk/event/EventSubInterface.h>
 #include <bcos-cpp-sdk/event/EventSubTask.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <boost/thread/thread.hpp>
 #include <atomic>
 #include <memory>
 #include <mutex>
-#include <shared_mutex>
 #include <utility>
 
 namespace bcos
@@ -120,7 +120,7 @@ private:
 
     std::atomic<uint32_t> m_suspendTasksCount{0};
 
-    mutable std::shared_mutex x_tasks;
+    mutable boost::shared_mutex x_tasks;
     std::unordered_map<std::string, EventSubTask::Ptr> m_workingTasks;
     std::unordered_map<std::string, EventSubTask::Ptr> m_suspendTasks;
 

@@ -20,9 +20,9 @@
 
 #pragma once
 
+#include <boost/thread/thread.hpp>
 #include <functional>
 #include <memory>
-#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
