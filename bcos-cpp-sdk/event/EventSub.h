@@ -24,10 +24,10 @@
 #include <bcos-cpp-sdk/event/EventSubInterface.h>
 #include <bcos-cpp-sdk/event/EventSubTask.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <boost/thread/thread.hpp>
 #include <atomic>
 #include <memory>
 #include <mutex>
-#include <shared_mutex>
 #include <utility>
 
 namespace bcos
@@ -74,13 +74,13 @@ public:
 
     bool removeWaitResp(const std::string& _id)
     {
-        std::lock_guard lock(x_waitRespTasks);
+        boost::lock_guard<boost::mutex> lock(x_waitRespTasks);
         return 0 != m_waitRespTasks.erase(_id);
     }
 
     bool addWaitResp(const std::string& _id)
     {
-        std::lock_guard lock(x_waitRespTasks);
+        boost::lock_guard<boost::mutex> lock(x_waitRespTasks);
         auto r = m_waitRespTasks.insert(_id);
         return r.second;
     }
@@ -120,11 +120,11 @@ private:
 
     std::atomic<uint32_t> m_suspendTasksCount{0};
 
-    mutable std::shared_mutex x_tasks;
+    mutable boost::shared_mutex x_tasks;
     std::unordered_map<std::string, EventSubTask::Ptr> m_workingTasks;
     std::unordered_map<std::string, EventSubTask::Ptr> m_suspendTasks;
 
-    mutable std::mutex x_waitRespTasks;
+    mutable boost::mutex x_waitRespTasks;
     std::set<std::string> m_waitRespTasks;
 
     // timer

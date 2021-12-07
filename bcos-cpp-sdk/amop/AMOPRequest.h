@@ -43,7 +43,7 @@ public:
     bcos::boostssl::utilities::bytesConstRef data() const { return m_data; }
 
     virtual bool encode(bcos::boostssl::utilities::bytes& _buffer);
-    virtual ssize_t decode(bcos::boostssl::utilities::bytesConstRef _data);
+    virtual int64_t decode(bcos::boostssl::utilities::bytesConstRef _data);
 
 private:
     std::string m_topic;

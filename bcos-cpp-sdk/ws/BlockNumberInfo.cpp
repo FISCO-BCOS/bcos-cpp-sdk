@@ -91,13 +91,13 @@ bool BlockNumberInfo::fromJson(const std::string& _json)
 
         } while (0);
 
-        RPC_BLOCKNUM_LOG(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("Invalid JSON")
-                                << LOG_KV("errorMessage", errorMessage);
+        RPC_BLOCKNUM_LOG(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("Invalid JSON")
+                                  << LOG_KV("errorMessage", errorMessage);
     }
     catch (const std::exception& e)
     {
-        RPC_BLOCKNUM_LOG(ERROR) << LOG_BADGE("fromJson") << LOG_DESC("Invalid JSON")
-                                << LOG_KV("error", std::string(e.what()));
+        RPC_BLOCKNUM_LOG(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("Invalid JSON")
+                                  << LOG_KV("error", std::string(e.what()));
     }
 
     return false;

@@ -54,7 +54,7 @@ bool AMOPRequest::encode(bytes& _buffer)
     return true;
 }
 
-ssize_t AMOPRequest::decode(bcos::boostssl::utilities::bytesConstRef _data)
+int64_t AMOPRequest::decode(bcos::boostssl::utilities::bytesConstRef _data)
 {
     if (_data.size() < MESSAGE_MIN_LENGTH)
     {
@@ -78,7 +78,7 @@ ssize_t AMOPRequest::decode(bcos::boostssl::utilities::bytesConstRef _data)
         m_data = _data.getCroppedData(offset);
         return _data.size();
     }
-    catch (const std::string& _e)
+    catch (const std::string& )
     {
         return -1;
     }

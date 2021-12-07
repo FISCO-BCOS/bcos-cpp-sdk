@@ -81,30 +81,31 @@ int main(int argc, char** argv)
 
     std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!")
               << std::endl;
-    sdk->amop()->subscribe(topic, [&sdk](Error::Ptr _error, const std::string& _endPoint,
-                                      const std::string& _seq, bytesConstRef _data,
-                                      std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
-        boost::ignore_unused(_session);
-        if (_error)
-        {
-            BCOS_LOG(ERROR) << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("subscribe callback error")
-                            << LOG_KV("errorCode", _error->errorCode())
-                            << LOG_KV("errorMessage", _error->errorMessage());
-            return;
-        }
-        else
-        {
-            std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
-                      << LOG_KV("endPoint", _endPoint)
-                      << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
+    sdk->amop()->subscribe(
+        topic, [&sdk](Error::Ptr _error, const std::string& _endPoint, const std::string& _seq,
+                   bytesConstRef _data, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
+            boost::ignore_unused(_session);
+            if (_error)
+            {
+                BCOS_LOG(WARNING) << LOG_BADGE(" [AMOP] ===>>>> ")
+                                  << LOG_DESC("subscribe callback error")
+                                  << LOG_KV("errorCode", _error->errorCode())
+                                  << LOG_KV("errorMessage", _error->errorMessage());
+                return;
+            }
+            else
+            {
+                std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
+                          << LOG_KV("endPoint", _endPoint)
+                          << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
 
-            std::cout << LOG_BADGE(" [AMOP] ===>>>> ")
-                      << LOG_DESC(" send message back to publisher... ")
-                      << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
+                std::cout << LOG_BADGE(" [AMOP] ===>>>> ")
+                          << LOG_DESC(" send message back to publisher... ")
+                          << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
 
-            sdk->amop()->sendResponse(_endPoint, _seq, _data);
-        }
-    });
+                sdk->amop()->sendResponse(_endPoint, _seq, _data);
+            }
+        });
 
     int i = 0;
     while (true)

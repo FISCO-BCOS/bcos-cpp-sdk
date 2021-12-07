@@ -77,16 +77,16 @@ bool ProtocolVersion::fromJson(const std::string& _json)
 
         } while (0);
 
-        RPC_WS_LOG(ERROR) << LOG_BADGE("fromJson")
-                          << LOG_DESC("invalid protocol version json string")
-                          << LOG_KV("json", _json) << LOG_KV("error", errorMessage);
+        RPC_WS_LOG(WARNING) << LOG_BADGE("fromJson")
+                            << LOG_DESC("invalid protocol version json string")
+                            << LOG_KV("json", _json) << LOG_KV("error", errorMessage);
     }
     catch (const std::exception& e)
     {
-        RPC_WS_LOG(ERROR) << LOG_BADGE("fromJson")
-                          << LOG_DESC("invalid protocol version json string")
-                          << LOG_KV("json", _json)
-                          << LOG_KV("exception", boost::diagnostic_information(e));
+        RPC_WS_LOG(WARNING) << LOG_BADGE("fromJson")
+                            << LOG_DESC("invalid protocol version json string")
+                            << LOG_KV("json", _json)
+                            << LOG_KV("exception", boost::diagnostic_information(e));
     }
 
     return false;
@@ -119,7 +119,7 @@ std::string ProtocolVersion::toJsonString()
 
     Json::FastWriter writer;
     std::string result = writer.write(jResult);
-    RPC_WS_LOG(ERROR) << LOG_BADGE("toJson") << LOG_DESC("generator protocol version string")
-                      << LOG_KV("json", result);
+    RPC_WS_LOG(WARNING) << LOG_BADGE("toJson") << LOG_DESC("generator protocol version string")
+                        << LOG_KV("json", result);
     return result;
 }

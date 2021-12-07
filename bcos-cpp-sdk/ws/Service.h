@@ -135,7 +135,7 @@ private:
     std::atomic<uint32_t> m_handshakeSucCount = 0;
 
 private:
-    mutable std::shared_mutex x_lock;
+    mutable boost::shared_mutex x_lock;
     // group => node => endpoints
     std::unordered_map<std::string, std::unordered_map<std::string, std::set<std::string>>>
         m_group2Node2Endpoints;
@@ -148,7 +148,7 @@ private:
     //
     bcos::group::ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
 
-    mutable std::shared_mutex x_blockNotifierLock;
+    mutable boost::shared_mutex x_blockNotifierLock;
     // group => blockNotifier
     std::unordered_map<std::string, BlockNotifierCallbacks> m_group2callbacks;
     std::unordered_map<std::string, BlockNumberInfo::Ptr> m_group2BlockNumber;
