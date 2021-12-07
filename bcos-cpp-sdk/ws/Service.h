@@ -28,6 +28,7 @@
 #include <functional>
 #include <set>
 #include <unordered_map>
+#include <vector>
 
 namespace bcos
 {
@@ -35,6 +36,7 @@ namespace cppsdk
 {
 namespace service
 {
+using WsHandshakeSucHandler = std::function<void(bcos::boostssl::ws::WsSession::Ptr)>;
 using BlockNotifierCallback = std::function<void(const std::string& _group, int64_t _blockNumber)>;
 using BlockNotifierCallbacks = std::vector<BlockNotifierCallback>;
 
@@ -129,10 +131,24 @@ public:
 
     void increaseHandshakeSucCount() { m_handshakeSucCount++; }
 
+    void registerWsHandshakeSucHandler(WsHandshakeSucHandler _handler)
+    {
+        m_wsHandshakeSucHandlers.push_back(_handler);
+    }
+
+    void callWsHandshakeSucHandlers(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
+    {
+        for (auto& handler : m_wsHandshakeSucHandlers)
+        {
+            handler(_session);
+        }
+    }
+
 private:
     uint32_t m_wsHandshakeTimeout = 10000;  // 10s
-
     std::atomic<uint32_t> m_handshakeSucCount = 0;
+    //
+    std::vector<WsHandshakeSucHandler> m_wsHandshakeSucHandlers;
 
 private:
     mutable boost::shared_mutex x_lock;
