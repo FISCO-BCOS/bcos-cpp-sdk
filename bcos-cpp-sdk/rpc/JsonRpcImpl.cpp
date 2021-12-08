@@ -21,6 +21,7 @@
 #include <bcos-boostssl/utilities/Common.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
+#include <json/value.h>
 #include <boost/core/ignore_unused.hpp>
 #include <fstream>
 #include <memory>
@@ -338,31 +339,29 @@ void JsonRpcImpl::getGroupList(RespFunc _respFunc)
 
 void JsonRpcImpl::getGroupInfo(const std::string& _groupID, RespFunc _respFunc)
 {
+    JsonResponse jsonResp;
+    jsonResp.jsonrpc = "2.0";
+    jsonResp.id = m_factory->nextId();
+    bool hitCache = false;
+
     auto groupInfo = m_service->getGroupInfo(_groupID);
     if (groupInfo)
-    {  // get group info from cache
-        JsonResponse jsonResp;
-        jsonResp.jsonrpc = "2.0";
-        jsonResp.id = m_factory->nextId();
+    {
         jsonResp.result = groupInfo->serialize();
-
-        auto jsonString = toStringResponse(jsonResp);
-        auto jsonData = std::make_shared<bytes>(jsonString.begin(), jsonString.end());
-        _respFunc(nullptr, jsonData);
-
-        RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfo") << LOG_BADGE("get group info from cache")
-                           << LOG_KV("response", jsonString);
+        hitCache = true;
     }
     else
     {
-        // call remote rpc
-        Json::Value params = Json::Value(Json::arrayValue);
-        params.append(_groupID);
-        auto request = m_factory->buildRequest("getGroupInfo", params);
-        auto s = request->toJson();
-        m_sender(_groupID, "", s, _respFunc);
-        RPCIMPL_LOG(DEBUG) << LOG_BADGE("getGroupInfo") << LOG_KV("request", s);
+        jsonResp.result = Json::Value(Json::nullValue);
+        hitCache = false;
     }
+
+    auto jsonString = jsonResp.toJsonString();
+    auto jsonData = std::make_shared<bytes>(jsonString.begin(), jsonString.end());
+    _respFunc(nullptr, jsonData);
+
+    RPCIMPL_LOG(INFO) << LOG_BADGE("getGroupInfo") << LOG_BADGE("get group info from cache")
+                      << LOG_KV("hitCache", hitCache) << LOG_KV("response", jsonString);
 }
 
 void JsonRpcImpl::getGroupInfoList(RespFunc _respFunc)
