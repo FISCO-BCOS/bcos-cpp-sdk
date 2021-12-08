@@ -25,6 +25,7 @@
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/Common.h>
 #include <json/json.h>
+#include <memory>
 
 
 using namespace bcos;
@@ -131,6 +132,19 @@ void AMOP::publish(const std::string& _topic, bcos::boostssl::utilities::bytesCo
     m_service->asyncSendMessage(sendMsg, bcos::boostssl::ws::Options(_timeout),
         [_callback](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
+            if (_msg->status() != 0)
+            {
+                auto errorNew = std::make_shared<Error>();
+                errorNew->setErrorCode(_msg->status());
+                errorNew->setErrorMessage(std::string(_msg->data()->begin(), _msg->data()->end()));
+
+                AMOP_CLIENT(WARNING) << LOG_BADGE("publish") << LOG_DESC("publish response error")
+                                     << LOG_KV("errorCode", errorNew->errorCode())
+                                     << LOG_KV("errorMessage", errorNew->errorMessage());
+
+                _error = errorNew;
+            }
+
             _callback(_error, _msg, _session);
         });
 }
