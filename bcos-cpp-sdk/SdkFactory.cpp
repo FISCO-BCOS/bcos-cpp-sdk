@@ -163,7 +163,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
                 amop->onRecvAMOPBroadcast(_msg, _session);
             }
         });
-    _service->registerConnectHandler([amopWeakPtr](std::shared_ptr<WsSession> _session) {
+    _service->registerWsHandshakeSucHandler([amopWeakPtr](std::shared_ptr<WsSession> _session) {
         auto amop = amopWeakPtr.lock();
         if (amop)
         {

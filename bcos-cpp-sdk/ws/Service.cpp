@@ -248,6 +248,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             }
 
             service->increaseHandshakeSucCount();
+            service->callWsHandshakeSucHandlers(_session);
 
             RPC_WS_LOG(INFO) << LOG_BADGE("startHandshake") << LOG_DESC("handshake successfully")
                              << LOG_KV("endPoint", endPoint)
