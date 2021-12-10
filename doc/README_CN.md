@@ -6,10 +6,9 @@
 
 bcos-cpp-sdk是FISCO BCOS 3.0实现的c++版本的sdk，提供了rpc、amop、合约事件订阅基础功能的访问接口，用户可以用来开发c++版本的区块链应用。
 
-
 ## 文档
 
-- [FISCO BCOS 3.0文档](https://fisco-bcos-documentation-3x.readthedocs.io/zh/latest/index.html)
+- [FISCO BCOS 3.x文档](https://fisco-bcos-doc.readthedocs.io/)
 
 ## 加入社区
 
