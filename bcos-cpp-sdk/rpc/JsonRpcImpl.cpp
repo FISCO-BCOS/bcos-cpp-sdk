@@ -155,7 +155,7 @@ void JsonRpcImpl::getBlockByNumber(const std::string& _groupID, const std::strin
     int64_t _blockNumber, bool _onlyHeader, bool _onlyTxHash, RespFunc _respFunc)
 {
     Json::Value params = Json::Value(Json::arrayValue);
-    // params.append(_groupID);
+    params.append(_groupID);
     params.append(_blockNumber);
     params.append(_onlyHeader);
     params.append(_onlyTxHash);
