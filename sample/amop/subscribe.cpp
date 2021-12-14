@@ -38,69 +38,48 @@ using namespace bcos::boostssl::utilities;
 
 void usage()
 {
-    std::cerr << "Usage: sub-client <host> <port> <topic>\n"
+    std::cerr << "Desc: subscribe amop topic by command params\n";
+    std::cerr << "Usage: subscribe <config> <topic>\n"
               << "Example:\n"
-              << "    ./sub-client 127.0.0.1 20200 topic\n";
+              << "    ./subscribe ./config_sample.ini topic\n";
     std::exit(0);
 }
 
 //------------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-    if (argc != 4)
+    if (argc != 3)
     {
         usage();
     }
 
-    std::string host = argv[1];
-    uint16_t port = atoi(argv[2]);
-    std::string topic = argv[3];
+    std::string config = argv[1];
+    std::string topic = argv[2];
 
-    std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" subscribe ") << LOG_KV("ip", host)
-              << LOG_KV("port", port) << LOG_KV("topic", topic) << std::endl;
-
-
-    auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
-    config->setModel(bcos::boostssl::ws::WsModel::Client);
-
-    bcos::boostssl::ws::EndPoint endpoint;
-    endpoint.host = host;
-    endpoint.port = port;
-
-    auto peers = std::make_shared<bcos::boostssl::ws::EndPoints>();
-    peers->push_back(endpoint);
-    config->setConnectedPeers(peers);
-    config->setThreadPoolSize(4);
+    std::cout << LOG_DESC(" [AMOP][Subscribe] params ===>>>> ") << LOG_KV("\n\t # config", config)
+              << LOG_KV("\n\t # topic", topic) << std::endl;
 
     auto factory = std::make_shared<SdkFactory>();
-    factory->setConfig(config);
-
-    auto sdk = factory->buildSdk();
-
+    // construct cpp-sdk object
+    auto sdk = factory->buildSdk(config);
+    // start sdk
     sdk->start();
 
-    std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC("connect to server successfully!")
-              << std::endl;
+    std::cout << LOG_DESC(" [AMOP][Subscribe] start sdk ... ") << std::endl;
+
     sdk->amop()->subscribe(
         topic, [&sdk](Error::Ptr _error, const std::string& _endPoint, const std::string& _seq,
                    bytesConstRef _data, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
             boost::ignore_unused(_session);
             if (_error)
             {
-                BCOS_LOG(WARNING) << LOG_BADGE(" [AMOP] ===>>>> ")
-                                  << LOG_DESC("subscribe callback error")
-                                  << LOG_KV("errorCode", _error->errorCode())
-                                  << LOG_KV("errorMessage", _error->errorMessage());
-                return;
+                std::cout << " \t something is wrong" << LOG_KV("error", _error->errorCode())
+                          << LOG_KV("errorMessage", _error->errorMessage()) << std::endl;
             }
             else
             {
-                std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" receive message ")
+                std::cout << " \t recv message and would echo message to publish ===>>>> "
                           << LOG_KV("endPoint", _endPoint)
-                          << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
-
-                std::cout << LOG_BADGE(" [AMOP] ===>>>> ")
-                          << LOG_DESC(" send message back to publisher... ")
                           << LOG_KV("msg", std::string(_data.begin(), _data.end())) << std::endl;
 
                 sdk->amop()->sendResponse(_endPoint, _seq, _data);
@@ -110,7 +89,8 @@ int main(int argc, char** argv)
     int i = 0;
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << LOG_DESC(" Main thread running ") << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         i++;
     }
 
