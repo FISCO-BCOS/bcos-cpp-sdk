@@ -11,8 +11,9 @@ add_subdirectory(rpc)
 add_subdirectory(amop)
 add_subdirectory(event)
 add_subdirectory(ws)
+add_subdirectory(config)
 
 add_library(${CPP_SDK_TARGET} ${SRC_LIST} ${HEADERS})
-target_link_libraries(${CPP_SDK_TARGET} PUBLIC bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-utilities bcos-boostssl::boostssl-httpserver bcos-boostssl::boostssl-context  ${WS_SERVICE_TARGET} ${JSON_RPC_TARGET} ${AMOP_TARGET} ${EVENT_TARGET} jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(${CPP_SDK_TARGET} PUBLIC bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-utilities bcos-boostssl::boostssl-httpserver bcos-boostssl::boostssl-context  ${WS_SERVICE_TARGET} ${JSON_RPC_TARGET} ${AMOP_TARGET} ${EVENT_TARGET} ${CONFIG_TARGET} jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
 
 
