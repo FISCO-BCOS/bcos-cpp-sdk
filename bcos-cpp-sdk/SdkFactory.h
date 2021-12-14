@@ -36,6 +36,8 @@ class SdkFactory : public std::enable_shared_from_this<SdkFactory>
 public:
     using Ptr = std::shared_ptr<SdkFactory>;
 
+    SdkFactory();
+
 public:
     bcos::cppsdk::service::Service::Ptr buildService(
         std::shared_ptr<bcos::boostssl::ws::WsConfig> _config);
@@ -45,8 +47,6 @@ public:
     bcos::cppsdk::event::EventSub::Ptr buildEventSub(bcos::cppsdk::service::Service::Ptr _service);
 
 public:
-    std::shared_ptr<bcos::boostssl::ws::WsConfig> loadConfig(const std::string& _configFile);
-
     bcos::cppsdk::Sdk::UniquePtr buildSdk(
         std::shared_ptr<bcos::boostssl::ws::WsConfig> _config = nullptr);
     bcos::cppsdk::Sdk::UniquePtr buildSdk(const std::string& _configFile);

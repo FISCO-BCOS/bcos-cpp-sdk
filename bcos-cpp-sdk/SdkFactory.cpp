@@ -29,6 +29,7 @@
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/Common.h>
+#include <bcos-cpp-sdk/config/Config.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
@@ -41,17 +42,15 @@ using namespace bcos::boostssl::ws;
 using namespace bcos::boostssl::utilities;
 using namespace bcos::cppsdk::amop;
 using namespace bcos::cppsdk;
+using namespace bcos::cppsdk::config;
 using namespace bcos::cppsdk::jsonrpc;
 using namespace bcos::cppsdk::event;
 using namespace bcos::cppsdk::service;
 
-std::shared_ptr<bcos::boostssl::ws::WsConfig> SdkFactory::loadConfig(const std::string& _configFile)
+SdkFactory::SdkFactory()
 {
-    BCOS_LOG(INFO) << "[WS]" << LOG_BADGE("loadConfig") << LOG_DESC("receive block notify")
-                   << LOG_KV("configFile", _configFile);
-    (void)_configFile;
-    // TODO: load  config file for WsConfig
-    return nullptr;
+    // TODO: how to init log in cpp sdk
+    LogInitializer::initLog();
 }
 
 bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(
@@ -77,15 +76,13 @@ bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(
 
 bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(const std::string& _configFile)
 {
-    auto config = loadConfig(_configFile);
-    return buildSdk(config);
+    auto config = std::make_shared<Config>();
+    auto wsConfig = config->loadConfig(_configFile);
+    return buildSdk(wsConfig);
 }
 
 Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConfig> _config)
 {
-    // TODO: how to init log in cpp sdk
-    LogInitializer::initLog();
-
     auto service = std::make_shared<Service>();
     auto initializer = std::make_shared<WsInitializer>();
 

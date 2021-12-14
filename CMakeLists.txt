@@ -84,12 +84,13 @@ set(WS_SERVICE_TARGET "ws")
 set(JSON_RPC_TARGET "json-rpc")
 set(AMOP_TARGET "amop")
 set(EVENT_TARGET "event")
+set(CONFIG_TARGET "config")
 
 add_subdirectory(bcos-cpp-sdk)
 
-if (BUILD_EXEC_TEST)
+if (BUILD_SAMPLE)
     # sample exec binary
-    add_subdirectory(test/client)
+    add_subdirectory(sample)
 endif()
 
 # if(TESTS)
@@ -129,6 +130,15 @@ install(
 
 install(
     TARGETS ${EVENT_TARGET}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+    TARGETS ${CONFIG_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
