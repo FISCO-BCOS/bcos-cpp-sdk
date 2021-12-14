@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file pub_client.cpp
+ * @file broadcast.cpp
  * @author: octopus
  * @date 2021-08-24
  */
@@ -38,9 +38,10 @@ using namespace bcos::boostssl::utilities;
 
 void usage()
 {
-    std::cerr << "Usage: broadcast-client <host> <port> <topic> <message>\n"
+    std::cerr << "Desc: broadcast amop message by command params\n";
+    std::cerr << "Usage: broadcast <config> <topic> <message>\n"
               << "Example:\n"
-              << "    ./broadcast-client 127.0.0.1 20200 topic\n";
+              << "    ./broadcast ./config_sample.ini topic HelloWorld\n";
     std::exit(0);
 }
 
@@ -52,44 +53,27 @@ int main(int argc, char** argv)
         usage();
     }
 
-    std::string host = argv[1];
-    uint16_t port = atoi(argv[2]);
-    std::string topic = argv[3];
-    std::string msg;
-    if (argc > 4)
-    {
-        msg = argv[4];
-    }
+    std::string config = argv[1];
+    std::string topic = argv[2];
+    std::string msg = argv[3];
 
-    std::cout << LOG_DESC("broadcast client") << LOG_KV("ip", host) << LOG_KV("port", port)
-              << LOG_KV("topic", topic);
-
-    auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
-    config->setModel(bcos::boostssl::ws::WsModel::Client);
-
-    bcos::boostssl::ws::EndPoint endpoint;
-    endpoint.host = host;
-    endpoint.port = port;
-
-    auto peers = std::make_shared<bcos::boostssl::ws::EndPoints>();
-    peers->push_back(endpoint);
-    config->setConnectedPeers(peers);
-    config->setThreadPoolSize(4);
-
-    auto threadPool = std::make_shared<ThreadPool>("t_sub", 4);
+    std::cout << LOG_DESC(" [AMOP][Broadcast]] params ===>>>> ") << LOG_KV("\n\t # config", config)
+              << LOG_KV("\n\t # topic", topic) << LOG_KV("\n\t # message", msg) << std::endl;
 
     auto factory = std::make_shared<SdkFactory>();
-    factory->setConfig(config);
-
-    auto sdk = factory->buildSdk();
-
+    // construct cpp-sdk object
+    auto sdk = factory->buildSdk(config);
+    // start sdk
     sdk->start();
+
+    std::cout << LOG_DESC(" [AMOP][Broadcast] start sdk ... ") << std::endl;
 
     int i = 0;
     while (true)
     {
-        std::cout << LOG_BADGE(" [AMOP] ===>>>> ") << LOG_DESC(" broadcast ")
-                  << LOG_KV("topic", topic) << LOG_KV("message", msg);
+        std::cout << LOG_DESC(" broadcast message ===>>>> ") << LOG_KV("topic", topic)
+                  << LOG_KV("message", msg) << std::endl;
+
         sdk->amop()->broadcast(topic, bytesConstRef((byte*)msg.data(), msg.size()));
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         i++;

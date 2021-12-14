@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file get_group_info.cpp
+ * @file blocknotifier.cpp
  * @author: octopus
  * @date 2021-08-24
  */
@@ -24,7 +24,6 @@
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-boostssl/websocket/WsSession.h>
-#include <bcos-boostssl/websocket/WsTools.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <boost/core/ignore_unused.hpp>
 #include <cstddef>
@@ -43,9 +42,10 @@ using namespace bcos::boostssl::utilities;
 
 void usage()
 {
-    std::cerr << "Usage: get-group-info <group> <host1:port1> <host2:port2>  \n"
+    std::cerr << "Desc: print block notifier by command params\n";
+    std::cerr << "Usage: blocknotifier <config> <group> \n"
               << "Example:\n"
-              << "    ./get-group-info group 127.0.0.1:20200 127.0.0.1:20201"
+              << "    ./blocknotifier ./config_sample.ini group "
                  "\n";
     std::exit(0);
 }
@@ -58,42 +58,31 @@ int main(int argc, char** argv)
         usage();
     }
 
-    auto peers = std::make_shared<bcos::boostssl::ws::EndPoints>();
-    std::string group = argv[1];
+    std::string config = argv[1];
+    std::string group = argv[2];
 
-    for (int i = 2; i < argc; i++)
-    {
-        bcos::boostssl::ws::EndPoint endpoint;
-        ws::WsTools::stringToEndPoint(argv[i], endpoint);
-        peers->push_back(endpoint);
-    }
-
-    std::cout << LOG_BADGE(" [GetGroupInfo] parameters ===>>>> ") << LOG_KV("\n\t # group", group)
-              << std::endl;
-
-    auto config = std::make_shared<bcos::boostssl::ws::WsConfig>();
-    config->setModel(bcos::boostssl::ws::WsModel::Client);
-    config->setConnectedPeers(peers);
-    config->setThreadPoolSize(4);
-    config->setDisableSsl(true);
+    std::cout << LOG_DESC(" [BlockNotifier] params ===>>>> ") << LOG_KV("\n\t # config", config)
+              << LOG_KV("\n\t # group", group) << std::endl;
 
     auto factory = std::make_shared<SdkFactory>();
-    factory->setConfig(config);
-
-    auto sdk = factory->buildSdk();
+    // construct cpp-sdk object
+    auto sdk = factory->buildSdk(config);
+    // start sdk
     sdk->start();
+
+    std::cout << LOG_DESC(" [BlockNotifier] start sdk ... ") << std::endl;
+
+    sdk->service()->registerBlockNumberNotifier(
+        group, [](const std::string& _group, int64_t _blockNumber) {
+            std::cout << " \t block notifier ===>>>> " << LOG_KV("group", _group)
+                      << LOG_KV("blockNumber", _blockNumber) << std::endl;
+        });
 
     int i = 0;
     while (true)
     {
-        sdk->jsonRpc()->getGroupInfo(group, [](auto&& _error, auto&& _respData) {
-            (void)_error;
-            (void)_respData;
-            std::cout << LOG_BADGE(" [GetGroupInfo] ===>>>> ")
-                      << LOG_KV("resp", std::string(_respData->begin(), _respData->end()))
-                      << std::endl;
-        });
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::cout << LOG_DESC(" Main thread running ") << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         i++;
     }
 
