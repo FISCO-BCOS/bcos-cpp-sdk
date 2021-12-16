@@ -291,12 +291,11 @@ void EventSub::onRecvEventSubMessage(
         return;
     }
 
-
     auto task = getTask(resp->id());
     if (task == nullptr)
     {
         EVENT_SUB(WARNING) << LOG_BADGE("onRecvEventSubMessage")
-                           << LOG_DESC("event sub task not exist") << LOG_KV("id", task->id())
+                           << LOG_DESC("event sub task not exist") << LOG_KV("id", resp->id())
                            << LOG_KV("endpoint", _session->endPoint())
                            << LOG_KV("response", strResp);
         return;
