@@ -90,6 +90,13 @@ int main(int argc, char** argv)
         params->addAddress(address);
     }
 
+    sdk->service()->registerBlockNumberNotifier(group, [](const std::string& _group,
+                                                           int64_t _blockNumber) {
+        // recv block number from server
+        std::cout << " \t recv block number notifier from server ===>>>> "
+                  << LOG_KV("group", _group) << LOG_KV("blockNumber", _blockNumber) << std::endl;
+    });
+
     // subscribe event
     sdk->eventSub()->subscribeEvent(
         group, params, [](Error::Ptr _error, const std::string& _events) {
