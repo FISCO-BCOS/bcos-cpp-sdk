@@ -603,6 +603,8 @@ bool Service::randomGetHighestBlockNumberNode(const std::string& _group, std::st
 
 bool Service::getHighestBlockNumberNodes(const std::string& _group, std::set<std::string>& _nodes)
 {
+    std::set<std::string> tempNodes;
+
     {
         boost::shared_lock<boost::shared_mutex> lock(x_blockNotifierLock);
         auto it = m_group2LatestBlockNumberNodes.find(_group);
@@ -611,21 +613,22 @@ bool Service::getHighestBlockNumberNodes(const std::string& _group, std::set<std
             return false;
         }
 
-        _nodes = it->second;
+        tempNodes = it->second;
     }
 
-    for (const auto& node : _nodes)
+    for (auto it = tempNodes.begin(); it != tempNodes.end(); ++it)
     {
+        auto& node = *it;
         if (!hasEndPointOfNodeAvailable(_group, node))
         {
-            _nodes.erase(node);
-
             RPC_WS_LOG(WARNING) << LOG_BADGE("getHighestBlockNumberNodes")
                                 << LOG_DESC("node has no endpoint available")
                                 << LOG_KV("group", _group) << LOG_KV("nodes", node);
 
             continue;
         }
+
+        _nodes.insert(*it);
     }
 
     RPC_WS_LOG(TRACE) << LOG_BADGE("getHighestBlockNumberNodes") << LOG_KV("group", _group)
