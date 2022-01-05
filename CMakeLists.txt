@@ -79,7 +79,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # install dependencies
 # include(InstallBcosFrameworkDependencies)
 
-set(CPP_SDK_TARGET "cpp-sdk")
+set(CPP_SDK_TARGET "bcos-cpp-sdk")
 set(WS_SERVICE_TARGET "ws")
 set(JSON_RPC_TARGET "json-rpc")
 set(AMOP_TARGET "amop")

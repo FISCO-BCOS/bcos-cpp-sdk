@@ -87,6 +87,9 @@ public:
     //------------------------------ Block Notifier begin --------------------------
     bool getBlockNumber(const std::string& _group, int64_t& _blockNumber);
 
+    bool randomGetHighestBlockNumberNode(const std::string& _group, std::string& _node);
+    bool getHighestBlockNumberNodes(const std::string& _group, std::set<std::string>& _nodes);
+
     void onRecvBlockNotifier(const std::string& _msg);
     void onRecvBlockNotifier(BlockNumberInfo::Ptr _blockNumberInfo);
     void removeBlockNumberInfo(const std::string& _group);
@@ -99,6 +102,7 @@ public:
     void updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
 
 public:
+    bool hasEndPointOfNodeAvailable(const std::string& _groupID, const std::string& _node);
     bool getEndPointsByGroup(const std::string& _group, std::set<std::string>& _endPoints);
     bool getEndPointsByGroupAndNode(
         const std::string& _group, const std::string& _node, std::set<std::string>& _endPoints);
@@ -151,7 +155,7 @@ private:
     std::vector<WsHandshakeSucHandler> m_wsHandshakeSucHandlers;
 
 private:
-    mutable boost::shared_mutex x_lock;
+    mutable boost::shared_mutex x_endPointLock;
     // group => node => endpoints
     std::unordered_map<std::string, std::unordered_map<std::string, std::set<std::string>>>
         m_group2Node2Endpoints;
@@ -165,9 +169,12 @@ private:
     bcos::group::ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
 
     mutable boost::shared_mutex x_blockNotifierLock;
-    // group => blockNotifier
+    // group => blockNotifier callback
     std::unordered_map<std::string, BlockNotifierCallbacks> m_group2callbacks;
+    // group => blockNumber
     std::unordered_map<std::string, BlockNumberInfo::Ptr> m_group2BlockNumber;
+    // group => nodes
+    std::unordered_map<std::string, std::set<std::string>> m_group2LatestBlockNumberNodes;
 };
 
 }  // namespace service

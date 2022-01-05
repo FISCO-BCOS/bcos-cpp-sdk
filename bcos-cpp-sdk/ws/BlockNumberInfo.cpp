@@ -97,7 +97,7 @@ bool BlockNumberInfo::fromJson(const std::string& _json)
     catch (const std::exception& e)
     {
         RPC_BLOCKNUM_LOG(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("Invalid JSON")
-                                  << LOG_KV("error", std::string(e.what()));
+                                  << LOG_KV("error", boost::diagnostic_information(e));
     }
 
     return false;
