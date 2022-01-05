@@ -20,6 +20,7 @@
 #include <bcos-cpp-sdk/event/Common.h>
 #include <bcos-cpp-sdk/event/EventSubResponse.h>
 #include <json/json.h>
+#include <boost/exception/diagnostic_information.hpp>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
@@ -100,7 +101,7 @@ bool EventSubResponse::fromJson(const std::string& _response)
     {
         EVENT_RESPONSE(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
                                 << LOG_KV("response", _response)
-                                << LOG_KV("error", std::string(e.what()));
+                                << LOG_KV("error", boost::diagnostic_information(e));
     }
 
     return false;

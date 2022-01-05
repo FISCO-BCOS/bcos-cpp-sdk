@@ -26,6 +26,7 @@
 #include <bcos-cpp-sdk/ws/ProtocolVersion.h>
 #include <bcos-cpp-sdk/ws/Service.h>
 #include <boost/thread/thread.hpp>
+#include <algorithm>
 #include <memory>
 #include <type_traits>
 #include <vector>
@@ -296,7 +297,7 @@ void Service::clearGroupInfoByEp(const std::string& _endPoint)
 {
     RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint);
     {
-        boost::unique_lock<boost::shared_mutex> lock(x_lock);
+        boost::unique_lock<boost::shared_mutex> lock(x_endPointLock);
         {
             for (auto it = m_group2Node2Endpoints.begin(); it != m_group2Node2Endpoints.end();)
             {
@@ -351,10 +352,10 @@ void Service::clearGroupInfoByEp(const std::string& _endPoint)
 void Service::clearGroupInfoByEp(const std::string& _endPoint, const std::string& _groupID)
 {
     RPC_WS_LOG(INFO) << LOG_BADGE("clearGroupInfoByEp") << LOG_KV("endPoint", _endPoint)
-                     << LOG_KV("groupID", _groupID);
+                     << LOG_KV("group", _groupID);
 
     {
-        boost::unique_lock<boost::shared_mutex> lock(x_lock);
+        boost::unique_lock<boost::shared_mutex> lock(x_endPointLock);
         auto it = m_group2Node2Endpoints.find(_groupID);
         if (it == m_group2Node2Endpoints.end())
         {
@@ -406,7 +407,7 @@ void Service::updateGroupInfoByEp(
 
     {
         // update
-        boost::unique_lock<boost::shared_mutex> lock(x_lock);
+        boost::unique_lock<boost::shared_mutex> lock(x_endPointLock);
         auto& groupMapper = m_group2Node2Endpoints[group];
         for (const auto& node : nodes)
         {
@@ -419,10 +420,23 @@ void Service::updateGroupInfoByEp(
     printGroupInfo();
 }
 
+bool Service::hasEndPointOfNodeAvailable(const std::string& _group, const std::string& _node)
+{
+    boost::shared_lock<boost::shared_mutex> lock(x_endPointLock);
+    auto it = m_group2Node2Endpoints.find(_group);
+    if (it == m_group2Node2Endpoints.end())
+    {
+        return false;
+    }
+
+    auto& nodes = it->second;
+
+    return nodes.find(_node) != nodes.end();
+}
+
 bool Service::getEndPointsByGroup(const std::string& _group, std::set<std::string>& _endPoints)
 {
-    // std::unique_lock lock(x_lock);
-    boost::shared_lock<boost::shared_mutex> lock(x_lock);
+    boost::shared_lock<boost::shared_mutex> lock(x_endPointLock);
     auto it = m_group2Node2Endpoints.find(_group);
     if (it == m_group2Node2Endpoints.end())
     {
@@ -444,7 +458,7 @@ bool Service::getEndPointsByGroup(const std::string& _group, std::set<std::strin
 bool Service::getEndPointsByGroupAndNode(
     const std::string& _group, const std::string& _node, std::set<std::string>& _endPoints)
 {
-    boost::shared_lock<boost::shared_mutex> lock(x_lock);
+    boost::shared_lock<boost::shared_mutex> lock(x_endPointLock);
     auto it = m_group2Node2Endpoints.find(_group);
     if (it == m_group2Node2Endpoints.end())
     {
@@ -471,7 +485,7 @@ bool Service::getEndPointsByGroupAndNode(
 
 void Service::printGroupInfo()
 {
-    boost::shared_lock<boost::shared_mutex> lock(x_lock);
+    boost::shared_lock<boost::shared_mutex> lock(x_endPointLock);
 
     RPC_WS_LOG(INFO) << LOG_BADGE("printGroupInfo")
                      << LOG_KV("total count", m_group2Node2Endpoints.size());
@@ -495,7 +509,7 @@ bcos::group::GroupInfo::Ptr Service::getGroupInfo(const std::string& _groupID)
 {
     std::vector<bcos::group::GroupInfo::Ptr> groupInfos;
     {
-        boost::shared_lock<boost::shared_mutex> lock(x_lock);
+        boost::shared_lock<boost::shared_mutex> lock(x_endPointLock);
         for (const auto& group2GroupInfoMapper : m_endPoint2GroupId2GroupInfo)
         {
             auto& group2GroupInfo = group2GroupInfoMapper.second;
@@ -512,7 +526,7 @@ bcos::group::GroupInfo::Ptr Service::getGroupInfo(const std::string& _groupID)
     if (groupInfos.empty())
     {
         RPC_WS_LOG(INFO) << LOG_BADGE("getGroupInfo") << LOG_DESC("group not exist")
-                         << LOG_KV("groupID", _groupID);
+                         << LOG_KV("group", _groupID);
         return nullptr;
     }
 
@@ -543,11 +557,11 @@ bcos::group::GroupInfo::Ptr Service::getGroupInfo(const std::string& _groupID)
 void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo)
 {
     RPC_WS_LOG(INFO) << LOG_BADGE("updateGroupInfo") << LOG_KV("endPoint", _endPoint)
-                     << LOG_KV("groupID", _groupInfo->groupID())
+                     << LOG_KV("group", _groupInfo->groupID())
                      << LOG_KV("chainID", _groupInfo->chainID())
                      << LOG_KV("nodesNum", _groupInfo->nodesNum());
     {
-        boost::unique_lock<boost::shared_mutex> lock(x_lock);
+        boost::unique_lock<boost::shared_mutex> lock(x_endPointLock);
         m_endPoint2GroupId2GroupInfo[_endPoint][_groupInfo->groupID()] = _groupInfo;
     }
 }
@@ -555,14 +569,68 @@ void Service::updateGroupInfo(const std::string& _endPoint, bcos::group::GroupIn
 //------------------------------ Block Notifier Begin --------------------------
 bool Service::getBlockNumber(const std::string& _group, int64_t& _blockNumber)
 {
-    boost::shared_lock<boost::shared_mutex> lock(x_blockNotifierLock);
-    auto it = m_group2BlockNumber.find(_group);
-    if (it != m_group2BlockNumber.end())
     {
+        boost::shared_lock<boost::shared_mutex> lock(x_blockNotifierLock);
+        auto it = m_group2BlockNumber.find(_group);
+        if (it == m_group2BlockNumber.end())
+        {
+            return false;
+        }
+
         _blockNumber = it->second->blockNumber();
-        return true;
     }
-    return false;
+
+    RPC_WS_LOG(TRACE) << LOG_BADGE("getBlockNumber") << LOG_KV("group", _group)
+                      << LOG_KV("blockNumber", _blockNumber);
+    return true;
+}
+
+bool Service::randomGetHighestBlockNumberNode(const std::string& _group, std::string& _node)
+{
+    std::set<std::string> setNodes;
+    if (!getHighestBlockNumberNodes(_group, setNodes))
+    {
+        return false;
+    }
+
+    std::vector<std::string> vectorNodes(setNodes.begin(), setNodes.end());
+    std::default_random_engine e(std::chrono::system_clock::now().time_since_epoch().count());
+    std::shuffle(vectorNodes.begin(), vectorNodes.end(), e);
+
+    _node = *vectorNodes.begin();
+    return true;
+}
+
+bool Service::getHighestBlockNumberNodes(const std::string& _group, std::set<std::string>& _nodes)
+{
+    {
+        boost::shared_lock<boost::shared_mutex> lock(x_blockNotifierLock);
+        auto it = m_group2LatestBlockNumberNodes.find(_group);
+        if (it == m_group2LatestBlockNumberNodes.end())
+        {
+            return false;
+        }
+
+        _nodes = it->second;
+    }
+
+    for (const auto& node : _nodes)
+    {
+        if (!hasEndPointOfNodeAvailable(_group, node))
+        {
+            _nodes.erase(node);
+
+            RPC_WS_LOG(WARNING) << LOG_BADGE("getHighestBlockNumberNodes")
+                                << LOG_DESC("node has no endpoint available")
+                                << LOG_KV("group", _group) << LOG_KV("nodes", node);
+
+            continue;
+        }
+    }
+
+    RPC_WS_LOG(TRACE) << LOG_BADGE("getHighestBlockNumberNodes") << LOG_KV("group", _group)
+                      << LOG_KV("nodes size", _nodes.size());
+    return !_nodes.empty();
 }
 
 void Service::removeBlockNumberInfo(const std::string& _group)
@@ -571,15 +639,15 @@ void Service::removeBlockNumberInfo(const std::string& _group)
     boost::unique_lock<boost::shared_mutex> lock(x_blockNotifierLock);
     m_group2callbacks.erase(_group);
     m_group2BlockNumber.erase(_group);
+    m_group2LatestBlockNumberNodes.erase(_group);
 }
 
 void Service::onRecvBlockNotifier(const std::string& _msg)
 {
-    auto bi = std::make_shared<BlockNumberInfo>();
-    auto r = bi->fromJson(_msg);
-    if (r)
+    auto blockNumberInfo = std::make_shared<BlockNumberInfo>();
+    if (blockNumberInfo->fromJson(_msg))
     {
-        onRecvBlockNotifier(bi);
+        onRecvBlockNotifier(blockNumberInfo);
     }
 }
 
@@ -591,7 +659,8 @@ void Service::onRecvBlockNotifier(BlockNumberInfo::Ptr _blockNumber)
                      << LOG_KV("node", _blockNumber->node())
                      << LOG_KV("blockNumber", _blockNumber->blockNumber());
 
-    bool blockNumberUpdate = false;
+    bool isBlockUpdate = false;
+    bool isHighestBlock = false;
     {  // update blockinfo
         boost::unique_lock<boost::shared_mutex> lock(x_blockNotifierLock);
         auto it = m_group2BlockNumber.find(_blockNumber->group());
@@ -600,18 +669,37 @@ void Service::onRecvBlockNotifier(BlockNumberInfo::Ptr _blockNumber)
             auto blockNumber = it->second->blockNumber();
             if (_blockNumber->blockNumber() > blockNumber)
             {
+                // received new block block number
                 it->second->setBlockNumber(_blockNumber->blockNumber());
-                blockNumberUpdate = true;
+
+                isBlockUpdate = true;
+                isHighestBlock = true;
+            }
+            else if (_blockNumber->blockNumber() == blockNumber)
+            {
+                isHighestBlock = true;
             }
         }
         else
         {
             m_group2BlockNumber[_blockNumber->group()] = _blockNumber;
-            blockNumberUpdate = true;
+
+            isBlockUpdate = true;
+            isHighestBlock = true;
+        }
+
+        if (isBlockUpdate)
+        {
+            m_group2LatestBlockNumberNodes[_blockNumber->group()].clear();
+        }
+
+        if (isHighestBlock)
+        {
+            m_group2LatestBlockNumberNodes[_blockNumber->group()].insert(_blockNumber->node());
         }
     }
 
-    if (blockNumberUpdate)
+    if (isBlockUpdate)
     {
         RPC_WS_LOG(INFO) << LOG_BADGE("onRecvBlockNotifier") << LOG_DESC("block notifier callback")
                          << LOG_KV("group", _blockNumber->group())
