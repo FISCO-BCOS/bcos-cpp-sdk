@@ -18,9 +18,9 @@
  * @date 2021-08-10
  */
 
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
+#include <bcos-utilities/Common.h>
 #include <json/value.h>
 #include <boost/core/ignore_unused.hpp>
 #include <fstream>
@@ -30,7 +30,7 @@
 using namespace bcos;
 using namespace cppsdk;
 using namespace jsonrpc;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 
 static const int32_t BLOCK_LIMIT_RANGE = 500;
 

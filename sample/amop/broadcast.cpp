@@ -17,13 +17,13 @@
  * @author: octopus
  * @date 2021-08-24
  */
-#include <bcos-boostssl/utilities/Common.h>
-#include <bcos-boostssl/utilities/ThreadPool.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
+#include <bcos-utilities/Common.h>
+#include <bcos-utilities/ThreadPool.h>
 #include <boost/core/ignore_unused.hpp>
 #include <memory>
 #include <set>
@@ -32,7 +32,7 @@
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::boostssl;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 

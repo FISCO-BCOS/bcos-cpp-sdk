@@ -18,7 +18,7 @@
  * @date 2021-08-23
  */
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-utilities/Common.h>
 
 namespace bcos
 {
@@ -29,7 +29,7 @@ class AMOPRequest
 public:
     using Ptr = std::shared_ptr<AMOPRequest>;
     AMOPRequest() = default;
-    AMOPRequest(bcos::boostssl::utilities::bytesConstRef _data) { decode(_data); }
+    AMOPRequest(bcos::bytesConstRef _data) { decode(_data); }
     virtual ~AMOPRequest() {}
 
     // topic field length
@@ -39,15 +39,15 @@ public:
 
     std::string topic() const { return m_topic; }
     void setTopic(const std::string& _topic) { m_topic = _topic; }
-    void setData(bcos::boostssl::utilities::bytesConstRef _data) { m_data = _data; }
-    bcos::boostssl::utilities::bytesConstRef data() const { return m_data; }
+    void setData(bcos::bytesConstRef _data) { m_data = _data; }
+    bcos::bytesConstRef data() const { return m_data; }
 
-    virtual bool encode(bcos::boostssl::utilities::bytes& _buffer);
-    virtual int64_t decode(bcos::boostssl::utilities::bytesConstRef _data);
+    virtual bool encode(bcos::bytes& _buffer);
+    virtual int64_t decode(bcos::bytesConstRef _data);
 
 private:
     std::string m_topic;
-    bcos::boostssl::utilities::bytesConstRef m_data = bcos::boostssl::utilities::bytesConstRef();
+    bcos::bytesConstRef m_data = bcos::bytesConstRef();
 };
 
 class AMOPRequestFactory
@@ -58,7 +58,7 @@ public:
     virtual ~AMOPRequestFactory() {}
 
     std::shared_ptr<AMOPRequest> buildRequest() { return std::make_shared<AMOPRequest>(); }
-    std::shared_ptr<AMOPRequest> buildRequest(bcos::boostssl::utilities::bytesConstRef _data)
+    std::shared_ptr<AMOPRequest> buildRequest(bcos::bytesConstRef _data)
     {
         return std::make_shared<AMOPRequest>(_data);
     }

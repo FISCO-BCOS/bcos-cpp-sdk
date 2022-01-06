@@ -19,8 +19,8 @@
  */
 
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-cpp-sdk/event/Common.h>
+#include <bcos-utilities/Common.h>
 #include <json/value.h>
 #include <set>
 #include <string>
@@ -55,14 +55,14 @@ public:
     // TODO: toTopic impl, sm or none sm
 
     // uint => topic
-    static std::string u256ToTopic(bcos::boostssl::utilities::u256 _u)
+    static std::string u256ToTopic(bcos::u256 _u)
     {
         (void)_u;
         return std::string("");
     }
 
     // int => topic
-    static std::string i256ToTopic(bcos::boostssl::utilities::s256 _i)
+    static std::string i256ToTopic(bcos::s256 _i)
     {
         (void)_i;
         return std::string("");
@@ -76,14 +76,14 @@ public:
     }
 
     // bytes => topic
-    static std::string bytesToTopic(const bcos::boostssl::utilities::bytes& _bs)
+    static std::string bytesToTopic(const bcos::bytes& _bs)
     {
         (void)_bs;
         return std::string("");
     }
 
     // bytesN(eg:bytes32) => topic
-    static std::string bytesNToTopic(const bcos::boostssl::utilities::bytes& _bsn)
+    static std::string bytesNToTopic(const bcos::bytes& _bsn)
     {
         (void)_bsn;
         return std::string("");

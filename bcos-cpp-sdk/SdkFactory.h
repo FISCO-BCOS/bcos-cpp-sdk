@@ -18,7 +18,6 @@
  * @date 2021-08-21
  */
 #pragma once
-#include <bcos-boostssl/utilities/ThreadPool.h>
 #include <bcos-boostssl/websocket/WsConfig.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/Sdk.h>
@@ -26,6 +25,7 @@
 #include <bcos-cpp-sdk/event/EventSub.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-utilities/ThreadPool.h>
 
 namespace bcos
 {

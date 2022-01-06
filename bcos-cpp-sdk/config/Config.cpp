@@ -18,12 +18,12 @@
  * @date 2021-12-14
  */
 #include <bcos-boostssl/context/ContextConfig.h>
-#include <bcos-boostssl/utilities/BoostLog.h>
-#include <bcos-boostssl/utilities/Common.h>
-#include <bcos-boostssl/utilities/Exceptions.h>
 #include <bcos-boostssl/websocket/WsConfig.h>
 #include <bcos-boostssl/websocket/WsTools.h>
 #include <bcos-cpp-sdk/config/Config.h>
+#include <bcos-utilities/BoostLog.h>
+#include <bcos-utilities/Common.h>
+#include <bcos-utilities/Exceptions.h>
 #include <boost/exception/diagnostic_information.hpp>
 #include <memory>
 
@@ -31,7 +31,7 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::boostssl::ws;
 using namespace bcos::boostssl::context;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 using namespace bcos::cppsdk::config;
 
 std::shared_ptr<bcos::boostssl::ws::WsConfig> Config::loadConfig(const std::string& _configPath)
