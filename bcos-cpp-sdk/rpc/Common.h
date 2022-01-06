@@ -19,7 +19,7 @@
  */
 
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
+#include <bcos-utilities/Common.h>
 #include <json/json.h>
 #include <json/value.h>
 

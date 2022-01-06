@@ -12,4 +12,4 @@ hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl REQUIRED)
 
 add_executable(blocknotifier blocknotifier.cpp)
-target_link_libraries(blocknotifier PUBLIC ${CPP_SDK_TARGET} ${EVENT_TARGET} ${JSON_RPC_TARGET} ${AMOP_TARGET} ${WS_SERVICE_TARGET} bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-utilities bcos-boostssl::boostssl-context bcos-boostssl::boostssl-httpserver jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(blocknotifier PUBLIC ${BCOS_CPP_SDK_TARGET} bcos-boostssl::bcos-boostssl bcos-utilities::bcos-utilities jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)

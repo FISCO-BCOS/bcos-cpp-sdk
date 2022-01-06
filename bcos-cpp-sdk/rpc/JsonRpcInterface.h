@@ -19,8 +19,8 @@
  */
 
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
-#include <bcos-boostssl/utilities/Error.h>
+#include <bcos-utilities/Common.h>
+#include <bcos-utilities/Error.h>
 #include <functional>
 #include <memory>
 
@@ -30,8 +30,7 @@ namespace cppsdk
 {
 namespace jsonrpc
 {
-using RespFunc = std::function<void(
-    bcos::boostssl::utilities::Error::Ptr, std::shared_ptr<bcos::boostssl::utilities::bytes>)>;
+using RespFunc = std::function<void(bcos::Error::Ptr, std::shared_ptr<bcos::bytes>)>;
 
 class JsonRpcInterface
 {

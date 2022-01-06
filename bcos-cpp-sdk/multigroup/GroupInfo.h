@@ -40,7 +40,7 @@ public:
     virtual std::string const& iniConfig() const { return m_iniConfig; }
     virtual ChainNodeInfo::Ptr nodeInfo(std::string const& _nodeName) const
     {
-        boostssl::utilities::ReadGuard l(x_nodeInfos);
+        bcos::ReadGuard l(x_nodeInfos);
         if (!m_nodeInfos.count(_nodeName))
         {
             return nullptr;
@@ -58,20 +58,20 @@ public:
     virtual void setIniConfig(std::string const& _iniConfig) { m_iniConfig = _iniConfig; }
     virtual bool appendNodeInfo(ChainNodeInfo::Ptr _nodeInfo)
     {
-        boostssl::utilities::UpgradableGuard l(x_nodeInfos);
+        bcos::UpgradableGuard l(x_nodeInfos);
         auto const& nodeName = _nodeInfo->nodeName();
         if (m_nodeInfos.count(nodeName))
         {
             return false;
         }
-        boostssl::utilities::UpgradeGuard ul(l);
+        bcos::UpgradeGuard ul(l);
         m_nodeInfos[nodeName] = _nodeInfo;
         return true;
     }
 
     virtual void updateNodeInfo(ChainNodeInfo::Ptr _nodeInfo)
     {
-        boostssl::utilities::WriteGuard l(x_nodeInfos);
+        bcos::WriteGuard l(x_nodeInfos);
         auto const& nodeName = _nodeInfo->nodeName();
         if (m_nodeInfos.count(nodeName))
         {
@@ -83,13 +83,13 @@ public:
 
     virtual bool removeNodeInfo(ChainNodeInfo::Ptr _nodeInfo)
     {
-        boostssl::utilities::UpgradableGuard l(x_nodeInfos);
+        bcos::UpgradableGuard l(x_nodeInfos);
         auto const& nodeName = _nodeInfo->nodeName();
         if (!m_nodeInfos.count(nodeName))
         {
             return false;
         }
-        boostssl::utilities::UpgradeGuard ul(l);
+        bcos::UpgradeGuard ul(l);
         m_nodeInfos.erase(nodeName);
         return true;
     }
@@ -98,7 +98,7 @@ public:
     virtual void setChainID(std::string const& _chainID) { m_chainID = _chainID; }
     virtual int64_t nodesNum() const
     {
-        boostssl::utilities::ReadGuard l(x_nodeInfos);
+        bcos::ReadGuard l(x_nodeInfos);
         return m_nodeInfos.size();
     }
 
@@ -109,24 +109,21 @@ public:
 
         if (!jsonReader.parse(_json, root))
         {
-            BOOST_THROW_EXCEPTION(
-                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
-                    "The group information must be valid json string."));
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The group information must be valid json string."));
         }
 
         if (!root.isMember("chainID"))
         {
-            BOOST_THROW_EXCEPTION(
-                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
-                    "The group information must contain chainID"));
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The group information must contain chainID"));
         }
         setChainID(root["chainID"].asString());
 
         if (!root.isMember("groupID"))
         {
-            BOOST_THROW_EXCEPTION(
-                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
-                    "The group information must contain groupID"));
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The group information must contain groupID"));
         }
         setGroupID(root["groupID"].asString());
 
@@ -138,18 +135,16 @@ public:
 
         if (!root.isMember("iniConfig"))
         {
-            BOOST_THROW_EXCEPTION(
-                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
-                    "The group information must contain iniConfig"));
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The group information must contain iniConfig"));
         }
         setIniConfig(root["iniConfig"].asString());
 
         // nodeList
         if (!root.isMember("nodeList") || !root["nodeList"].isArray())
         {
-            BOOST_THROW_EXCEPTION(
-                boostssl::utilities::InvalidParameter() << boostssl::utilities::errinfo_comment(
-                    "The group information must contain nodeList"));
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The group information must contain nodeList"));
         }
 
         for (Json::ArrayIndex i = 0; i < root["nodeList"].size(); ++i)
@@ -202,7 +197,7 @@ private:
     std::string m_iniConfig;
     // node name to node deployment information mapping
     std::map<std::string, ChainNodeInfo::Ptr> m_nodeInfos;
-    mutable boostssl::utilities::SharedMutex x_nodeInfos;
+    mutable bcos::SharedMutex x_nodeInfos;
 };
 
 inline std::string printGroupInfo(GroupInfo::Ptr _groupInfo)

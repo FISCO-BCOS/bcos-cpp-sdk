@@ -19,7 +19,7 @@
  * @date 2021-09-16
  */
 #pragma once
-#include <bcos-boostssl/utilities/Exceptions.h>
+#include <bcos-utilities/Exceptions.h>
 #include <memory>
 
 #define GROUP_LOG(LEVEL) BCOS_LOG(LEVEL) << LOG_BADGE("GROUP")

@@ -18,7 +18,6 @@
  * @date 2021-09-01
  */
 
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
@@ -27,6 +26,7 @@
 #include <bcos-cpp-sdk/event/EventSubRequest.h>
 #include <bcos-cpp-sdk/event/EventSubResponse.h>
 #include <bcos-cpp-sdk/event/EventSubStatus.h>
+#include <bcos-utilities/Common.h>
 #include <json/reader.h>
 #include <boost/thread/thread.hpp>
 #include <memory>
@@ -35,7 +35,7 @@
 using namespace bcos;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::event;
 
@@ -371,8 +371,7 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
     m_service->asyncSendMessageByGroupAndNode(_task->group(), "", message, Options(),
         [id, _task, _callback, this](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
-            if (_error &&
-                _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
+            if (_error && _error->errorCode() != 0)
             {
                 EVENT_SUB(WARNING)
                     << LOG_BADGE("subscribeEvent") << LOG_DESC("callback response error")
@@ -482,8 +481,7 @@ void EventSub::unsubscribeEvent(const std::string& _id)
 
     session->asyncSendMessage(message, Options(),
         [_id](Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
-            if (_error &&
-                _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
+            if (_error && _error->errorCode() != 0)
             {
                 EVENT_SUB(WARNING)
                     << LOG_BADGE("unsubscribeEvent") << LOG_DESC("callback response error")
