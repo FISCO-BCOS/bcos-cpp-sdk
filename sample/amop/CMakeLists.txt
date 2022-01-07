@@ -12,10 +12,10 @@ hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl REQUIRED)
 
 add_executable(publish publish.cpp)
-target_link_libraries(publish PUBLIC ${CPP_SDK_TARGET} ${EVENT_TARGET} ${JSON_RPC_TARGET} ${AMOP_TARGET} ${WS_SERVICE_TARGET} bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-utilities bcos-boostssl::boostssl-context bcos-boostssl::boostssl-httpserver jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(publish PUBLIC ${BCOS_CPP_SDK_TARGET} bcos-boostssl::bcos-boostssl bcos-utilities::bcos-utilities jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
 
 add_executable(broadcast broadcast.cpp)
-target_link_libraries(broadcast PUBLIC ${CPP_SDK_TARGET} ${EVENT_TARGET} ${JSON_RPC_TARGET} ${AMOP_TARGET} ${WS_SERVICE_TARGET} bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-utilities bcos-boostssl::boostssl-context bcos-boostssl::boostssl-httpserver jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(broadcast PUBLIC ${BCOS_CPP_SDK_TARGET} bcos-boostssl::bcos-boostssl bcos-utilities::bcos-utilities jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
 
 add_executable(subscribe subscribe.cpp)
-target_link_libraries(subscribe PUBLIC ${CPP_SDK_TARGET} ${EVENT_TARGET} ${JSON_RPC_TARGET} ${AMOP_TARGET} ${WS_SERVICE_TARGET} bcos-boostssl::boostssl-websocket bcos-boostssl::boostssl-utilities bcos-boostssl::boostssl-context bcos-boostssl::boostssl-httpserver jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(subscribe PUBLIC ${BCOS_CPP_SDK_TARGET} bcos-boostssl::bcos-boostssl bcos-utilities::bcos-utilities jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)

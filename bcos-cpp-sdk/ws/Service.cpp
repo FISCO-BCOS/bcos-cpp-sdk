@@ -18,13 +18,13 @@
  * @date 2021-10-22
  */
 
-#include <bcos-boostssl/utilities/BoostLog.h>
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsError.h>
 #include <bcos-cpp-sdk/multigroup/GroupInfo.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/ProtocolVersion.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-utilities/BoostLog.h>
+#include <bcos-utilities/Common.h>
 #include <boost/thread/thread.hpp>
 #include <algorithm>
 #include <memory>
@@ -36,7 +36,7 @@ using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::service;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 
 // ---------------------overide
 // begin--------------------------------------------------------------
@@ -214,8 +214,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
     _session->asyncSendMessage(message, Options(m_wsHandshakeTimeout),
         [session, service](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<WsSession> _session) {
-            if (_error &&
-                _error->errorCode() != boostssl::utilities::protocol::CommonError::SUCCESS)
+            if (_error && _error->errorCode() != 0)
             {
                 RPC_WS_LOG(WARNING)
                     << LOG_BADGE("startHandshake") << LOG_DESC("callback response error")

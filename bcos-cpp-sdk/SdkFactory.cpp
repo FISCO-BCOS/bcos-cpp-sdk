@@ -18,8 +18,6 @@
  * @date 2021-08-21
  */
 
-#include <bcos-boostssl/utilities/BoostLog.h>
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsConnector.h>
 #include <bcos-boostssl/websocket/WsInitializer.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
@@ -33,13 +31,15 @@
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-utilities/BoostLog.h>
+#include <bcos-utilities/Common.h>
 #include <memory>
 #include <mutex>
 
 using namespace bcos;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 using namespace bcos::cppsdk::amop;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::config;

@@ -18,10 +18,10 @@
  * @date 2021-10-26
  */
 
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-framework/testutils/TestPromptFixture.h>
+#include <bcos-utilities/Common.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
 #include <future>

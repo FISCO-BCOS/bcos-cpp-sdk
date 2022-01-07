@@ -19,11 +19,11 @@
  */
 #pragma once
 
-#include <bcos-boostssl/utilities/Common.h>
-#include <bcos-boostssl/utilities/Error.h>
 #include <bcos-boostssl/websocket/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsSession.h>
+#include <bcos-utilities/Common.h>
+#include <bcos-utilities/Error.h>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -35,12 +35,11 @@ namespace cppsdk
 {
 namespace amop
 {
-using SubCallback = std::function<void(bcos::boostssl::utilities::Error::Ptr, const std::string&,
-    const std::string&, bcos::boostssl::utilities::bytesConstRef,
-    std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
-using PubCallback = std::function<void(bcos::boostssl::utilities::Error::Ptr,
-    std::shared_ptr<bcos::boostssl::ws::WsMessage>,
-    std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
+using SubCallback = std::function<void(bcos::Error::Ptr, const std::string&, const std::string&,
+    bcos::bytesConstRef, std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
+using PubCallback =
+    std::function<void(bcos::Error::Ptr, std::shared_ptr<bcos::boostssl::ws::WsMessage>,
+        std::shared_ptr<bcos::boostssl::ws::WsSession>)>;
 class AMOPInterface
 {
 public:
@@ -61,18 +60,17 @@ public:
     // subscribe topic with callback
     virtual void subscribe(const std::string& _topic, SubCallback _callback) = 0;
     // publish message
-    virtual void publish(const std::string& _topic, bcos::boostssl::utilities::bytesConstRef _data,
-        uint32_t timeout, PubCallback _callback) = 0;
+    virtual void publish(const std::string& _topic, bcos::bytesConstRef _data, uint32_t timeout,
+        PubCallback _callback) = 0;
     // broadcast message
-    virtual void broadcast(
-        const std::string& _topic, bcos::boostssl::utilities::bytesConstRef _data) = 0;
+    virtual void broadcast(const std::string& _topic, bcos::bytesConstRef _data) = 0;
     // query all subscribed topics
     virtual void querySubTopics(std::set<std::string>& _topics) = 0;
     // set default callback
     virtual void setSubCallback(SubCallback _callback) = 0;
     //
-    virtual void sendResponse(const std::string& _endPoint, const std::string& _seq,
-        bcos::boostssl::utilities::bytesConstRef _data) = 0;
+    virtual void sendResponse(
+        const std::string& _endPoint, const std::string& _seq, bcos::bytesConstRef _data) = 0;
 };
 
 }  // namespace amop

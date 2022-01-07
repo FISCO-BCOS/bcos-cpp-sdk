@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <bcos-boostssl/utilities/BoostLog.h>
+#include <bcos-utilities/BoostLog.h>
 namespace bcos
 {
 namespace cppsdk
