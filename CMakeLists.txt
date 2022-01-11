@@ -24,20 +24,14 @@ if (NOT DEFINED URL_BASE)
     set(URL_BASE "github.com.cnpmjs.org")
 endif()
 
-# set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts)
-# FetchContent_Declare(bcos-cmake-scripts
-#    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
-#    GIT_TAG dev
-#    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
-# )
-# FetchContent_MakeAvailable(bcos-cmake-scripts)
-
-# set(HUNTER_PACKAGE_LOG_BUILD ON CACHE STRING "Hunter output build info to log")
-# set(HUNTER_PACKAGE_LOG_INSTALL ON CACHE STRING "Hunter output install info to log")
-# set(HUNTER_STATUS_DEBUG OFF CACHE STRING "Hunter debug output")
-# set(HUNTER_USE_CACHE_SERVERS NO CACHE STRING "Download cache from cache server" FORCE)
-# set(HUNTER_STATUS_PRINT OFF CACHE STRING "Hunter status output")
-# set(HUNTER_CONFIGURATION_TYPES Release CACHE STRING "Build type of Hunter packages")
+include(FetchContent)
+set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_BINARY_DIR}/bcos-cmake-scripts)
+FetchContent_Declare(bcos-cmake-scripts
+    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
+    GIT_TAG 364f603f4ec112cb79840ea4026243399d7c419b
+    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
+)
+FetchContent_MakeAvailable(bcos-cmake-scripts)
 
 set(BCOS_RPC_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "The cmake path for the library")
 list(APPEND CMAKE_MODULE_PATH ${BCOS_CMAKE_SCRIPTS_DIR})
@@ -53,12 +47,15 @@ HunterGate(
 project(bcos-cpp-sdk VERSION "3.0.0")
 set(VERSION_SUFFIX "")
 
+# Boost
 hunter_add_package(Boost COMPONENTS all)
 find_package(Boost CONFIG REQUIRED log chrono system filesystem thread iostreams)
 
+# Jsoncpp
 hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
 
+# TASSL
 hunter_add_package(OpenSSL)
 find_package(OpenSSL REQUIRED)
 
@@ -66,6 +63,7 @@ find_package(OpenSSL REQUIRED)
 hunter_add_package(bcos-utilities)
 find_package(bcos-utilities CONFIG REQUIRED)
 
+# bcos-boostssl
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
 
@@ -90,6 +88,12 @@ add_subdirectory(bcos-cpp-sdk)
 if (BUILD_SAMPLE)
     # sample exec binary
     add_subdirectory(sample)
+endif()
+
+if (TESTS)
+   enable_testing()
+   set(CTEST_OUTPUT_ON_FAILURE TRUE)
+   add_subdirectory(test)
 endif()
 
 # install bcos-cpp-sdk target
