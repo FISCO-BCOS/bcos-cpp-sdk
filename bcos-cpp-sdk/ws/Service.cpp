@@ -39,6 +39,8 @@ using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
 using namespace bcos;
 
+static const int32_t BLOCK_LIMIT_RANGE = 500;
+
 // ---------------------overide
 // begin--------------------------------------------------------------
 
@@ -590,6 +592,14 @@ bool Service::getBlockNumber(const std::string& _group, int64_t& _blockNumber)
     RPC_WS_LOG(TRACE) << LOG_BADGE("getBlockNumber") << LOG_KV("group", _group)
                       << LOG_KV("blockNumber", _blockNumber);
     return true;
+}
+
+bool Service::getBlockLimit(const std::string& _group, int64_t& _blockLimit)
+{
+    int64_t blockNumber = -1;
+    auto r = getBlockNumber(_group, blockNumber);
+    _blockLimit = (blockNumber > 0 ? blockNumber + BLOCK_LIMIT_RANGE : blockNumber);
+    return r;
 }
 
 std::pair<bool, bool> Service::updateGroupBlockNumber(
