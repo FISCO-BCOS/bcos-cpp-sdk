@@ -19,7 +19,7 @@
  * @date 2021-09-22
  */
 #include <bcos-cpp-sdk/amop/TopicManager.h>
-#include <bcos-framework/testutils/TestPromptFixture.h>
+#include <bcos-utilities/testutils/TestPromptFixture.h>
 #include <boost/beast/websocket/rfc6455.hpp>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>

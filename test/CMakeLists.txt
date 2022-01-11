@@ -19,12 +19,11 @@ file(GLOB_RECURSE SOURCES "unittests/*.cpp" "unittests/*.h" "unittests/*.sol")
 
 # cmake settings
 include(SearchTestCases)
-set(TEST_BINARY_NAME test-bcos-rpc)
+set(TEST_BINARY_NAME test-bcos-utilities)
 config_test_cases("" "${SOURCES}" bin/${TEST_BINARY_NAME} "")
 
 add_executable(${TEST_BINARY_NAME} ${SOURCES})
-target_include_directories(${TEST_BINARY_NAME} PRIVATE .)
-find_package(Boost CONFIG REQUIRED unit_test_framework)
-find_package(bcos-framework)
-find_package(bcos-boostssl)
-target_link_libraries(${TEST_BINARY_NAME} bcos-boostssl::bcos-boostssl Boost::unit_test_framework jsoncpp_lib_static bcos-boostssl::utilities ${BCOS_S})
+target_include_directories(${TEST_BINARY_NAME} PRIVATE . ${CMAKE_SOURCE_DIR})
+
+find_package(Boost CONFIG QUIET REQUIRED unit_test_framework)
+target_link_libraries(${TEST_BINARY_NAME} ${BCOS_CPP_SDK_TARGET} Boost::unit_test_framework)

@@ -19,7 +19,7 @@
  * @date 2021-09-22
  */
 #include <bcos-cpp-sdk/event/EventSubParams.h>
-#include <bcos-framework/testutils/TestPromptFixture.h>
+#include <bcos-utilities/testutils/TestPromptFixture.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_EventSubParams)
         r = params->addTopic(4, topic);
         BOOST_CHECK(!r);
 
-        BOOST_CHECK_EQUAL(params->topics().size(), 4);
+        BOOST_CHECK_EQUAL(params->topics().size(), 5);
         for (auto& topics : params->topics())
         {
             BOOST_CHECK_EQUAL(topics.size(), 1);
