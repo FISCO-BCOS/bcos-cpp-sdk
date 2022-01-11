@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <memory>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 using namespace bcos;
@@ -37,6 +38,8 @@ using namespace bcos::cppsdk::service;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
 using namespace bcos;
+
+static const int32_t BLOCK_LIMIT_RANGE = 500;
 
 // ---------------------overide
 // begin--------------------------------------------------------------
@@ -247,6 +250,12 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                 service->updateGroupInfoByEp(endPoint, groupInfo);
             }
 
+            auto groupBlockNumber = pv->groupBlockNumber();
+            for (auto entry : groupBlockNumber)
+            {
+                service->updateGroupBlockNumber(entry.first, entry.second);
+            }
+
             service->increaseHandshakeSucCount();
             service->callWsHandshakeSucHandlers(_session);
 
@@ -254,6 +263,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                              << LOG_KV("endPoint", endPoint)
                              << LOG_KV("handshake version", _session->version())
                              << LOG_KV("groupInfoList size", groupInfoList.size())
+                             << LOG_KV("groupBlockNumber size", groupBlockNumber.size())
                              << LOG_KV("handshake string", pvString);
         });
 }
@@ -576,12 +586,58 @@ bool Service::getBlockNumber(const std::string& _group, int64_t& _blockNumber)
             return false;
         }
 
-        _blockNumber = it->second->blockNumber();
+        _blockNumber = it->second;
     }
 
     RPC_WS_LOG(TRACE) << LOG_BADGE("getBlockNumber") << LOG_KV("group", _group)
                       << LOG_KV("blockNumber", _blockNumber);
     return true;
+}
+
+bool Service::getBlockLimit(const std::string& _group, int64_t& _blockLimit)
+{
+    int64_t blockNumber = -1;
+    auto r = getBlockNumber(_group, blockNumber);
+    _blockLimit = (r ? blockNumber + BLOCK_LIMIT_RANGE : blockNumber);
+    return r;
+}
+
+std::pair<bool, bool> Service::updateGroupBlockNumber(
+    const std::string& _groupID, int64_t _blockNumber)
+{
+    bool newBlockNumber = false;
+    bool highestBlockNumber = false;
+    {
+        boost::unique_lock<boost::shared_mutex> lock(x_blockNotifierLock);
+        auto it = m_group2BlockNumber.find(_groupID);
+        if (it != m_group2BlockNumber.end())
+        {
+            if (_blockNumber > it->second)
+            {
+                it->second = _blockNumber;
+                newBlockNumber = true;
+                highestBlockNumber = true;
+            }
+            else if (_blockNumber == it->second)
+            {
+                highestBlockNumber = true;
+            }
+        }
+        else
+        {
+            m_group2BlockNumber[_groupID] = _blockNumber;
+            newBlockNumber = true;
+            highestBlockNumber = true;
+        }
+    }
+
+    if (newBlockNumber)
+    {
+        RPC_WS_LOG(INFO) << LOG_BADGE("updateGroupBlockNumber") << LOG_KV("groupID", _groupID)
+                         << LOG_KV("_blockNumber", _blockNumber);
+    }
+
+    return std::make_pair(newBlockNumber, highestBlockNumber);
 }
 
 bool Service::randomGetHighestBlockNumberNode(const std::string& _group, std::string& _node)
@@ -661,36 +717,13 @@ void Service::onRecvBlockNotifier(BlockNumberInfo::Ptr _blockNumber)
                      << LOG_KV("node", _blockNumber->node())
                      << LOG_KV("blockNumber", _blockNumber->blockNumber());
 
-    bool isBlockUpdate = false;
-    bool isHighestBlock = false;
-    {  // update blockinfo
+    auto r = updateGroupBlockNumber(_blockNumber->group(), _blockNumber->blockNumber());
+    bool isNewBlock = r.first;
+    bool isHighestBlock = r.second;
+    if (isNewBlock || isHighestBlock)
+    {
         boost::unique_lock<boost::shared_mutex> lock(x_blockNotifierLock);
-        auto it = m_group2BlockNumber.find(_blockNumber->group());
-        if (it != m_group2BlockNumber.end())
-        {
-            auto blockNumber = it->second->blockNumber();
-            if (_blockNumber->blockNumber() > blockNumber)
-            {
-                // received new block block number
-                it->second->setBlockNumber(_blockNumber->blockNumber());
-
-                isBlockUpdate = true;
-                isHighestBlock = true;
-            }
-            else if (_blockNumber->blockNumber() == blockNumber)
-            {
-                isHighestBlock = true;
-            }
-        }
-        else
-        {
-            m_group2BlockNumber[_blockNumber->group()] = _blockNumber;
-
-            isBlockUpdate = true;
-            isHighestBlock = true;
-        }
-
-        if (isBlockUpdate)
+        if (isNewBlock)
         {
             m_group2LatestBlockNumberNodes[_blockNumber->group()].clear();
         }
@@ -701,7 +734,7 @@ void Service::onRecvBlockNotifier(BlockNumberInfo::Ptr _blockNumber)
         }
     }
 
-    if (isBlockUpdate)
+    if (isNewBlock)
     {
         RPC_WS_LOG(INFO) << LOG_BADGE("onRecvBlockNotifier") << LOG_DESC("block notifier callback")
                          << LOG_KV("group", _blockNumber->group())
