@@ -69,9 +69,25 @@ bool ProtocolVersion::fromJson(const std::string& _json)
                 }
             }
 
+            // "groupBlockNumber": [{"group0": 1}, {"group1": 2}, {"group2": 3}]
+            if (root.isMember("groupBlockNumber") && root["groupBlockNumber"].isArray())
+            {
+                for (Json::ArrayIndex i = 0; i < root["groupBlockNumber"].size(); ++i)
+                {
+                    Json::Value jGroupBlockNumber = root["groupBlockNumber"][i];
+                    for (auto const& groupID : jGroupBlockNumber.getMemberNames())
+                    {
+                        int64_t blockNumber = jGroupBlockNumber[groupID].asInt64();
+
+                        m_groupBlockNumber[groupID] = blockNumber;
+                    }
+                }
+            }
+
             RPC_WS_LOG(INFO) << LOG_BADGE("fromJson") << LOG_DESC("parser protocol version")
                              << LOG_KV("protocolVersion", protocolVersion)
-                             << LOG_KV("groupInfoList size", m_groupInfoList.size());
+                             << LOG_KV("groupInfoList size", m_groupInfoList.size())
+                             << LOG_KV("groupBlockNumber size", m_groupBlockNumber.size());
 
             return true;
 

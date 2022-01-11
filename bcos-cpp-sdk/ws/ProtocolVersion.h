@@ -25,7 +25,7 @@
 #include <bcos-cpp-sdk/multigroup/GroupInfoFactory.h>
 #include <json/json.h>
 #include <algorithm>
-#include <memory>
+#include <unordered_map>
 
 namespace bcos
 {
@@ -58,9 +58,15 @@ public:
         m_groupInfoList = _groupInfoList;
     }
 
+    const std::unordered_map<std::string, int64_t>& groupBlockNumber() const
+    {
+        return m_groupBlockNumber;
+    }
+
 private:
     int m_protocolVersion;
     std::vector<bcos::group::GroupInfo::Ptr> m_groupInfoList;
+    std::unordered_map<std::string, int64_t> m_groupBlockNumber;
 };
 
 }  // namespace service
