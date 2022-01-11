@@ -59,7 +59,7 @@ public:
     {
         std::call_once(m_flag, [_pt]() {
             m_logInitializer = new bcos::BoostLogInitializer();
-            m_logInitializer->initLog(_pt);
+            m_logInitializer->initLog(_pt, bcos::FileLogger, "cpp_sdk_log");
         });
     }
 

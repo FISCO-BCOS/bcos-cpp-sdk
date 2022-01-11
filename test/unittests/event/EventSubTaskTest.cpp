@@ -20,7 +20,7 @@
  */
 
 #include <bcos-cpp-sdk/event/EventSubTask.h>
-#include <bcos-framework/testutils/TestPromptFixture.h>
+#include <bcos-utilities/testutils/TestPromptFixture.h>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
