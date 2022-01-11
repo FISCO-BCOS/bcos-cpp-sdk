@@ -86,6 +86,7 @@ public:
 public:
     //------------------------------ Block Notifier begin --------------------------
     bool getBlockNumber(const std::string& _group, int64_t& _blockNumber);
+    std::pair<bool, bool> updateGroupBlockNumber(const std::string& _groupID, int64_t _blockNumber);
 
     bool randomGetHighestBlockNumberNode(const std::string& _group, std::string& _node);
     bool getHighestBlockNumberNodes(const std::string& _group, std::set<std::string>& _nodes);
@@ -172,7 +173,7 @@ private:
     // group => blockNotifier callback
     std::unordered_map<std::string, BlockNotifierCallbacks> m_group2callbacks;
     // group => blockNumber
-    std::unordered_map<std::string, BlockNumberInfo::Ptr> m_group2BlockNumber;
+    std::unordered_map<std::string, int64_t> m_group2BlockNumber;
     // group => nodes
     std::unordered_map<std::string, std::set<std::string>> m_group2LatestBlockNumberNodes;
 };
