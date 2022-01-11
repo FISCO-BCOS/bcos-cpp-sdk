@@ -598,7 +598,7 @@ bool Service::getBlockLimit(const std::string& _group, int64_t& _blockLimit)
 {
     int64_t blockNumber = -1;
     auto r = getBlockNumber(_group, blockNumber);
-    _blockLimit = (blockNumber > 0 ? blockNumber + BLOCK_LIMIT_RANGE : blockNumber);
+    _blockLimit = (r ? blockNumber + BLOCK_LIMIT_RANGE : blockNumber);
     return r;
 }
 
