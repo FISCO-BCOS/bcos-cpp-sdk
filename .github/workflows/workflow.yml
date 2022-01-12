@@ -97,6 +97,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: docker.io/centos:7
+      volumes:
+        - /github/home/.hunter:/github/home/.hunter
     steps:
       - uses: actions/checkout@v2
         with:
@@ -109,7 +111,7 @@ jobs:
       - uses: actions/cache@v2
         id: cache
         with:
-          path:
+          path: |
             /home/runner/.hunter
             /github/home/.hunter
             /home/runner/.hunter/_Base/Download/
@@ -122,20 +124,18 @@ jobs:
             hunter-centos-v2-notest-${{ runner.temp }}-${{ github.base_ref }}-
             hunter-centos-v2-notest-${{ runner.temp }}-
       - name: install CentOS dependencies
-        run: 
+        run: |
           yum install -y epel-release centos-release-scl
           yum install -y git make gcc gcc-c++ glibc-static glibc-devel openssl cmake3 ccache devtoolset-7 libzstd-devel zlib-devel flex bison python-devel python3-devel
       - name: configure
-        run:
+        run: |
           source /opt/rh/devtoolset-7/enable
           mkdir -p build && cd build
           cmake3 .. -DBUILD_SAMPLE=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTESTS=ON
       - name: compile
-        run:
-          make -j4
+        run: cd build && make -j4
       - name: run test
-        run:
-          CTEST_OUTPUT_ON_FAILURE=TRUE make test
+        run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
   build_with_windows:
     name: build_with_windows
     runs-on: ${{ matrix.os }}
@@ -170,5 +170,4 @@ jobs:
         if: runner.os == 'Windows'
         run: mkdir -p build && cd build && cmake -G "Visual Studio 16 2019" -A x64 ../ -DHUNTER_CONFIGURATION_TYPES=Release -DHUNTER_STATUS_DEBUG=ON -DBUILD_SAMPLE=ON -DTESTS=ON
       - name: compile
-        run:
-          cd build && MSBuild bcos-cpp-sdk.sln /p:Configuration=Release /p:Platform=x64
+        run: cd build && MSBuild bcos-cpp-sdk.sln /p:Configuration=Release /p:Platform=x64
