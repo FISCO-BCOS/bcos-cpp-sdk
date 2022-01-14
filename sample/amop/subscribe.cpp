@@ -48,12 +48,17 @@ void usage()
 //------------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-    if (argc != 3)
+    if (argc < 3)
     {
         usage();
     }
 
     std::string config = argv[1];
+    std::set<std::string> topicList;
+    for (int i = 2; i < argc; i++)
+    {
+        topicList.insert(argv[i]);
+    }
     std::string topic = argv[2];
 
     std::cout << LOG_DESC(" [AMOP][Subscribe] params ===>>>> ") << LOG_KV("\n\t # config", config)
@@ -66,10 +71,9 @@ int main(int argc, char** argv)
     sdk->start();
 
     std::cout << LOG_DESC(" [AMOP][Subscribe] start sdk ... ") << std::endl;
-
-    sdk->amop()->subscribe(
-        topic, [&sdk](Error::Ptr _error, const std::string& _endPoint, const std::string& _seq,
-                   bytesConstRef _data, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
+    sdk->amop()->setSubCallback(
+        [&sdk](Error::Ptr _error, const std::string& _endPoint, const std::string& _seq,
+            bytesConstRef _data, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
             boost::ignore_unused(_session);
             if (_error)
             {
@@ -85,6 +89,7 @@ int main(int argc, char** argv)
                 sdk->amop()->sendResponse(_endPoint, _seq, _data);
             }
         });
+    sdk->amop()->subscribe(topicList);
 
     int i = 0;
     while (true)
