@@ -38,34 +38,28 @@ public:
     using ConstPtr = std::shared_ptr<const KeyPair>;
 
 public:
-    KeyPair() = default;
-    KeyPair(CryptoSuiteType _cryptoSuiteType) : m_cryptoSuiteType(_cryptoSuiteType) {}
+    KeyPair(CryptoSuiteType _cryptoSuiteType, bytesConstPtr _privateKey, bytesConstPtr _publicKey)
+      : m_cryptoSuiteType(_cryptoSuiteType), m_privateKey(_privateKey), m_publicKey(_publicKey)
+    {}
 
 private:
+    CryptoSuiteType m_cryptoSuiteType;
     bytesConstPtr m_privateKey;
     bytesConstPtr m_publicKey;
-    CryptoSuiteType m_cryptoSuiteType;
 
 public:
     CryptoSuiteType cryptoSuiteType() const { return m_cryptoSuiteType; }
-    void setCryptoSuiteType(CryptoSuiteType _cryptoSuiteType)
-    {
-        m_cryptoSuiteType = _cryptoSuiteType;
-    }
 
     bytesConstPtr publicKey() const { return m_publicKey; }
-    void setPublicKey(bytesConstPtr _publicKey) { m_publicKey = _publicKey; }
-
     bytesConstPtr privateKey() const { return m_privateKey; }
-    void setPrivateKey(bytesConstPtr _privateKey) { m_privateKey = _privateKey; }
+
+    std::string hexPrivateKey() const { return toHexStringWithPrefix(*m_privateKey); }
+    std::string hexPublicKey() const { return toHexStringWithPrefix(*m_publicKey); }
 
     Address address(HashInterface::Ptr _hash)
     {
         return right160(_hash->hash(bytesConstRef(m_publicKey->data(), m_publicKey->size())));
     }
-
-    std::string hexPrivateKey() const { return toHexStringWithPrefix(*m_privateKey); }
-    std::string hexPublicKey() const { return toHexStringWithPrefix(*m_publicKey); }
 };
 }  // namespace utilities
 }  // namespace cppsdk

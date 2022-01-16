@@ -55,11 +55,10 @@ public:
 public:
     virtual HashResult hash(bytesConstRef _data) = 0;
 
-    HashResult hash(const std::string& _data)
+    HashResult hash(const std::string& _hexData)
     {
-        // TODO: ???
-        // auto bytesData = fromHexString(_data);
-        return hash(bytesConstRef((byte*)_data.data(), _data.size()));
+        auto bytesData = fromHexString(_hexData);
+        return hash(bytesConstRef((byte*)bytesData->data(), bytesData->size()));
     }
 
 private:

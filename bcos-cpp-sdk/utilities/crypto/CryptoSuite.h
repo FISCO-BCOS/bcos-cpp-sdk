@@ -31,7 +31,6 @@
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
-#include <memory>
 
 namespace bcos
 {
@@ -76,12 +75,13 @@ private:
 public:
     CryptoSuiteType cryptoSuiteType() const { return m_cryptoSuiteType; }
     KeyPair::Ptr getKeyPair() const { return m_keyPair; }
+    SignatureInterface::Ptr getSign() const { return m_sign; }
 
     Address address() const { return m_keyPair->address(m_sign->getHash()); }
 
 public:
     HashResult hash(bytesConstRef _data) { return m_sign->getHash()->hash(_data); }
-    HashResult hash(const std::string& _data) { return m_sign->getHash()->hash(_data); }
+    HashResult hash(const std::string& _hexData) { return m_sign->getHash()->hash(_hexData); }
 
     bytesConstPtr sign(bytesConstRef _data) { return m_sign->sign(_data, m_keyPair); }
 };

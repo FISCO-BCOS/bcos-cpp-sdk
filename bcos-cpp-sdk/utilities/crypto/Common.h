@@ -26,4 +26,6 @@ enum class CryptoSuiteType : int
 };
 
 const static int PRIVATE_KEY_LEN = 32;
+const static int HEX_PRIVATE_KEY_LEN = PRIVATE_KEY_LEN * 2;
 const static int PUBLIC_KEY_LEN = 64;
+const static int HEX_PUBLIC_KEY_LEN = PUBLIC_KEY_LEN * 2;

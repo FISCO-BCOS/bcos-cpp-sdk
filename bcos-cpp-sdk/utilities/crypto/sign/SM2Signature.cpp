@@ -49,7 +49,8 @@ bytesPointer SM2Signature::sign(HashResult _hash, KeyPair::Ptr _keyPair)
     return sigData;
 }
 
-bool SM2Signature::verify(bytesConstPtr _publicKey, HashResult _hashResult, bytesPointer _signature)
+bool SM2Signature::verify(
+    bytesConstPtr _publicKey, HashResult _hashResult, bytesConstPtr _signature)
 {
     CInputBuffer pubInput{(char*)_publicKey->data(), _publicKey->size()};
     CInputBuffer hashInput{(const char*)_hashResult.data(), HashResult::size};

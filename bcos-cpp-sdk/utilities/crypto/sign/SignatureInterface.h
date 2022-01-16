@@ -60,7 +60,7 @@ public:
         return sign(hashResult, _keyPair);
     }
 
-    bool verify(bytesConstPtr _publicKey, bytesConstRef _data, bytesPointer _signature)
+    bool verify(bytesConstPtr _publicKey, bytesConstRef _data, bytesConstPtr _signature)
     {
         auto hashResult = m_hashPtr->hash(_data);
         return verify(_publicKey, hashResult, _signature);
@@ -69,7 +69,7 @@ public:
 public:
     virtual bytesPointer sign(HashResult _hashResult, KeyPair::Ptr _keyPair) = 0;
     virtual bool verify(
-        bytesConstPtr _publicKey, HashResult _hashResult, bytesPointer _signature) = 0;
+        bytesConstPtr _publicKey, HashResult _hashResult, bytesConstPtr _signature) = 0;
 
 private:
     HashInterface::Ptr m_hashPtr;

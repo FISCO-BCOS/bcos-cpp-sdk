@@ -43,7 +43,7 @@ public:
     virtual bytesPointer sign(HashResult _hash, KeyPair::Ptr _keyPair) override;
 
     virtual bool verify(
-        bytesConstPtr _publicKey, HashResult _hashResult, bytesPointer _signature) override;
+        bytesConstPtr _publicKey, HashResult _hashResult, bytesConstPtr _signature) override;
 };
 }  // namespace utilities
 }  // namespace cppsdk

@@ -49,7 +49,7 @@ bytesPointer ECDSASignature::sign(HashResult _hash, KeyPair::Ptr _keyPair)
 }
 
 bool ECDSASignature::verify(
-    bytesConstPtr _publicKey, HashResult _hashResult, bytesPointer _signature)
+    bytesConstPtr _publicKey, HashResult _hashResult, bytesConstPtr _signature)
 {
     CInputBuffer pubInput{(char*)_publicKey->data(), _publicKey->size()};
     CInputBuffer hashInput{(const char*)_hashResult.data(), HashResult::size};
