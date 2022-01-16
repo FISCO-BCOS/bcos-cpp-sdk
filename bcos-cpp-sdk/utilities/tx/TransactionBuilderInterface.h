@@ -18,6 +18,7 @@
  * @date 2022-01-13
  */
 #pragma once
+#include <bcos-cpp-sdk/utilities/crypto/KeyPair.h>
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-utilities/Common.h>
 
@@ -30,13 +31,19 @@ namespace utilities
 class TransactionBuilderInterface
 {
 public:
-    virtual bcostars::TransactionDataPtr createTransaction(const std::string& _to,
-        const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-        int64_t _blockLimit, const std::string& _nonce) = 0;
+    virtual ~TransactionBuilderInterface() {}
 
+public:
     virtual bcostars::TransactionDataPtr createTransaction(const std::string& _to,
         const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
         int64_t _blockLimit) = 0;
+
+    virtual bytesConstPtr encodeAndSign(
+        bcostars::TransactionDataConstPtr _transactionData, KeyPair::Ptr _keyPair) = 0;
+
+    virtual std::string createSignedTransaction(const std::string& _to, const bcos::bytes& _data,
+        const string& _chainID, const std::string& _groupID, int64_t _blockLimit,
+        KeyPair::Ptr _keyPair) = 0;
 };
 }  // namespace utilities
 }  // namespace cppsdk

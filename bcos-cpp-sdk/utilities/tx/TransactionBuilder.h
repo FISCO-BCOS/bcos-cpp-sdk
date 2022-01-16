@@ -32,20 +32,21 @@ class TransactionBuilder : public TransactionBuilderInterface
 {
 public:
     /**
-     * @brief Create a Transaction object
+     * @brief
      *
-     * @param _to
-     * @param _data
-     * @param _chainID
-     * @param _groupID
-     * @param _blockLimit
-     * @param _nonce
-     * @return bcostars::TransactionDataPtr
+     * @param _transactionData
+     * @return bytesConstPtr
      */
-    virtual bcostars::TransactionDataPtr createTransaction(const std::string& _to,
-        const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-        int64_t _blockLimit, const std::string& _nonce) override;
+    bytesConstPtr encodeTxData(bcostars::TransactionDataConstPtr _transactionData);
+    /**
+     * @brief
+     *
+     * @param _transaction
+     * @return bytesConstPtr
+     */
+    bytesConstPtr encodeTx(bcostars::TransactionConstPtr _transaction);
 
+public:
     /**
      * @brief Create a Transaction object
      *
@@ -59,6 +60,31 @@ public:
     virtual bcostars::TransactionDataPtr createTransaction(const std::string& _to,
         const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
         int64_t _blockLimit) override;
+
+    /**
+     * @brief
+     *
+     * @param _transactionData
+     * @param _keyPair
+     * @return bytesConstPtr
+     */
+    virtual bytesConstPtr encodeAndSign(
+        bcostars::TransactionDataConstPtr _transactionData, KeyPair::Ptr _keyPair) override;
+
+    /**
+     * @brief Create a Signed Transaction object
+     *
+     * @param _to
+     * @param _data
+     * @param _chainID
+     * @param _groupID
+     * @param _blockLimit
+     * @param _nonce
+     * @return std::string
+     */
+    virtual std::string createSignedTransaction(const std::string& _to, const bcos::bytes& _data,
+        const string& _chainID, const std::string& _groupID, int64_t _blockLimit,
+        KeyPair::Ptr _keyPair) override;
 };
 }  // namespace utilities
 }  // namespace cppsdk
