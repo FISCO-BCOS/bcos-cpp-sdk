@@ -36,10 +36,10 @@ HashResult SM3Hash::hash(bytesConstRef _data)
     int8_t retCode = wedpr_sm3_hash(&hashInput, &hashOutput);
     if (retCode != WEDPR_SUCCESS)
     {
-        // TODO: how to handle error, throw exception???
         BCOS_LOG(ERROR) << LOG_BADGE("SM3Hash") << LOG_DESC("wedpr_sm3_hash error")
                         << LOG_KV("data len", _data.size()) << LOG_KV("retCode", (int32_t)retCode);
-        return hashResult;
+        BOOST_THROW_EXCEPTION(
+            InvalidParameter() << errinfo_comment("SM3Hash::sign wedpr_sm3_hash error"));
     }
 
     // Note: Due to the return value optimize of the C++ compiler, there will be no additional copy

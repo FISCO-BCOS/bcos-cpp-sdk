@@ -53,11 +53,11 @@ KeyPair::Ptr KeyPairBuilder::genKeyPair(CryptoSuiteType _cryptoSuiteType)
     int8_t retCode = genKeyPairFunc(&publicKey, &privateKey);
     if (retCode != WEDPR_SUCCESS)
     {
-        // TODO: how to handle error, throw exception???
         BCOS_LOG(ERROR) << LOG_BADGE("genKeyPair") << LOG_DESC("generator key pair error")
                         << LOG_KV("cryptoSuiteType", (int)_cryptoSuiteType)
                         << LOG_KV("retCode", (int32_t)retCode);
-        return nullptr;
+        BOOST_THROW_EXCEPTION(InvalidParameter() << errinfo_comment(
+                                  "KeyPairBuilder::genKeyPair wedpr_xxx_gen_key_pair error"));
     }
 
     BCOS_LOG(DEBUG) << LOG_BADGE("genKeyPair") << LOG_DESC("generator key pair success")
@@ -88,11 +88,11 @@ KeyPair::Ptr KeyPairBuilder::genKeyPair(
     auto retCode = pubFunc(&privateKey, &publicKey);
     if (retCode != WEDPR_SUCCESS)
     {
-        // TODO: how to handle error, throw exception???
         BCOS_LOG(ERROR) << LOG_BADGE("genKeyPair") << LOG_DESC("gen key pair by private key error")
                         << LOG_KV("cryptoSuiteType", (int)_cryptoSuiteType)
                         << LOG_KV("retCode", (int32_t)retCode);
-        return nullptr;
+        BOOST_THROW_EXCEPTION(InvalidParameter() << errinfo_comment(
+                                  "KeyPairBuilder::genKeyPair wedpr_xx_derive_public_key error"));
     }
 
     auto keyPair = std::make_shared<KeyPair>(_cryptoSuiteType, _priKeyBytes, pubKeyBytes);

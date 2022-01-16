@@ -36,10 +36,10 @@ HashResult SHA3Hash::hash(bytesConstRef _data)
     int8_t retCode = wedpr_sha3_hash(&hashInput, &hashOutput);
     if (retCode != WEDPR_SUCCESS)
     {
-        // TODO: how to handle error, throw exception???
         BCOS_LOG(ERROR) << LOG_BADGE("SHA3Hash") << LOG_DESC("wedpr_sha3_hash error")
                         << LOG_KV("data len", _data.size()) << LOG_KV("retCode", (int32_t)retCode);
-        return hashResult;
+        BOOST_THROW_EXCEPTION(
+            InvalidParameter() << errinfo_comment("SHA3Hash::sign wedpr_sha3_hash error"));
     }
 
     // Note: Due to the return value optimize of the C++ compiler, there will be no additional copy

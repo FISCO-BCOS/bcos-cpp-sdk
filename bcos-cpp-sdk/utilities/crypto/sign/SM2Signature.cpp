@@ -38,10 +38,11 @@ bytesPointer SM2Signature::sign(HashResult _hash, KeyPair::Ptr _keyPair)
     auto retCode = wedpr_sm2_sign_fast(&priKeyInput, &pubKeyInput, &hashInput, &signOutput);
     if (retCode != WEDPR_SUCCESS)
     {
-        // TODO: how to handle error, throw exception???
         BCOS_LOG(ERROR) << LOG_BADGE("SM2Sign") << LOG_DESC("wedpr_sm2_sign_fast error")
                         << LOG_KV("hash", _hash.hex()) << LOG_KV("retCode", (int32_t)retCode);
-        return nullptr;
+
+        BOOST_THROW_EXCEPTION(
+            InvalidParameter() << errinfo_comment("SM2Signature::sign wedpr_sm2_sign_fast error"));
     }
 
     std::shared_ptr<bytes> sigData = std::make_shared<bytes>();

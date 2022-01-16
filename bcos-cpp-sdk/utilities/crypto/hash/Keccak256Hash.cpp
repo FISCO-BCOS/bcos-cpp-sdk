@@ -36,10 +36,10 @@ HashResult Keccak256Hash::hash(bytesConstRef _data)
     int8_t retCode = wedpr_keccak256_hash(&hashInput, &hashOutput);
     if (retCode != WEDPR_SUCCESS)
     {
-        // TODO: how to handle error, throw exception???
         BCOS_LOG(ERROR) << LOG_BADGE("KeccakHash") << LOG_DESC("wedpr_keccak256_hash error")
                         << LOG_KV("data len", _data.size()) << LOG_KV("retCode", (int32_t)retCode);
-        return hashResult;
+        BOOST_THROW_EXCEPTION(InvalidParameter()
+                              << errinfo_comment("Keccak256Hash::hash wedpr_keccak256_hash error"));
     }
 
     // Note: Due to the return value optimize of the C++ compiler, there will be no additional copy

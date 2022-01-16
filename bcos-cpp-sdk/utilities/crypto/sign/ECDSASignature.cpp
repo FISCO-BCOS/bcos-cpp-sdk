@@ -37,10 +37,10 @@ bytesPointer ECDSASignature::sign(HashResult _hash, KeyPair::Ptr _keyPair)
     auto retCode = wedpr_secp256k1_sign(&priKeyInput, &hashInput, &signOutput);
     if (retCode != WEDPR_SUCCESS)
     {
-        // TODO: how to handle error, throw exception???
         BCOS_LOG(ERROR) << LOG_BADGE("ECDSASign") << LOG_DESC("wedpr_secp256k1_sign error")
                         << LOG_KV("hash", _hash.hex()) << LOG_KV("retCode", (int32_t)retCode);
-        return nullptr;
+        BOOST_THROW_EXCEPTION(InvalidParameter() << errinfo_comment(
+                                  "ECDSASignature::sign wedpr_secp256k1_sign error"));
     }
 
     std::shared_ptr<bytes> sigData = std::make_shared<bytes>();
