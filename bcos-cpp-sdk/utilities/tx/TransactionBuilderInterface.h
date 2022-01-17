@@ -39,11 +39,11 @@ public:
         int64_t _blockLimit) = 0;
 
     virtual bytesConstPtr encodeAndSign(
-        bcostars::TransactionDataConstPtr _transactionData, KeyPair::Ptr _keyPair) = 0;
+        bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair) = 0;
 
     virtual std::string createSignedTransaction(const std::string& _to, const bcos::bytes& _data,
         const string& _chainID, const std::string& _groupID, int64_t _blockLimit,
-        KeyPair::Ptr _keyPair) = 0;
+        const KeyPair& _keyPair) = 0;
 };
 }  // namespace utilities
 }  // namespace cppsdk

@@ -113,7 +113,7 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransaction(const std::st
  * @return bytesConstPtr
  */
 bytesConstPtr TransactionBuilder::encodeAndSign(
-    bcostars::TransactionDataConstPtr _transactionData, KeyPair::Ptr _keyPair)
+    bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair)
 {
     auto cryptoSuite = std::make_shared<CryptoSuite>(_keyPair);
 
@@ -149,7 +149,7 @@ bytesConstPtr TransactionBuilder::encodeAndSign(
 
 std::string TransactionBuilder::createSignedTransaction(const std::string& _to,
     const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-    int64_t _blockLimit, KeyPair::Ptr _keyPair)
+    int64_t _blockLimit, const KeyPair& _keyPair)
 {
     auto transactionData = createTransaction(_to, _data, _chainID, _groupID, _blockLimit);
     auto encoded = encodeAndSign(transactionData, _keyPair);

@@ -69,7 +69,7 @@ public:
      * @return bytesConstPtr
      */
     virtual bytesConstPtr encodeAndSign(
-        bcostars::TransactionDataConstPtr _transactionData, KeyPair::Ptr _keyPair) override;
+        bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair) override;
 
     /**
      * @brief Create a Signed Transaction object
@@ -84,7 +84,7 @@ public:
      */
     virtual std::string createSignedTransaction(const std::string& _to, const bcos::bytes& _data,
         const string& _chainID, const std::string& _groupID, int64_t _blockLimit,
-        KeyPair::Ptr _keyPair) override;
+        const KeyPair& _keyPair) override;
 };
 }  // namespace utilities
 }  // namespace cppsdk
