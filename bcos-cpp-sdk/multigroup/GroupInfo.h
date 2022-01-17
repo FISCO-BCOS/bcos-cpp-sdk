@@ -50,6 +50,8 @@ public:
 
     std::string const& groupID() const { return m_groupID; }
     std::string const& chainID() const { return m_chainID; }
+    bool wasm() const { return m_wasm; }
+    bool smCryptoType() const { return m_smCryptoType; }
 
     virtual void setGenesisConfig(std::string const& _genesisConfig)
     {
@@ -96,6 +98,8 @@ public:
 
     virtual void setGroupID(std::string const& _groupID) { m_groupID = _groupID; }
     virtual void setChainID(std::string const& _chainID) { m_chainID = _chainID; }
+    virtual void setWasm(bool _wasm) { m_wasm = _wasm; }
+    virtual void setSmCryptoType(bool _smCryptoType) { m_smCryptoType = _smCryptoType; }
     virtual int64_t nodesNum() const
     {
         bcos::ReadGuard l(x_nodeInfos);
@@ -147,12 +151,20 @@ public:
                                       "The group information must contain nodeList"));
         }
 
+        bool isFirst = true;
         for (Json::ArrayIndex i = 0; i < root["nodeList"].size(); ++i)
         {
             auto& nodeInfo = root["nodeList"][i];
             Json::FastWriter writer;
             std::string nodeStr = writer.write(nodeInfo);
-            appendNodeInfo(m_chainNodeInfoFactory->createNodeInfo(nodeStr));
+            auto node = m_chainNodeInfoFactory->createNodeInfo(nodeStr);
+            appendNodeInfo(node);
+            if (isFirst)
+            {
+                setWasm(node->wasm());
+                setSmCryptoType(node->smCryptoType());
+                isFirst = false;
+            }
         }
     }
 
@@ -161,6 +173,8 @@ public:
         Json::Value jResp;
         jResp["chainID"] = chainID();
         jResp["groupID"] = groupID();
+        jResp["wasm"] = wasm();
+        jResp["smCryptoType"] = smCryptoType();
         jResp["genesisConfig"] = genesisConfig();
         jResp["iniConfig"] = iniConfig();
         jResp["nodeList"] = Json::Value(Json::arrayValue);
@@ -189,6 +203,9 @@ public:
 private:
     ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
 
+    bool m_wasm{false};
+    bool m_smCryptoType{false};
+
     std::string m_chainID;
     std::string m_groupID;
     // the genesis config for the group
@@ -208,6 +225,7 @@ inline std::string printGroupInfo(GroupInfo::Ptr _groupInfo)
     }
     std::stringstream oss;
     oss << LOG_KV("group", _groupInfo->groupID()) << LOG_KV("chain", _groupInfo->chainID())
+        << LOG_KV("wasm", _groupInfo->wasm()) << LOG_KV("smCryptoType", _groupInfo->smCryptoType())
         << LOG_KV("nodeSize", _groupInfo->nodesNum());
     return oss.str();
 }

@@ -57,8 +57,7 @@ public:
 
     HashResult hash(const std::string& _hexData)
     {
-        auto bytesData = fromHexString(_hexData);
-        return hash(bytesConstRef((byte*)bytesData->data(), bytesData->size()));
+        return hash(bytesConstRef((byte*)_hexData.data(), _hexData.size()));
     }
 
 private:
