@@ -13,11 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file Initializer.h
+ * @file Common.h
  * @author: octopus
- * @date 2021-10-28
+ * @date 2022-01-13
  */
-#include <bcos-cpp-sdk/LogInitializer.h>
+#pragma once
 
-std::once_flag bcos::cppsdk::LogInitializer::m_flag;
-bcos::BoostLogInitializer* bcos::cppsdk::LogInitializer::m_logInitializer;
+enum class CryptoSuiteType : int
+{
+    ECDSA_TYPE = 1,
+    SM_TYPE = 2
+};
+
+const static int PRIVATE_KEY_LEN = 32;
+const static int HEX_PRIVATE_KEY_LEN = PRIVATE_KEY_LEN * 2;
+const static int PUBLIC_KEY_LEN = 64;
+const static int HEX_PUBLIC_KEY_LEN = PUBLIC_KEY_LEN * 2;
