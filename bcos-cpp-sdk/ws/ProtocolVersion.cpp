@@ -64,7 +64,12 @@ bool ProtocolVersion::fromJson(const std::string& _json)
 
                     Json::FastWriter writer;
                     std::string str = writer.write(jGroupInfoList[i]);
+
                     groupInfo->deserialize(str);
+
+                    RPC_WS_LOG(INFO) << LOG_BADGE("fromJson") << LOG_DESC(" new group info")
+                                     << LOG_KV("groupInfo", printGroupInfo(groupInfo));
+
                     m_groupInfoList.push_back(groupInfo);
                 }
             }
