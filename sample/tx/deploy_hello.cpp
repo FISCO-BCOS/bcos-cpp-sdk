@@ -146,7 +146,7 @@ int main(int argc, char** argv)
     auto keyPairBuilder = std::make_shared<bcos::cppsdk::utilities::KeyPairBuilder>();
     auto keyPair =
         keyPairBuilder->genKeyPair(sm ? CryptoSuiteType::SM_TYPE : CryptoSuiteType::ECDSA_TYPE);
-    auto cryptoSuite = std::make_shared<bcos::cppsdk::utilities::CryptoSuite>(keyPair);
+    auto cryptoSuite = std::make_shared<bcos::cppsdk::utilities::CryptoSuite>(*keyPair);
 
     std::cout << LOG_DESC(" [DeployHello] new account ")
               << LOG_KV("address", cryptoSuite->address().hexPrefixed()) << std::endl;
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
 
     auto transactionBuilder = std::make_shared<bcos::cppsdk::utilities::TransactionBuilder>();
     auto signedTxData = transactionBuilder->createSignedTransaction(
-        "", *binBytes.get(), chainID, group, blockLimit, keyPair);
+        "", *binBytes.get(), chainID, group, blockLimit, *keyPair);
 
     std::cout << LOG_DESC(" [DeployHello] create signed transaction success, send data to node ")
               << std::endl;
