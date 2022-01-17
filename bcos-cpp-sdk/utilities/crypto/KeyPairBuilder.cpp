@@ -143,7 +143,7 @@ KeyPair::UniquePtr KeyPairBuilder::loadKeyPair(const std::string& _pemPath)
     {
         BOOST_THROW_EXCEPTION(
             InvalidParameter() << errinfo_comment(
-                "KeyPairBuilder::loadKeyPair read pem file error, pem: " + _pemPath));
+                "KeyPairBuilder::loadKeyPair the pem file not exist, pem path: " + _pemPath));
     }
 
     std::shared_ptr<BIO> bioMem(BIO_new(BIO_s_mem()), [&](BIO* p) { BIO_free(p); });
