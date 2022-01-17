@@ -33,12 +33,13 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <fstream>
 #include <memory>
+#include <utility>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::utilities;
 
-KeyPair::Ptr KeyPairBuilder::genKeyPair(CryptoSuiteType _cryptoSuiteType)
+KeyPair::UniquePtr KeyPairBuilder::genKeyPair(CryptoSuiteType _cryptoSuiteType)
 {
     auto pubKeyBytes = std::make_shared<bcos::bytes>(PUBLIC_KEY_LEN);
     auto priKeyBytes = std::make_shared<bcos::bytes>(PRIVATE_KEY_LEN);
@@ -64,7 +65,7 @@ KeyPair::Ptr KeyPairBuilder::genKeyPair(CryptoSuiteType _cryptoSuiteType)
                     << LOG_KV("pub len", publicKey.len) << LOG_KV("pri len", privateKey.len)
                     << LOG_KV("retCode", (int32_t)retCode);
 
-    auto keyPair = std::make_shared<KeyPair>(_cryptoSuiteType, priKeyBytes, pubKeyBytes);
+    auto keyPair = std::make_unique<KeyPair>(_cryptoSuiteType, priKeyBytes, pubKeyBytes);
 
     BCOS_LOG(INFO) << LOG_BADGE("genKeyPair") << LOG_DESC("generator key pair success")
                    << LOG_KV("cryptoSuiteType", (int)_cryptoSuiteType)
@@ -74,7 +75,7 @@ KeyPair::Ptr KeyPairBuilder::genKeyPair(CryptoSuiteType _cryptoSuiteType)
     return keyPair;
 }
 
-KeyPair::Ptr KeyPairBuilder::genKeyPair(
+KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
     CryptoSuiteType _cryptoSuiteType, bytesConstPtr _priKeyBytes)
 {
     int8_t (*pubFunc)(const CInputBuffer*, COutputBuffer*) =
@@ -95,11 +96,10 @@ KeyPair::Ptr KeyPairBuilder::genKeyPair(
                                   "KeyPairBuilder::genKeyPair wedpr_xx_derive_public_key error"));
     }
 
-    auto keyPair = std::make_shared<KeyPair>(_cryptoSuiteType, _priKeyBytes, pubKeyBytes);
+    auto keyPair = std::make_unique<KeyPair>(_cryptoSuiteType, _priKeyBytes, pubKeyBytes);
 
     BCOS_LOG(INFO) << LOG_BADGE("genKeyPair") << LOG_DESC("gen key pair by private key")
                    << LOG_KV("cryptoSuiteType", (int)keyPair->cryptoSuiteType())
-                   // << LOG_KV("pri", keyPair->hexPrivateKey())
                    << LOG_KV("pub", keyPair->hexPrivateKey());
 
     return keyPair;
@@ -110,7 +110,7 @@ void KeyPairBuilder::storeKeyPair(KeyPair::Ptr _keyPair, const std::string& _key
     std::string path = _keyPairPath;
     if (path.empty())
     {
-        auto cryptoSuite = std::make_shared<CryptoSuite>(_keyPair);
+        auto cryptoSuite = std::make_shared<CryptoSuite>(*_keyPair);
         path = cryptoSuite->address().hexPrefixed() + ".account";
     }
 
@@ -133,7 +133,7 @@ void KeyPairBuilder::storeKeyPair(KeyPair::Ptr _keyPair, const std::string& _key
                    << LOG_KV("result", result) << LOG_KV("_keyPairPath", _keyPairPath);
 }
 
-KeyPair::Ptr KeyPairBuilder::loadKeyPair(const std::string& _pemPath)
+KeyPair::UniquePtr KeyPairBuilder::loadKeyPair(const std::string& _pemPath)
 {
     BCOS_LOG(DEBUG) << LOG_BADGE("KeyPairBuilder::loadKeyPair") << LOG_DESC("read pem content")
                     << LOG_KV("pemPath", _pemPath);
@@ -206,9 +206,9 @@ KeyPair::Ptr KeyPairBuilder::loadKeyPair(const std::string& _pemPath)
     auto cryptoSuiteType =
         boost::equals("secp256k1", cname) ? CryptoSuiteType::ECDSA_TYPE : CryptoSuiteType::SM_TYPE;
 
-    auto keyPairBuilder = std::make_shared<KeyPairBuilder>();
+    auto keyPairBuilder = std::make_unique<KeyPairBuilder>();
     auto keyPair = keyPairBuilder->genKeyPair(cryptoSuiteType, priKeyBytes);
-    auto cryptoSuite = std::make_shared<CryptoSuite>(keyPair);
+    auto cryptoSuite = std::make_shared<CryptoSuite>(*keyPair);
 
     BCOS_LOG(INFO) << LOG_BADGE("KeyPairBuilder") << LOG_DESC("loadKeyPair success")
                    << LOG_KV("pemPath", _pemPath) << LOG_KV("cname", cname)

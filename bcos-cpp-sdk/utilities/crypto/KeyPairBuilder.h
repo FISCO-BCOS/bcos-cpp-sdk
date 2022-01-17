@@ -35,10 +35,10 @@ public:
     using ConstPtr = std::shared_ptr<const KeyPairBuilder>;
 
 public:
-    KeyPair::Ptr genKeyPair(CryptoSuiteType _cryptoSuiteType);
-    KeyPair::Ptr genKeyPair(CryptoSuiteType _cryptoSuiteType, bytesConstPtr _privateKey);
+    KeyPair::UniquePtr genKeyPair(CryptoSuiteType _cryptoSuiteType);
+    KeyPair::UniquePtr genKeyPair(CryptoSuiteType _cryptoSuiteType, bytesConstPtr _privateKey);
 
-    KeyPair::Ptr loadKeyPair(const std::string& _pemPath);
+    KeyPair::UniquePtr loadKeyPair(const std::string& _pemPath);
     void storeKeyPair(KeyPair::Ptr _keyPair, const std::string& _keyPairPath = "");
 };
 }  // namespace utilities

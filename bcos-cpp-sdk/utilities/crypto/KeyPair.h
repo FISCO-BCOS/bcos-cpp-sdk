@@ -24,6 +24,7 @@
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
+#include <memory>
 
 namespace bcos
 {
@@ -36,6 +37,7 @@ class KeyPair
 public:
     using Ptr = std::shared_ptr<KeyPair>;
     using ConstPtr = std::shared_ptr<const KeyPair>;
+    using UniquePtr = std::unique_ptr<KeyPair>;
 
 public:
     KeyPair(CryptoSuiteType _cryptoSuiteType, bytesConstPtr _privateKey, bytesConstPtr _publicKey)
@@ -49,14 +51,22 @@ private:
 
 public:
     CryptoSuiteType cryptoSuiteType() const { return m_cryptoSuiteType; }
+    /*
+    void setCryptoSuiteType(CryptoSuiteType _cryptoSuiteType)
+    {
+        m_cryptoSuiteType = _cryptoSuiteType;
+    }
+    */
 
     bytesConstPtr publicKey() const { return m_publicKey; }
+    // void setPublicKey(bytesConstPtr _publicKey) { m_publicKey = _publicKey; }
     bytesConstPtr privateKey() const { return m_privateKey; }
+    // void setPrivateKey(bytesConstPtr _privateKey) { m_privateKey = _privateKey; }
 
     std::string hexPrivateKey() const { return toHexStringWithPrefix(*m_privateKey); }
     std::string hexPublicKey() const { return toHexStringWithPrefix(*m_publicKey); }
 
-    Address address(HashInterface::Ptr _hash)
+    Address address(HashInterface::Ptr _hash) const
     {
         return right160(_hash->hash(bytesConstRef(m_publicKey->data(), m_publicKey->size())));
     }

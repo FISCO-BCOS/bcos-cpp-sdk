@@ -31,6 +31,7 @@
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
+#include <memory>
 
 namespace bcos
 {
@@ -45,18 +46,20 @@ public:
     using ConstPtr = std::shared_ptr<const CryptoSuite>;
 
 public:
+    CryptoSuite(const KeyPair& _keyPair)
+      : m_keyPair(std::make_shared<KeyPair>(
+            _keyPair.cryptoSuiteType(), _keyPair.privateKey(), _keyPair.publicKey())),
+        m_cryptoSuiteType(_keyPair.cryptoSuiteType())
+    {
+        initialize(_keyPair.cryptoSuiteType());
+    }
+
     CryptoSuite(CryptoSuiteType _cryptoSuiteType) : m_cryptoSuiteType(_cryptoSuiteType)
     {
         auto keyPairBuilder = std::make_shared<KeyPairBuilder>();
 
         m_keyPair = keyPairBuilder->genKeyPair(_cryptoSuiteType);
         initialize(_cryptoSuiteType);
-    }
-
-    CryptoSuite(KeyPair::Ptr _keyPair)
-      : m_keyPair(_keyPair), m_cryptoSuiteType(_keyPair->cryptoSuiteType())
-    {
-        initialize(_keyPair->cryptoSuiteType());
     }
 
 private:
@@ -81,7 +84,7 @@ public:
 
 public:
     HashResult hash(bytesConstRef _data) { return m_sign->getHash()->hash(_data); }
-    HashResult hash(const std::string& _hexData) { return m_sign->getHash()->hash(_hexData); }
+    HashResult hash(const std::string& _hexData) const { return m_sign->getHash()->hash(_hexData); }
 
     bytesConstPtr sign(bytesConstRef _data) { return m_sign->sign(_data, m_keyPair); }
 };
