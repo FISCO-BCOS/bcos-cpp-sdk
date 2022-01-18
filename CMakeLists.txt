@@ -56,8 +56,8 @@ hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
 
 # TarsCpp
-hunter_add_package(tarscpp)
-find_package(tarscpp CONFIG REQUIRED)
+# hunter_add_package(tarscpp)
+# find_package(tarscpp CONFIG REQUIRED)
 
 # TASSL
 hunter_add_package(OpenSSL)

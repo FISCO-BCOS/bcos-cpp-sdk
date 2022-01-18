@@ -4,4 +4,5 @@ file(GLOB SRC_LIST "*.cpp")
 file(GLOB HEADERS "*.h")
 
 add_executable(eventsub eventsub.cpp)
+target_compile_options(eventsub PRIVATE -Wno-error -Wno-unused-variable)
 target_link_libraries(eventsub PUBLIC ${BCOS_CPP_SDK_TARGET} bcos-boostssl::bcos-boostssl bcos-utilities::bcos-utilities jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
