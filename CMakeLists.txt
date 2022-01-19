@@ -68,12 +68,14 @@ hunter_add_package(wedpr-crypto)
 find_package(wedpr-crypto CONFIG REQUIRED)
 
 # bcos-utilities
-hunter_add_package(bcos-utilities)
-find_package(bcos-utilities CONFIG REQUIRED)
+include(InstallBcosUtilities)
 
 # bcos-boostssl
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
+
+# bcos-crypto
+include(InstallBcosCrypto)
 
 # basic settings
 include(Options)
@@ -86,8 +88,6 @@ include(InstallInclude)
 include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-# install dependencies
-# include(InstallBcosFrameworkDependencies)
 
 set(BCOS_CPP_SDK_TARGET "bcos-cpp-sdk")
 
