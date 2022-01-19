@@ -6,8 +6,9 @@
 #ifndef __TRANSACTION_H_
 #define __TRANSACTION_H_
 
-#include "tup/Tars.h"
-#include "tup/TarsJson.h"
+#include <bcos-cpp-sdk/utilities/tx/tars/tup/Tars.h>
+#include <bcos-cpp-sdk/utilities/tx/tars/tup/TarsJson.h>
+
 #include <map>
 #include <string>
 #include <vector>
