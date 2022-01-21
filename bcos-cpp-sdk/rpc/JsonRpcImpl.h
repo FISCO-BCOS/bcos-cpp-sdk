@@ -21,6 +21,7 @@
 #pragma once
 #include <bcos-cpp-sdk/rpc/JsonRpcInterface.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcRequest.h>
+#include <bcos-cpp-sdk/utilities/crypto/CryptoSuite.h>
 #include <bcos-cpp-sdk/ws/Service.h>
 #include <functional>
 
@@ -39,7 +40,9 @@ public:
     using Ptr = std::shared_ptr<JsonRpcImpl>;
     using UniquePtr = std::unique_ptr<JsonRpcImpl>;
 
+public:
     JsonRpcImpl() = default;
+
     virtual ~JsonRpcImpl() { stop(); }
 
 public:
@@ -60,7 +63,7 @@ public:
     virtual void call(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _to, const std::string& _data, RespFunc _respFunc) override;
 
-    virtual void sendTransaction(const std::string& _groupID, const std::string& _nodeName,
+    virtual std::string sendTransaction(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _data, bool _requireProof, RespFunc _respFunc) override;
 
     virtual void getTransaction(const std::string& _groupID, const std::string& _nodeName,
@@ -78,9 +81,6 @@ public:
 
     virtual void getBlockHashByNumber(const std::string& _groupID, const std::string& _nodeName,
         int64_t _blockNumber, RespFunc _respFunc) override;
-
-    // async call
-    virtual int64_t getBlockLimit(const std::string& _groupID) override;
 
     virtual void getBlockNumber(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
@@ -112,7 +112,8 @@ public:
     virtual void getTotalTransactionCount(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
 
-    void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) override;
+    virtual void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) override;
+
     virtual void getPeers(RespFunc _respFunc) override;
 
     virtual void getGroupList(RespFunc _respFunc) override;
@@ -138,7 +139,20 @@ public:
         m_service = _service;
     }
 
+    bcos::cppsdk::utilities::CryptoSuite::ConstPtr cryptoSuite(bool _smCrypto) const
+    {
+        return _smCrypto ? m_smCryptoSuite : m_cryptoSuite;
+    }
+
 private:
+    bcos::cppsdk::utilities::CryptoSuite::ConstPtr m_cryptoSuite =
+        std::make_shared<bcos::cppsdk::utilities::CryptoSuite>(
+            bcos::cppsdk::utilities::CryptoSuiteType::ECDSA_TYPE);
+
+    bcos::cppsdk::utilities::CryptoSuite::ConstPtr m_smCryptoSuite =
+        std::make_shared<bcos::cppsdk::utilities::CryptoSuite>(
+            bcos::cppsdk::utilities::CryptoSuiteType::SM_TYPE);
+
     std::shared_ptr<bcos::cppsdk::service::Service> m_service;
     JsonRpcRequestFactory::Ptr m_factory;
     std::function<void(const std::string& _group, const std::string& _node,

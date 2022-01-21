@@ -594,12 +594,15 @@ bool Service::getBlockNumber(const std::string& _group, int64_t& _blockNumber)
     return true;
 }
 
-bool Service::getBlockLimit(const std::string& _group, int64_t& _blockLimit)
+int64_t Service::getBlockLimit(const std::string& _groupID)
 {
     int64_t blockNumber = -1;
-    auto r = getBlockNumber(_group, blockNumber);
-    _blockLimit = (r ? blockNumber + BLOCK_LIMIT_RANGE : blockNumber);
-    return r;
+    auto r = getBlockNumber(_groupID, blockNumber);
+    if (r)
+    {
+        return blockNumber + BLOCK_LIMIT_RANGE;
+    }
+    return -1;
 }
 
 std::pair<bool, bool> Service::updateGroupBlockNumber(

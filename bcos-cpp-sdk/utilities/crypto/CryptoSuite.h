@@ -83,7 +83,7 @@ public:
     Address address() const { return m_keyPair->address(m_sign->getHash()); }
 
 public:
-    HashResult hash(bytesConstRef _data) { return m_sign->getHash()->hash(_data); }
+    HashResult hash(bytesConstRef _data) const { return m_sign->getHash()->hash(_data); }
     HashResult hash(const std::string& _hexData) const { return m_sign->getHash()->hash(_hexData); }
 
     bytesConstPtr sign(bytesConstRef _data) { return m_sign->sign(_data, m_keyPair); }
