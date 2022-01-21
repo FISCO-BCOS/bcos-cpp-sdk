@@ -19,11 +19,20 @@
  */
 #pragma once
 
+namespace bcos
+{
+namespace cppsdk
+{
+namespace utilities
+{
 enum class CryptoSuiteType : int
 {
     ECDSA_TYPE = 1,
     SM_TYPE = 2
 };
+}  // namespace utilities
+}  // namespace cppsdk
+}  // namespace bcos
 
 const static int PRIVATE_KEY_LEN = 32;
 const static int HEX_PRIVATE_KEY_LEN = PRIVATE_KEY_LEN * 2;
