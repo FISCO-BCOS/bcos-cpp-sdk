@@ -169,7 +169,8 @@ int main(int argc, char** argv)
     std::cout << LOG_DESC(" [DeployHello] new account ")
               << LOG_KV("address", cryptoSuite->address().hexPrefixed()) << std::endl;
 
-    auto blockLimit = sdk->service()->getBlockLimit(group);
+    int64_t blockLimit = -1;
+    sdk->service()->getBlockLimit(group, blockLimit);
 
     std::cout << LOG_DESC(" [DeployHello] block limit ") << LOG_KV("blockLimit", blockLimit)
               << std::endl;
