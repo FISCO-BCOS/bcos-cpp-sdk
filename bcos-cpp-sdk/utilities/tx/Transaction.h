@@ -14,13 +14,14 @@
 #include <vector>
 using namespace std;
 
+
 namespace bcostars
 {
 struct TransactionData : public tars::TarsStructBase
 {
 public:
     static string className() { return "bcostars.TransactionData"; }
-    static string MD5() { return "fea37f20c05ffd49b693f78abbec0851"; }
+    static string MD5() { return "ea41d47be6b852a5c3edcfe7a805be85"; }
     TransactionData() { resetDefautlt(); }
     void resetDefautlt()
     {
@@ -31,6 +32,7 @@ public:
         nonce = "";
         to = "";
         input.clear();
+        abi = "";
     }
     template <typename WriterT>
     void writeTo(tars::TarsOutputStream<WriterT>& _os) const
@@ -45,6 +47,10 @@ public:
             _os.write(to, 6);
         }
         _os.write(input, 7);
+        if (abi != "")
+        {
+            _os.write(abi, 8);
+        }
     }
     template <typename ReaderT>
     void readFrom(tars::TarsInputStream<ReaderT>& _is)
@@ -57,6 +63,7 @@ public:
         _is.read(nonce, 5, true);
         _is.read(to, 6, false);
         _is.read(input, 7, true);
+        _is.read(abi, 8, false);
     }
     tars::JsonValueObjPtr writeToJson() const
     {
@@ -68,12 +75,12 @@ public:
         p->value["nonce"] = tars::JsonOutput::writeJson(nonce);
         p->value["to"] = tars::JsonOutput::writeJson(to);
         p->value["input"] = tars::JsonOutput::writeJson(input);
+        p->value["abi"] = tars::JsonOutput::writeJson(abi);
         return p;
     }
     string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
-        std::ignore = isRequire;
         resetDefautlt();
         if (NULL == p.get() || p->getType() != tars::eJsonTypeObj)
         {
@@ -90,6 +97,7 @@ public:
         tars::JsonInput::readJson(nonce, pObj->value["nonce"], true);
         tars::JsonInput::readJson(to, pObj->value["to"], false);
         tars::JsonInput::readJson(input, pObj->value["input"], true);
+        tars::JsonInput::readJson(abi, pObj->value["abi"], false);
     }
     void readFromJsonString(const string& str) { readFromJson(tars::TC_Json::getValue(str)); }
     ostream& display(ostream& _os, int _level = 0) const
@@ -102,6 +110,7 @@ public:
         _ds.display(nonce, "nonce");
         _ds.display(to, "to");
         _ds.display(input, "input");
+        _ds.display(abi, "abi");
         return _os;
     }
     ostream& displaySimple(ostream& _os, int _level = 0) const
@@ -113,7 +122,8 @@ public:
         _ds.displaySimple(blockLimit, true);
         _ds.displaySimple(nonce, true);
         _ds.displaySimple(to, true);
-        _ds.displaySimple(input, false);
+        _ds.displaySimple(input, true);
+        _ds.displaySimple(abi, false);
         return _os;
     }
 
@@ -125,11 +135,13 @@ public:
     std::string nonce;
     std::string to;
     vector<tars::Char> input;
+    std::string abi;
 };
 inline bool operator==(const TransactionData& l, const TransactionData& r)
 {
     return l.version == r.version && l.chainID == r.chainID && l.groupID == r.groupID &&
-           l.blockLimit == r.blockLimit && l.nonce == r.nonce && l.to == r.to && l.input == r.input;
+           l.blockLimit == r.blockLimit && l.nonce == r.nonce && l.to == r.to &&
+           l.input == r.input && l.abi == r.abi;
 }
 inline bool operator!=(const TransactionData& l, const TransactionData& r)
 {
@@ -220,7 +232,6 @@ public:
     string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
-        std::ignore = isRequire;
         resetDefautlt();
         if (NULL == p.get() || p->getType() != tars::eJsonTypeObj)
         {
