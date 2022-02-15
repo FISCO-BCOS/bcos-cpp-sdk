@@ -34,32 +34,66 @@ public:
     virtual ~TransactionBuilderInterface() {}
 
 public:
-    bcostars::TransactionDataPtr createTransaction(const std::string& _to, const std::string& _data,
-        const string& _chainID, const std::string& _groupID, int64_t _blockLimit)
-    {
-        auto bytesData = fromHexString(_data);
-        return createTransaction(_to, *bytesData, _chainID, _groupID, _blockLimit);
-    }
+    /**
+     * @brief Create a Transaction Data object
+     *
+     * @param _groupID
+     * @param _chainID
+     * @param _to
+     * @param _data
+     * @param _abi
+     * @param _blockLimit
+     * @return bcostars::TransactionDataPtr
+     */
+    virtual bcostars::TransactionDataPtr createTransactionData(const std::string& _groupID,
+        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _abi, int64_t _blockLimit) = 0;
 
-    std::pair<std::string, std::string> createSignedTransaction(const std::string& _to,
-        const std::string& _data, const string& _chainID, const std::string& _groupID,
-        int64_t _blockLimit, const KeyPair& _keyPair)
-    {
-        auto bytesData = fromHexString(_data);
-        return createSignedTransaction(_to, *bytesData, _chainID, _groupID, _blockLimit, _keyPair);
-    }
+    /**
+     * @brief encode transaction and sign
+     *
+     * @param _transactionData
+     * @param _attribute
+     * @param _keyPair
+     * @return std::pair<std::string, std::string>
+     */
+    virtual std::pair<std::string, std::string> encodeAndSign(
+        bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute,
+        const KeyPair& _keyPair) = 0;
 
 public:
-    virtual bcostars::TransactionDataPtr createTransaction(const std::string& _to,
-        const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-        int64_t _blockLimit) = 0;
+    /**
+     * @brief Create a Signed Transaction object
+     *
+     * @param _keyPair
+     * @param _groupID
+     * @param _chainID
+     * @param _to
+     * @param _data
+     * @param _blockLimit
+     * @param _attribute
+     * @return std::pair<std::string, std::string>
+     */
+    virtual std::pair<std::string, std::string> createSignedTransaction(const KeyPair& _keyPair,
+        const std::string& _groupID, const string& _chainID, const std::string& _to,
+        const bcos::bytes& _data, int64_t _blockLimit, int32_t _attribute) = 0;
 
-    virtual std::pair<std::string, std::string> encodeAndSign(
-        bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair) = 0;
-
-    virtual std::pair<std::string, std::string> createSignedTransaction(const std::string& _to,
-        const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-        int64_t _blockLimit, const KeyPair& _keyPair) = 0;
+    /**
+     * @brief Create a Deploy Contract Transaction object
+     *
+     * @param _keyPair
+     * @param _groupID
+     * @param _chainID
+     * @param _data
+     * @param _abi
+     * @param _blockLimit
+     * @param _attribute
+     * @return std::pair<std::string, std::string>
+     */
+    virtual std::pair<std::string, std::string> createDeployContractTransaction(
+        const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
+        const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit,
+        int32_t _attribute) = 0;
 };
 }  // namespace utilities
 }  // namespace cppsdk

@@ -178,8 +178,8 @@ int main(int argc, char** argv)
     auto binBytes = fromHexString(hexBin);
 
     auto transactionBuilder = std::make_shared<bcos::cppsdk::utilities::TransactionBuilder>();
-    auto r = transactionBuilder->createSignedTransaction(
-        "", *binBytes.get(), groupInfo->chainID(), group, blockLimit, *keyPair);
+    auto r = transactionBuilder->createDeployContractTransaction(
+        *keyPair, group, groupInfo->chainID(), *binBytes.get(), "", blockLimit, 0);
 
     std::cout << LOG_DESC(" [DeployHello] create signed transaction success")
               << LOG_KV("tx hash", r.first) << std::endl;
