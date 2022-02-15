@@ -91,7 +91,6 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
 
     initializer->setConfig(_config);
     initializer->initWsService(service);
-    service->setWaitConnectFinish(true);
     service->setGroupInfoFactory(groupInfoFactory);
     service->setChainNodeInfoFactory(chainNodeInfoFactory);
 
