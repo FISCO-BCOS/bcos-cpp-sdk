@@ -22,7 +22,10 @@
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-utilities/Common.h>
+#include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
+#include <string>
+#include <utility>
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::utilities;
@@ -33,7 +36,8 @@ using namespace bcos::cppsdk::utilities;
  * @param _transactionData
  * @return bytesConstPtr
  */
-bytesConstPtr TransactionBuilder::encodeTxData(bcostars::TransactionDataConstPtr _transactionData)
+bytesConstPtr TransactionBuilder::encodeTransactionData(
+    bcostars::TransactionDataConstPtr _transactionData)
 {
     tars::TarsOutputStream<tars::BufferWriter> output;
     _transactionData->writeTo(output);
@@ -49,7 +53,7 @@ bytesConstPtr TransactionBuilder::encodeTxData(bcostars::TransactionDataConstPtr
  * @param _transactionData
  * @return bytesConstPtr
  */
-bytesConstPtr TransactionBuilder::encodeTx(bcostars::TransactionConstPtr _transaction)
+bytesConstPtr TransactionBuilder::encodeTransaction(bcostars::TransactionConstPtr _transaction)
 {
     tars::TarsOutputStream<tars::BufferWriter> output;
     _transaction->writeTo(output);
@@ -62,16 +66,17 @@ bytesConstPtr TransactionBuilder::encodeTx(bcostars::TransactionConstPtr _transa
 /**
  * @brief
  *
+ * @param _groupID
+ * @param _chainID
  * @param _to
  * @param _data
- * @param _chainID
- * @param _groupID
+ * @param _abi
  * @param _blockLimit
  * @return bcostars::TransactionDataPtr
  */
-bcostars::TransactionDataPtr TransactionBuilder::createTransaction(const std::string& _to,
-    const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-    int64_t _blockLimit)
+bcostars::TransactionDataPtr TransactionBuilder::createTransactionData(const std::string& _groupID,
+    const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+    const std::string& _abi, int64_t _blockLimit)
 {
     auto fixBytes256 = FixedBytes<256>().generateRandomFixedBytes();
 
@@ -81,13 +86,14 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransaction(const std::st
     _transactionData->groupID = _groupID;
     _transactionData->blockLimit = _blockLimit;
     _transactionData->nonce = u256(fixBytes256.hexPrefixed()).str(10);
+    _transactionData->abi = _abi;
 
-    BCOS_LOG(INFO) << LOG_BADGE("TransactionBuilder::createTransaction")
-                   << LOG_KV("hex", fixBytes256.hexPrefixed())
-                   << LOG_KV("nonce", _transactionData->nonce);
+    BCOS_LOG(TRACE) << LOG_BADGE("TransactionBuilder::createTransaction")
+                    << LOG_KV("hex", fixBytes256.hexPrefixed())
+                    << LOG_KV("nonce", _transactionData->nonce);
 
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
-    // trim 0x prefix
+    // TODO: trim 0x prefix ???
     _transactionData->to =
         (_to.compare(0, 2, "0x") == 0 || _to.compare(0, 2, "0X") == 0) ? _to.substr(2) : _to;
 
@@ -95,20 +101,22 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransaction(const std::st
 }
 
 /**
- * @brief
+ * @brief encode transaction and sign
  *
  * @param _transactionData
+ * @param _attribute
  * @param _keyPair
- * @return bytesConstPtr
+ * @return std::pair<std::string, std::string>
  */
-bytesConstPtr TransactionBuilder::encodeAndSign(
-    bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair)
+std::pair<std::string, std::string> TransactionBuilder::encodeAndSign(
+    bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute, const KeyPair& _keyPair)
 {
     auto cryptoSuite = std::make_shared<CryptoSuite>(_keyPair);
 
     // hash and sign transaction data
-    auto encoded = encodeTxData(_transactionData);
-    auto encodedHash = cryptoSuite->hash(bytesConstRef(encoded->data(), encoded->size()));
+    auto encodedTxData = encodeTransactionData(_transactionData);
+    auto encodedHash =
+        cryptoSuite->hash(bytesConstRef(encodedTxData->data(), encodedTxData->size()));
     auto signData = cryptoSuite->sign(encodedHash.ref());
 
     auto transaction = std::make_shared<bcostars::Transaction>();
@@ -118,29 +126,50 @@ bytesConstPtr TransactionBuilder::encodeAndSign(
     transaction->signature.insert(
         transaction->signature.begin(), signData->begin(), signData->end());
     transaction->importTime = 0;
-    // TODO: add attribute value
-    transaction->attribute = 0;
+    transaction->attribute = _attribute;
 
-    return encodeTx(transaction);
+    auto encoded = encodeTransaction(transaction);
+
+    return std::make_pair<std::string, std::string>(
+        toHexStringWithPrefix(encodedHash), toHexStringWithPrefix(*encoded));
 }
 
 /**
- * @brief Create a Signed Transaction object
+ * @brief
  *
+ * @param _keyPair
+ * @param _groupID
+ * @param _chainID
  * @param _to
  * @param _data
- * @param _chainID
- * @param _groupID
  * @param _blockLimit
- * @param _nonce
- * @return std::string
+ * @param _attribute
+ * @return std::pair<std::string, std::string>
  */
-
-std::string TransactionBuilder::createSignedTransaction(const std::string& _to,
-    const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-    int64_t _blockLimit, const KeyPair& _keyPair)
+std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
+    const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
+    const std::string& _to, const bcos::bytes& _data, int64_t _blockLimit, int32_t _attribute)
 {
-    auto transactionData = createTransaction(_to, _data, _chainID, _groupID, _blockLimit);
-    auto encoded = encodeAndSign(transactionData, _keyPair);
-    return toHexStringWithPrefix(*encoded);
+    auto transactionData = createTransactionData(_groupID, _chainID, _to, _data, "", _blockLimit);
+    return encodeAndSign(transactionData, _attribute, _keyPair);
+}
+
+/**
+ * @brief
+ *
+ * @param _keyPair
+ * @param _groupID
+ * @param _chainID
+ * @param _data
+ * @param _abi
+ * @param _blockLimit
+ * @param _attribute
+ * @return std::pair<std::string, std::string>
+ */
+std::pair<std::string, std::string> TransactionBuilder::createDeployContractTransaction(
+    const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
+    const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit, int32_t _attribute)
+{
+    auto transactionData = createTransactionData(_groupID, _chainID, "", _data, _abi, _blockLimit);
+    return encodeAndSign(transactionData, _attribute, _keyPair);
 }

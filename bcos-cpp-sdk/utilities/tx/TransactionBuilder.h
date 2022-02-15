@@ -37,54 +37,75 @@ public:
      * @param _transactionData
      * @return bytesConstPtr
      */
-    bytesConstPtr encodeTxData(bcostars::TransactionDataConstPtr _transactionData);
+    bytesConstPtr encodeTransactionData(bcostars::TransactionDataConstPtr _transactionData);
     /**
      * @brief
      *
      * @param _transaction
      * @return bytesConstPtr
      */
-    bytesConstPtr encodeTx(bcostars::TransactionConstPtr _transaction);
+    bytesConstPtr encodeTransaction(bcostars::TransactionConstPtr _transaction);
 
 public:
     /**
-     * @brief Create a Transaction object
+     * @brief Create a Transaction Data object
      *
+     * @param _groupID
+     * @param _chainID
      * @param _to
      * @param _data
-     * @param _chainID
-     * @param _groupID
+     * @param _abi
      * @param _blockLimit
      * @return bcostars::TransactionDataPtr
      */
-    virtual bcostars::TransactionDataPtr createTransaction(const std::string& _to,
-        const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-        int64_t _blockLimit) override;
+    virtual bcostars::TransactionDataPtr createTransactionData(const std::string& _groupID,
+        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _abi, int64_t _blockLimit) override;
 
     /**
-     * @brief
+     * @brief encode transaction and sign
      *
      * @param _transactionData
+     * @param _attribute
      * @param _keyPair
-     * @return bytesConstPtr
+     * @return std::pair<std::string, std::string>
      */
-    virtual bytesConstPtr encodeAndSign(
-        bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair) override;
+    virtual std::pair<std::string, std::string> encodeAndSign(
+        bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute,
+        const KeyPair& _keyPair) override;
 
     /**
      * @brief Create a Signed Transaction object
      *
+     * @param _keyPair
+     * @param _groupID
+     * @param _chainID
      * @param _to
      * @param _data
-     * @param _chainID
-     * @param _groupID
      * @param _blockLimit
-     * @param _nonce
-     * @return std::string
+     * @param _attribute
+     * @return std::pair<std::string, std::string>
      */
-    virtual std::string createSignedTransaction(const std::string& _to, const bcos::bytes& _data,
-        const string& _chainID, const std::string& _groupID, int64_t _blockLimit,
-        const KeyPair& _keyPair) override;
+    virtual std::pair<std::string, std::string> createSignedTransaction(const KeyPair& _keyPair,
+        const std::string& _groupID, const string& _chainID, const std::string& _to,
+        const bcos::bytes& _data, int64_t _blockLimit, int32_t _attribute) override;
+
+    /**
+     * @brief Create a Deploy Contract Transaction object
+     *
+     * @param _keyPair
+     * @param _groupID
+     * @param _chainID
+     * @param _data
+     * @param _abi
+     * @param _blockLimit
+     * @param _attribute
+     * @return std::pair<std::string, std::string>
+     */
+    virtual std::pair<std::string, std::string> createDeployContractTransaction(
+        const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
+        const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit,
+        int32_t _attribute) override;
 };
 }  // namespace utilities
 }  // namespace cppsdk

@@ -169,7 +169,8 @@ int main(int argc, char** argv)
     std::cout << LOG_DESC(" [DeployHello] new account ")
               << LOG_KV("address", cryptoSuite->address().hexPrefixed()) << std::endl;
 
-    auto blockLimit = sdk->service()->getBlockLimit(group);
+    int64_t blockLimit = -1;
+    sdk->service()->getBlockLimit(group, blockLimit);
 
     std::cout << LOG_DESC(" [DeployHello] block limit ") << LOG_KV("blockLimit", blockLimit)
               << std::endl;
@@ -178,14 +179,15 @@ int main(int argc, char** argv)
     auto binBytes = fromHexString(hexBin);
 
     auto transactionBuilder = std::make_shared<bcos::cppsdk::utilities::TransactionBuilder>();
-    auto signedTxData = transactionBuilder->createSignedTransaction(
-        "", *binBytes.get(), groupInfo->chainID(), group, blockLimit, *keyPair);
+    auto r = transactionBuilder->createDeployContractTransaction(
+        *keyPair, group, groupInfo->chainID(), *binBytes.get(), "", blockLimit, 0);
 
-    std::cout << LOG_DESC(" [DeployHello] create signed transaction success") << std::endl;
+    std::cout << LOG_DESC(" [DeployHello] create signed transaction success")
+              << LOG_KV("tx hash", r.first) << std::endl;
 
     std::promise<bool> p;
     auto f = p.get_future();
-    sdk->jsonRpc()->sendTransaction(group, "", signedTxData, false,
+    sdk->jsonRpc()->sendTransaction(group, "", r.second, false,
         [&p](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
             if (_error && _error->errorCode() != 0)
             {
@@ -195,8 +197,9 @@ int main(int argc, char** argv)
             }
             else
             {
-                std::cout << LOG_DESC(" [DeployHello] recv response success ") << std::endl;
                 std::string receipt = std::string(_resp->begin(), _resp->end());
+                std::cout << LOG_DESC(" [DeployHello] recv response success ")
+                          << LOG_KV("transaction receipt", receipt) << std::endl;
 
                 Json::Value root;
                 Json::Reader jsonReader;

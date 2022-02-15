@@ -86,7 +86,7 @@ public:
 public:
     //------------------------------ Block Notifier begin --------------------------
     bool getBlockNumber(const std::string& _group, int64_t& _blockNumber);
-    int64_t getBlockLimit(const std::string& _group);
+    bool getBlockLimit(const std::string& _group, int64_t& _blockLimit);
     std::pair<bool, bool> updateGroupBlockNumber(const std::string& _groupID, int64_t _blockNumber);
 
     bool randomGetHighestBlockNumberNode(const std::string& _group, std::string& _node);
