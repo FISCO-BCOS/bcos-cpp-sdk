@@ -22,7 +22,10 @@
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-utilities/Common.h>
+#include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
+#include <string>
+#include <utility>
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::utilities;
@@ -87,7 +90,7 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransaction(const std::st
                    << LOG_KV("nonce", _transactionData->nonce);
 
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
-    // trim 0x prefix
+    // Note: trim 0x prefix
     _transactionData->to =
         (_to.compare(0, 2, "0x") == 0 || _to.compare(0, 2, "0X") == 0) ? _to.substr(2) : _to;
 
@@ -101,14 +104,15 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransaction(const std::st
  * @param _keyPair
  * @return bytesConstPtr
  */
-bytesConstPtr TransactionBuilder::encodeAndSign(
+std::pair<std::string, std::string> TransactionBuilder::encodeAndSign(
     bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair)
 {
     auto cryptoSuite = std::make_shared<CryptoSuite>(_keyPair);
 
     // hash and sign transaction data
-    auto encoded = encodeTxData(_transactionData);
-    auto encodedHash = cryptoSuite->hash(bytesConstRef(encoded->data(), encoded->size()));
+    auto encodedTxData = encodeTxData(_transactionData);
+    auto encodedHash =
+        cryptoSuite->hash(bytesConstRef(encodedTxData->data(), encodedTxData->size()));
     auto signData = cryptoSuite->sign(encodedHash.ref());
 
     auto transaction = std::make_shared<bcostars::Transaction>();
@@ -121,7 +125,11 @@ bytesConstPtr TransactionBuilder::encodeAndSign(
     // TODO: add attribute value
     transaction->attribute = 0;
 
-    return encodeTx(transaction);
+    auto encoded = encodeTx(transaction);
+    // auto txHash = cryptoSuite->hash(bytesConstRef(encoded->data(), encoded->size()));
+
+    return std::make_pair<std::string, std::string>(
+        toHexStringWithPrefix(encodedHash), toHexStringWithPrefix(*encoded));
 }
 
 /**
@@ -136,11 +144,10 @@ bytesConstPtr TransactionBuilder::encodeAndSign(
  * @return std::string
  */
 
-std::string TransactionBuilder::createSignedTransaction(const std::string& _to,
-    const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
-    int64_t _blockLimit, const KeyPair& _keyPair)
+std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
+    const std::string& _to, const bcos::bytes& _data, const string& _chainID,
+    const std::string& _groupID, int64_t _blockLimit, const KeyPair& _keyPair)
 {
     auto transactionData = createTransaction(_to, _data, _chainID, _groupID, _blockLimit);
-    auto encoded = encodeAndSign(transactionData, _keyPair);
-    return toHexStringWithPrefix(*encoded);
+    return encodeAndSign(transactionData, _keyPair);
 }

@@ -41,9 +41,9 @@ public:
         return createTransaction(_to, *bytesData, _chainID, _groupID, _blockLimit);
     }
 
-    std::string createSignedTransaction(const std::string& _to, const std::string& _data,
-        const string& _chainID, const std::string& _groupID, int64_t _blockLimit,
-        const KeyPair& _keyPair)
+    std::pair<std::string, std::string> createSignedTransaction(const std::string& _to,
+        const std::string& _data, const string& _chainID, const std::string& _groupID,
+        int64_t _blockLimit, const KeyPair& _keyPair)
     {
         auto bytesData = fromHexString(_data);
         return createSignedTransaction(_to, *bytesData, _chainID, _groupID, _blockLimit, _keyPair);
@@ -54,12 +54,12 @@ public:
         const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
         int64_t _blockLimit) = 0;
 
-    virtual bytesConstPtr encodeAndSign(
+    virtual std::pair<std::string, std::string> encodeAndSign(
         bcostars::TransactionDataConstPtr _transactionData, const KeyPair& _keyPair) = 0;
 
-    virtual std::string createSignedTransaction(const std::string& _to, const bcos::bytes& _data,
-        const string& _chainID, const std::string& _groupID, int64_t _blockLimit,
-        const KeyPair& _keyPair) = 0;
+    virtual std::pair<std::string, std::string> createSignedTransaction(const std::string& _to,
+        const bcos::bytes& _data, const string& _chainID, const std::string& _groupID,
+        int64_t _blockLimit, const KeyPair& _keyPair) = 0;
 };
 }  // namespace utilities
 }  // namespace cppsdk
