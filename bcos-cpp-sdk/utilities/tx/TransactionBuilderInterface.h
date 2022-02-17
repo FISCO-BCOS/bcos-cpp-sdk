@@ -18,8 +18,8 @@
  * @date 2022-01-13
  */
 #pragma once
-#include <bcos-cpp-sdk/utilities/crypto/KeyPair.h>
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
+#include <bcos-crypto/signature/key/KeyPair.h>
 #include <bcos-utilities/Common.h>
 
 namespace bcos
@@ -59,7 +59,7 @@ public:
      */
     virtual std::pair<std::string, std::string> encodeAndSign(
         bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute,
-        const KeyPair& _keyPair) = 0;
+        const bcos::crypto::KeyPairInterface& _keyPair) = 0;
 
 public:
     /**
@@ -74,9 +74,10 @@ public:
      * @param _attribute
      * @return std::pair<std::string, std::string>
      */
-    virtual std::pair<std::string, std::string> createSignedTransaction(const KeyPair& _keyPair,
-        const std::string& _groupID, const string& _chainID, const std::string& _to,
-        const bcos::bytes& _data, int64_t _blockLimit, int32_t _attribute) = 0;
+    virtual std::pair<std::string, std::string> createSignedTransaction(
+        const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
+        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        int64_t _blockLimit, int32_t _attribute) = 0;
 
     /**
      * @brief Create a Deploy Contract Transaction object
@@ -91,9 +92,9 @@ public:
      * @return std::pair<std::string, std::string>
      */
     virtual std::pair<std::string, std::string> createDeployContractTransaction(
-        const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
-        const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit,
-        int32_t _attribute) = 0;
+        const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
+        const string& _chainID, const bcos::bytes& _data, const std::string& _abi,
+        int64_t _blockLimit, int32_t _attribute) = 0;
 };
 }  // namespace utilities
 }  // namespace cppsdk
