@@ -20,7 +20,13 @@
 #pragma once
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilderInterface.h>
+#include <bcos-crypto/hash/Keccak256.h>
+#include <bcos-crypto/hash/SM3.h>
+#include <bcos-crypto/interfaces/crypto/CryptoSuite.h>
+#include <bcos-crypto/signature/fastsm2/FastSM2Crypto.h>
+#include <bcos-crypto/signature/secp256k1/Secp256k1Crypto.h>
 #include <bcos-utilities/Common.h>
+#include <memory>
 
 namespace bcos
 {
@@ -72,7 +78,7 @@ public:
      */
     virtual std::pair<std::string, std::string> encodeAndSign(
         bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute,
-        const KeyPair& _keyPair) override;
+        const bcos::crypto::KeyPairInterface& _keyPair) override;
 
     /**
      * @brief Create a Signed Transaction object
@@ -86,9 +92,10 @@ public:
      * @param _attribute
      * @return std::pair<std::string, std::string>
      */
-    virtual std::pair<std::string, std::string> createSignedTransaction(const KeyPair& _keyPair,
-        const std::string& _groupID, const string& _chainID, const std::string& _to,
-        const bcos::bytes& _data, int64_t _blockLimit, int32_t _attribute) override;
+    virtual std::pair<std::string, std::string> createSignedTransaction(
+        const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
+        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        int64_t _blockLimit, int32_t _attribute) override;
 
     /**
      * @brief Create a Deploy Contract Transaction object
@@ -103,9 +110,22 @@ public:
      * @return std::pair<std::string, std::string>
      */
     virtual std::pair<std::string, std::string> createDeployContractTransaction(
-        const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
-        const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit,
-        int32_t _attribute) override;
+        const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
+        const string& _chainID, const bcos::bytes& _data, const std::string& _abi,
+        int64_t _blockLimit, int32_t _attribute) override;
+
+public:
+    auto ecdsaCryptoSuite() -> auto& { return m_ecdsaCryptoSuite; }
+    auto smCryptoSuite() -> auto& { return m_smCryptoSuite; }
+
+private:
+    bcos::crypto::CryptoSuite::UniquePtr m_ecdsaCryptoSuite =
+        std::make_unique<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::Keccak256>(),
+            std::make_shared<bcos::crypto::Secp256k1Crypto>(), nullptr);
+
+    bcos::crypto::CryptoSuite::UniquePtr m_smCryptoSuite =
+        std::make_unique<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::SM3>(),
+            std::make_shared<bcos::crypto::FastSM2Crypto>(), nullptr);
 };
 }  // namespace utilities
 }  // namespace cppsdk

@@ -17,15 +17,14 @@
  * @author: octopus
  * @date 2022-01-13
  */
-#include <bcos-cpp-sdk/utilities/crypto/CryptoSuite.h>
-#include <bcos-cpp-sdk/utilities/crypto/KeyPair.h>
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
+#include <bcos-crypto/interfaces/crypto/CryptoSuite.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
-#include <string>
 #include <utility>
+
 using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::utilities;
@@ -84,6 +83,7 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransactionData(const std
     _transactionData->version = 0;
     _transactionData->chainID = _chainID;
     _transactionData->groupID = _groupID;
+    _transactionData->to = _to;
     _transactionData->blockLimit = _blockLimit;
     _transactionData->nonce = u256(fixBytes256.hexPrefixed()).str(10);
     _transactionData->abi = _abi;
@@ -94,8 +94,8 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransactionData(const std
 
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
     // TODO: trim 0x prefix ???
-    _transactionData->to =
-        (_to.compare(0, 2, "0x") == 0 || _to.compare(0, 2, "0X") == 0) ? _to.substr(2) : _to;
+    // _transactionData->to =
+    //    (_to.compare(0, 2, "0x") == 0 || _to.compare(0, 2, "0X") == 0) ? _to.substr(2) : _to;
 
     return _transactionData;
 }
@@ -109,15 +109,24 @@ bcostars::TransactionDataPtr TransactionBuilder::createTransactionData(const std
  * @return std::pair<std::string, std::string>
  */
 std::pair<std::string, std::string> TransactionBuilder::encodeAndSign(
-    bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute, const KeyPair& _keyPair)
+    bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute,
+    const bcos::crypto::KeyPairInterface& _keyPair)
 {
-    auto cryptoSuite = std::make_shared<CryptoSuite>(_keyPair);
+    bcos::crypto::CryptoSuite* cryptoSuite = nullptr;
+    if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::SM2)
+    {
+        cryptoSuite = &*m_smCryptoSuite;
+    }
+    else
+    {
+        cryptoSuite = &*m_ecdsaCryptoSuite;
+    }
 
     // hash and sign transaction data
     auto encodedTxData = encodeTransactionData(_transactionData);
     auto encodedHash =
         cryptoSuite->hash(bytesConstRef(encodedTxData->data(), encodedTxData->size()));
-    auto signData = cryptoSuite->sign(encodedHash.ref());
+    auto signData = cryptoSuite->signatureImpl()->sign(_keyPair, encodedHash, false);
 
     auto transaction = std::make_shared<bcostars::Transaction>();
     transaction->data = *_transactionData;
@@ -147,8 +156,9 @@ std::pair<std::string, std::string> TransactionBuilder::encodeAndSign(
  * @return std::pair<std::string, std::string>
  */
 std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
-    const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
-    const std::string& _to, const bcos::bytes& _data, int64_t _blockLimit, int32_t _attribute)
+    const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
+    const string& _chainID, const std::string& _to, const bcos::bytes& _data, int64_t _blockLimit,
+    int32_t _attribute)
 {
     auto transactionData = createTransactionData(_groupID, _chainID, _to, _data, "", _blockLimit);
     return encodeAndSign(transactionData, _attribute, _keyPair);
@@ -167,8 +177,9 @@ std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
  * @return std::pair<std::string, std::string>
  */
 std::pair<std::string, std::string> TransactionBuilder::createDeployContractTransaction(
-    const KeyPair& _keyPair, const std::string& _groupID, const string& _chainID,
-    const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit, int32_t _attribute)
+    const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
+    const string& _chainID, const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit,
+    int32_t _attribute)
 {
     auto transactionData = createTransactionData(_groupID, _chainID, "", _data, _abi, _blockLimit);
     return encodeAndSign(transactionData, _attribute, _keyPair);

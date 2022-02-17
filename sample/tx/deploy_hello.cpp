@@ -18,7 +18,6 @@
  * @date 2022-01-16
  */
 #include <bcos-cpp-sdk/SdkFactory.h>
-#include <bcos-cpp-sdk/utilities/crypto/CryptoSuite.h>
 #include <bcos-cpp-sdk/utilities/crypto/KeyPairBuilder.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-utilities/Common.h>
@@ -27,9 +26,8 @@
 
 using namespace bcos;
 using namespace bcos::cppsdk;
+using namespace bcos::cppsdk::utilities;
 using namespace bcos::boostssl;
-using namespace bcos;
-
 //----------------------------------------------------------------------------------------------------
 // HelloWorld Source Code:
 /**
@@ -160,14 +158,20 @@ int main(int argc, char** argv)
         exit(-1);
     }
 
-    auto keyPairBuilder = std::make_shared<bcos::cppsdk::utilities::KeyPairBuilder>();
-    auto keyPair = keyPairBuilder->genKeyPair(
-        groupInfo->smCryptoType() ? bcos::cppsdk::utilities::CryptoSuiteType::SM_TYPE :
-                                    bcos::cppsdk::utilities::CryptoSuiteType::ECDSA_TYPE);
-    auto cryptoSuite = std::make_shared<bcos::cppsdk::utilities::CryptoSuite>(*keyPair);
+    auto transactionBuilder = std::make_shared<bcos::cppsdk::utilities::TransactionBuilder>();
+
+    auto keyPairBuilder = std::make_shared<KeyPairBuilder>();
+    auto keyPair =
+        keyPairBuilder->genKeyPair(groupInfo->smCryptoType() ? CryptoType::SM : CryptoType::ECDSA);
+
+    bcos::crypto::CryptoSuite* cryptoSuite = groupInfo->smCryptoType() ?
+                                                 &*transactionBuilder->smCryptoSuite() :
+                                                 &*transactionBuilder->ecdsaCryptoSuite();
 
     std::cout << LOG_DESC(" [DeployHello] new account ")
-              << LOG_KV("address", cryptoSuite->address().hexPrefixed()) << std::endl;
+              << LOG_KV(
+                     "address", cryptoSuite->calculateAddress(keyPair->publicKey()).hexPrefixed())
+              << std::endl;
 
     int64_t blockLimit = -1;
     sdk->service()->getBlockLimit(group, blockLimit);
@@ -178,7 +182,7 @@ int main(int argc, char** argv)
     auto hexBin = getBinary(groupInfo->smCryptoType());
     auto binBytes = fromHexString(hexBin);
 
-    auto transactionBuilder = std::make_shared<bcos::cppsdk::utilities::TransactionBuilder>();
+
     auto r = transactionBuilder->createDeployContractTransaction(
         *keyPair, group, groupInfo->chainID(), *binBytes.get(), "", blockLimit, 0);
 

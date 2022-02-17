@@ -21,7 +21,6 @@
 #include <bcos-boostssl/websocket/WsError.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
-#include <bcos-cpp-sdk/utilities/crypto/CryptoSuite.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <json/value.h>
@@ -100,7 +99,7 @@ void JsonRpcImpl::call(const std::string& _groupID, const std::string& _nodeName
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("call") << LOG_KV("request", s);
 }
 
-std::string JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string& _nodeName,
+void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string& _nodeName,
     const std::string& _data, bool _requireProof, RespFunc _respFunc)
 {
     std::string name = _nodeName;
@@ -115,12 +114,10 @@ std::string JsonRpcImpl::sendTransaction(const std::string& _groupID, const std:
         auto error = std::make_shared<Error>(bcos::boostssl::ws::WsError::EndPointNotExist,
             "the group does not exist, group: " + _groupID);
         _respFunc(error, nullptr);
-        return std::string();
+        return;
     }
 
-    auto suite = cryptoSuite(groupInfo->smCryptoType());
     auto txBytes = fromHexString(_data);
-    auto txHash = suite->hash(bytesConstRef(txBytes->data(), txBytes->size()));
 
     Json::Value params = Json::Value(Json::arrayValue);
     params.append(_groupID);
@@ -131,9 +128,7 @@ std::string JsonRpcImpl::sendTransaction(const std::string& _groupID, const std:
     auto request = m_factory->buildRequest("sendTransaction", params);
     auto s = request->toJson();
     m_sender(_groupID, name, s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction") << LOG_KV("hash", txHash.hexPrefixed())
-                       << LOG_KV("request", s);
-    return txHash.hexPrefixed();
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction") << LOG_KV("request", s);
 }
 
 void JsonRpcImpl::getTransaction(const std::string& _groupID, const std::string& _nodeName,

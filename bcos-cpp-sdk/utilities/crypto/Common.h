@@ -25,16 +25,11 @@ namespace cppsdk
 {
 namespace utilities
 {
-enum class CryptoSuiteType : int
+enum class CryptoType : int
 {
-    ECDSA_TYPE = 1,
-    SM_TYPE = 2
+    ECDSA = 1,
+    SM = 2
 };
 }  // namespace utilities
 }  // namespace cppsdk
 }  // namespace bcos
-
-const static int PRIVATE_KEY_LEN = 32;
-const static int HEX_PRIVATE_KEY_LEN = PRIVATE_KEY_LEN * 2;
-const static int PUBLIC_KEY_LEN = 64;
-const static int HEX_PUBLIC_KEY_LEN = PUBLIC_KEY_LEN * 2;
