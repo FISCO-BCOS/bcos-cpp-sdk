@@ -37,21 +37,6 @@ namespace utilities
 class TransactionBuilder : public TransactionBuilderInterface
 {
 public:
-    /**
-     * @brief
-     *
-     * @param _transactionData
-     * @return bytesConstPtr
-     */
-    bytesConstPtr encodeTransactionData(bcostars::TransactionDataConstPtr _transactionData);
-    /**
-     * @brief
-     *
-     * @param _transaction
-     * @return bytesConstPtr
-     */
-    bytesConstPtr encodeTransaction(bcostars::TransactionConstPtr _transaction);
-
 public:
     /**
      * @brief Create a Transaction Data object
@@ -62,23 +47,61 @@ public:
      * @param _data
      * @param _abi
      * @param _blockLimit
-     * @return bcostars::TransactionDataPtr
+     * @return bcostars::TransactionDataUniquePtr
      */
-    virtual bcostars::TransactionDataPtr createTransactionData(const std::string& _groupID,
+    virtual bcostars::TransactionDataUniquePtr createTransactionData(const std::string& _groupID,
         const string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit) override;
 
     /**
-     * @brief encode transaction and sign
+     * @brief
      *
      * @param _transactionData
-     * @param _attribute
-     * @param _keyPair
-     * @return std::pair<std::string, std::string>
+     * @return bytesConstPtr
      */
-    virtual std::pair<std::string, std::string> encodeAndSign(
-        bcostars::TransactionDataConstPtr _transactionData, int32_t _attribute,
-        const bcos::crypto::KeyPairInterface& _keyPair) override;
+    bytesConstPtr encodeTransactionData(const bcostars::TransactionData& _transactionData) override;
+
+    /**
+     * @brief
+     *
+     * @param _cryptoType
+     * @param _transactionData
+     * @return crypto::HashType
+     */
+    virtual crypto::HashType calculateTransactionDataHash(
+        CryptoType _cryptoType, const bcostars::TransactionData& _transactionData) override;
+
+    /**
+     * @brief
+     *
+     * @param _keyPair
+     * @param _hashType
+     * @return crypto::HashType
+     */
+    virtual bcos::bytesConstPtr signTransactionDataHash(
+        const bcos::crypto::KeyPairInterface& _keyPair,
+        const crypto::HashType& _transactionDataHash) override;
+
+    /**
+     * @brief Create a Transaction object
+     *
+     * @param _transactionData
+     * @param _signData
+     * @param _hash
+     * @param _attribute
+     * @return bcostars::TransactionUniquePtr
+     */
+    virtual bcostars::TransactionUniquePtr createTransaction(
+        const bcostars::TransactionData& _transactionData, const bcos::bytes& _signData,
+        const crypto::HashType& _hash, int32_t _attribute) override;
+
+    /**
+     * @brief
+     *
+     * @param _transaction
+     * @return bytesConstPtr
+     */
+    virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) override;
 
     /**
      * @brief Create a Signed Transaction object
@@ -88,6 +111,7 @@ public:
      * @param _chainID
      * @param _to
      * @param _data
+     * @param _abi
      * @param _blockLimit
      * @param _attribute
      * @return std::pair<std::string, std::string>
@@ -95,24 +119,7 @@ public:
     virtual std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
         const string& _chainID, const std::string& _to, const bcos::bytes& _data,
-        int64_t _blockLimit, int32_t _attribute) override;
-
-    /**
-     * @brief Create a Deploy Contract Transaction object
-     *
-     * @param _keyPair
-     * @param _groupID
-     * @param _chainID
-     * @param _data
-     * @param _abi
-     * @param _blockLimit
-     * @param _attribute
-     * @return std::pair<std::string, std::string>
-     */
-    virtual std::pair<std::string, std::string> createDeployContractTransaction(
-        const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-        const string& _chainID, const bcos::bytes& _data, const std::string& _abi,
-        int64_t _blockLimit, int32_t _attribute) override;
+        const std::string& _abi, int64_t _blockLimit, int32_t _attribute) override;
 
 public:
     auto ecdsaCryptoSuite() -> auto& { return m_ecdsaCryptoSuite; }

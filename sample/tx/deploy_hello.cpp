@@ -161,8 +161,8 @@ int main(int argc, char** argv)
     auto transactionBuilder = std::make_shared<bcos::cppsdk::utilities::TransactionBuilder>();
 
     auto keyPairBuilder = std::make_shared<KeyPairBuilder>();
-    auto keyPair =
-        keyPairBuilder->genKeyPair(groupInfo->smCryptoType() ? CryptoType::SM : CryptoType::ECDSA);
+    auto keyPair = keyPairBuilder->genKeyPair(
+        groupInfo->smCryptoType() ? CryptoType::SM2 : CryptoType::Secp256K1);
 
     bcos::crypto::CryptoSuite* cryptoSuite = groupInfo->smCryptoType() ?
                                                  &*transactionBuilder->smCryptoSuite() :
@@ -183,8 +183,8 @@ int main(int argc, char** argv)
     auto binBytes = fromHexString(hexBin);
 
 
-    auto r = transactionBuilder->createDeployContractTransaction(
-        *keyPair, group, groupInfo->chainID(), *binBytes.get(), "", blockLimit, 0);
+    auto r = transactionBuilder->createSignedTransaction(
+        *keyPair, group, groupInfo->chainID(), "", *binBytes.get(), "", blockLimit, 0);
 
     std::cout << LOG_DESC(" [DeployHello] create signed transaction success")
               << LOG_KV("tx hash", r.first) << std::endl;
