@@ -175,6 +175,21 @@ bcostars::TransactionUniquePtr TransactionBuilder::createTransaction(
 }
 
 /**
+ * @brief Create a Transaction And Encode object
+ *
+ * @param _transaction
+ * @return bytesConstPtr
+ */
+bytesConstPtr TransactionBuilder::createSignedTransaction(
+    const bcostars::TransactionData& _transactionData, const bcos::bytes& _signData,
+    const crypto::HashType& _transactionDataHash, int32_t _attribute)
+{
+    auto transaction =
+        createTransaction(_transactionData, _signData, _transactionDataHash, _attribute);
+    return encodeTransaction(*transaction);
+}
+
+/**
  * @brief
  *
  * @param _keyPair
