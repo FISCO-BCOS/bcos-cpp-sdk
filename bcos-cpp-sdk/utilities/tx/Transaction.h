@@ -14,6 +14,7 @@
 #include <vector>
 using namespace std;
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 namespace bcostars
 {
