@@ -19,17 +19,16 @@
  */
 #pragma once
 
+#include <bcos-crypto/interfaces/crypto/KeyPairInterface.h>
+
 namespace bcos
 {
 namespace cppsdk
 {
 namespace utilities
 {
-enum class CryptoType : int
-{
-    ECDSA = 1,
-    SM = 2
-};
+using CryptoType = crypto::KeyPairType;
+
 }  // namespace utilities
 }  // namespace cppsdk
 }  // namespace bcos
