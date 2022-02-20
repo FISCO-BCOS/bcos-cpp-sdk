@@ -104,6 +104,16 @@ public:
     virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) override;
 
     /**
+     * @brief Create a Transaction And Encode object
+     *
+     * @param _transaction
+     * @return bytesConstPtr
+     */
+    virtual bytesConstPtr createSignedTransaction(const bcostars::TransactionData& _transactionData,
+        const bcos::bytes& _signData, const crypto::HashType& _transactionDataHash,
+        int32_t _attribute) override;
+
+    /**
      * @brief Create a Signed Transaction object
      *
      * @param _keyPair

@@ -103,7 +103,18 @@ public:
      */
     virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) = 0;
 
+
 public:
+    /**
+     * @brief Create a Transaction And Encode object
+     *
+     * @param _transaction
+     * @return bytesConstPtr
+     */
+    virtual bytesConstPtr createSignedTransaction(const bcostars::TransactionData& _transactionData,
+        const bcos::bytes& _signData, const crypto::HashType& _transactionDataHash,
+        int32_t _attribute) = 0;
+
     /**
      * @brief Create a Signed Transaction object
      *
