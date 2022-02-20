@@ -108,7 +108,7 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
     CryptoType _cryptoType, bytesConstRef _privateKey)
 {
     auto keyImpl = std::make_shared<bcos::crypto::KeyImpl>(_privateKey);
-    if (_cryptoType == CryptoType::ECDSA)
+    if (_cryptoType == CryptoType::Secp256K1)
     {
         bcos::crypto::Secp256k1Crypto secp256k1Crypto;
         auto keyPair = secp256k1Crypto.createKeyPair(keyImpl);
