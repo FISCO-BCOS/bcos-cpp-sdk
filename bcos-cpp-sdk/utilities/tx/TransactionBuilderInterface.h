@@ -75,8 +75,8 @@ public:
      * @brief
      *
      * @param _keyPair
-     * @param _hashType
-     * @return crypto::HashType
+     * @param _transactionDataHash
+     * @return bcos::bytesConstPtr
      */
     virtual bcos::bytesConstPtr signTransactionDataHash(
         const bcos::crypto::KeyPairInterface& _keyPair,
@@ -87,7 +87,7 @@ public:
      *
      * @param _transactionData
      * @param _signData
-     * @param _hash
+     * @param _transactionDataHash
      * @param _attribute
      * @return bcostars::TransactionUniquePtr
      */
@@ -106,9 +106,12 @@ public:
 
 public:
     /**
-     * @brief Create a Transaction And Encode object
+     * @brief Create a Signed Transaction object
      *
-     * @param _transaction
+     * @param _transactionData
+     * @param _signData
+     * @param _transactionDataHash
+     * @param _attribute
      * @return bytesConstPtr
      */
     virtual bytesConstPtr createSignedTransaction(const bcostars::TransactionData& _transactionData,

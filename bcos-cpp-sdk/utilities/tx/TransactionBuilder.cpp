@@ -33,39 +33,6 @@ using namespace bcos::cppsdk::utilities;
 /**
  * @brief
  *
- * @param _transactionData
- * @return bytesConstPtr
- */
-bytesConstPtr TransactionBuilder::encodeTransactionData(
-    const bcostars::TransactionData& _transactionData)
-{
-    tars::TarsOutputStream<tars::BufferWriter> output;
-    _transactionData.writeTo(output);
-
-    auto buffer = std::make_shared<bcos::bytes>();
-    buffer->assign(output.getBuffer(), output.getBuffer() + output.getLength());
-    return buffer;
-}
-
-/**
- * @brief
- *
- * @param _transactionData
- * @return bytesConstPtr
- */
-bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction& _transaction)
-{
-    tars::TarsOutputStream<tars::BufferWriter> output;
-    _transaction.writeTo(output);
-
-    auto buffer = std::make_shared<bcos::bytes>();
-    buffer->assign(output.getBuffer(), output.getBuffer() + output.getLength());
-    return buffer;
-}
-
-/**
- * @brief
- *
  * @param _groupID
  * @param _chainID
  * @param _to
@@ -88,17 +55,34 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     _transactionData->blockLimit = _blockLimit;
     _transactionData->nonce = u256(fixBytes256.hexPrefixed()).str(10);
     _transactionData->abi = _abi;
+    _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
 
     BCOS_LOG(TRACE) << LOG_BADGE("TransactionBuilder::createTransaction")
                     << LOG_KV("hex", fixBytes256.hexPrefixed())
                     << LOG_KV("nonce", _transactionData->nonce);
 
-    _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
     // TODO: trim 0x prefix ???
     // _transactionData->to =
     //    (_to.compare(0, 2, "0x") == 0 || _to.compare(0, 2, "0X") == 0) ? _to.substr(2) : _to;
 
     return _transactionData;
+}
+
+/**
+ * @brief
+ *
+ * @param _transactionData
+ * @return bytesConstPtr
+ */
+bytesConstPtr TransactionBuilder::encodeTransactionData(
+    const bcostars::TransactionData& _transactionData)
+{
+    tars::TarsOutputStream<tars::BufferWriter> output;
+    _transactionData.writeTo(output);
+
+    auto buffer = std::make_shared<bcos::bytes>();
+    buffer->assign(output.getBuffer(), output.getBuffer() + output.getLength());
+    return buffer;
 }
 
 /**
@@ -131,8 +115,8 @@ crypto::HashType TransactionBuilder::calculateTransactionDataHash(
  * @brief
  *
  * @param _keyPair
- * @param _hashType
- * @return crypto::HashType
+ * @param _transactionDataHash
+ * @return bcos::bytesConstPtr
  */
 bcos::bytesConstPtr TransactionBuilder::signTransactionDataHash(
     const bcos::crypto::KeyPairInterface& _keyPair, const crypto::HashType& _transactionDataHash)
@@ -153,10 +137,11 @@ bcos::bytesConstPtr TransactionBuilder::signTransactionDataHash(
 }
 
 /**
- * @brief Create a Transaction object
+ * @brief
  *
  * @param _transactionData
  * @param _signData
+ * @param _hash
  * @param _attribute
  * @return bcostars::TransactionUniquePtr
  */
@@ -175,9 +160,28 @@ bcostars::TransactionUniquePtr TransactionBuilder::createTransaction(
 }
 
 /**
- * @brief Create a Transaction And Encode object
+ * @brief
  *
- * @param _transaction
+ * @param _transactionData
+ * @return bytesConstPtr
+ */
+bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction& _transaction)
+{
+    tars::TarsOutputStream<tars::BufferWriter> output;
+    _transaction.writeTo(output);
+
+    auto buffer = std::make_shared<bcos::bytes>();
+    buffer->assign(output.getBuffer(), output.getBuffer() + output.getLength());
+    return buffer;
+}
+
+/**
+ * @brief
+ *
+ * @param _transactionData
+ * @param _signData
+ * @param _transactionDataHash
+ * @param _attribute
  * @return bytesConstPtr
  */
 bytesConstPtr TransactionBuilder::createSignedTransaction(
@@ -197,6 +201,7 @@ bytesConstPtr TransactionBuilder::createSignedTransaction(
  * @param _chainID
  * @param _to
  * @param _data
+ * @param _abi
  * @param _blockLimit
  * @param _attribute
  * @return std::pair<std::string, std::string>
