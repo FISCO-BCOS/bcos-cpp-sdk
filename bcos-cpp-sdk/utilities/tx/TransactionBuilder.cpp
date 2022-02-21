@@ -17,6 +17,7 @@
  * @author: octopus
  * @date 2022-01-13
  */
+#include <bcos-cpp-sdk/utilities/Common.h>
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-crypto/interfaces/crypto/CryptoSuite.h>
@@ -56,14 +57,6 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     _transactionData->nonce = u256(fixBytes256.hexPrefixed()).str(10);
     _transactionData->abi = _abi;
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
-
-    BCOS_LOG(TRACE) << LOG_BADGE("TransactionBuilder::createTransaction")
-                    << LOG_KV("hex", fixBytes256.hexPrefixed())
-                    << LOG_KV("nonce", _transactionData->nonce);
-
-    // TODO: trim 0x prefix ???
-    // _transactionData->to =
-    //    (_to.compare(0, 2, "0x") == 0 || _to.compare(0, 2, "0X") == 0) ? _to.substr(2) : _to;
 
     return _transactionData;
 }
