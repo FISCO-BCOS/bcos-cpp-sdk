@@ -19,7 +19,7 @@
  */
 
 #pragma once
-#include <bcos-cpp-sdk/utilities/crypto/hash/HashInterface.h>
+#include <bcos-crypto/interfaces/crypto/Hash.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <boost/algorithm/string.hpp>
@@ -253,9 +253,7 @@ struct Offset<T>
 class ContractABICodec
 {
 public:
-    explicit ContractABICodec(bcos::cppsdk::utilities::HashInterface::Ptr _hashImpl)
-      : m_hashImpl(_hashImpl)
-    {}
+    explicit ContractABICodec(bcos::crypto::Hash::Ptr _hashImpl) : m_hashImpl(_hashImpl) {}
 
     template <class T>
     bytes serialise(const T& _t)
@@ -333,7 +331,7 @@ public:
     void deserialize(std::tuple<T...>& out, std::size_t _offset);
 
 private:
-    bcos::cppsdk::utilities::HashInterface::Ptr m_hashImpl;
+    bcos::crypto::Hash::Ptr m_hashImpl;
     static const int MAX_BYTE_LENGTH = 32;
     // encode or decode offset
     std::size_t offset{0};

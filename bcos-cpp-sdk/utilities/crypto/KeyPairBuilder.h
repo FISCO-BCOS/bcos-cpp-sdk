@@ -19,7 +19,9 @@
  */
 #pragma once
 
-#include <bcos-cpp-sdk/utilities/crypto/KeyPair.h>
+#include <bcos-cpp-sdk/utilities/crypto/Common.h>
+#include <bcos-crypto/interfaces/crypto/KeyInterface.h>
+#include <bcos-crypto/signature/key/KeyPair.h>
 #include <bcos-utilities/Common.h>
 #include <memory>
 namespace bcos
@@ -35,11 +37,28 @@ public:
     using ConstPtr = std::shared_ptr<const KeyPairBuilder>;
 
 public:
-    KeyPair::UniquePtr genKeyPair(CryptoSuiteType _cryptoSuiteType);
-    KeyPair::UniquePtr genKeyPair(CryptoSuiteType _cryptoSuiteType, bytesConstPtr _privateKey);
+    /**
+     * @brief
+     *
+     * @param _pemPath
+     * @param _hexedPrivateKeySize
+     * @return bcos::crypto::KeyInterface::Ptr
+     */
+    bcos::crypto::KeyInterface::Ptr loadPem(
+        const std::string& _pemPath, std::size_t _hexedPrivateKeySize = 64);
 
-    KeyPair::UniquePtr loadKeyPair(const std::string& _pemPath);
-    void storeKeyPair(KeyPair::Ptr _keyPair, const std::string& _keyPairPath = "");
+public:
+    /**
+     * @brief
+     *
+     * @param _cryptoType
+     * @return bcos::crypto::KeyPair::UniquePtr
+     */
+    bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(CryptoType _cryptoType);
+    bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(
+        CryptoType _cryptoType, bytesConstRef _privateKey);
+    bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(
+        CryptoType _cryptoType, const std::string& _pemPath);
 };
 }  // namespace utilities
 }  // namespace cppsdk

@@ -57,7 +57,7 @@ public:
     virtual void call(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _to, const std::string& _data, RespFunc _respFunc) = 0;
 
-    virtual std::string sendTransaction(const std::string& _groupID, const std::string& _nodeName,
+    virtual void sendTransaction(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _data, bool _requireProof, RespFunc _respFunc) = 0;
 
     virtual void getTransaction(const std::string& _groupID, const std::string& _nodeName,

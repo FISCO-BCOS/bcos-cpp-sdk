@@ -14,6 +14,7 @@
 #include <vector>
 using namespace std;
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 namespace bcostars
 {
@@ -308,8 +309,10 @@ inline istream& operator>>(istream& is, Transaction& l)
 }
 
 using TransactionDataPtr = std::shared_ptr<TransactionData>;
+using TransactionDataUniquePtr = std::unique_ptr<TransactionData>;
 using TransactionDataConstPtr = std::shared_ptr<const TransactionData>;
 using TransactionPtr = std::shared_ptr<Transaction>;
+using TransactionUniquePtr = std::unique_ptr<Transaction>;
 using TransactionConstPtr = std::shared_ptr<const Transaction>;
 
 }  // namespace bcostars

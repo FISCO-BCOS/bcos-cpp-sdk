@@ -21,7 +21,6 @@
 #pragma once
 #include <bcos-cpp-sdk/rpc/JsonRpcInterface.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcRequest.h>
-#include <bcos-cpp-sdk/utilities/crypto/CryptoSuite.h>
 #include <bcos-cpp-sdk/ws/Service.h>
 #include <functional>
 
@@ -63,7 +62,7 @@ public:
     virtual void call(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _to, const std::string& _data, RespFunc _respFunc) override;
 
-    virtual std::string sendTransaction(const std::string& _groupID, const std::string& _nodeName,
+    virtual void sendTransaction(const std::string& _groupID, const std::string& _nodeName,
         const std::string& _data, bool _requireProof, RespFunc _respFunc) override;
 
     virtual void getTransaction(const std::string& _groupID, const std::string& _nodeName,
@@ -139,20 +138,7 @@ public:
         m_service = _service;
     }
 
-    bcos::cppsdk::utilities::CryptoSuite::ConstPtr cryptoSuite(bool _smCrypto) const
-    {
-        return _smCrypto ? m_smCryptoSuite : m_cryptoSuite;
-    }
-
 private:
-    bcos::cppsdk::utilities::CryptoSuite::ConstPtr m_cryptoSuite =
-        std::make_shared<bcos::cppsdk::utilities::CryptoSuite>(
-            bcos::cppsdk::utilities::CryptoSuiteType::ECDSA_TYPE);
-
-    bcos::cppsdk::utilities::CryptoSuite::ConstPtr m_smCryptoSuite =
-        std::make_shared<bcos::cppsdk::utilities::CryptoSuite>(
-            bcos::cppsdk::utilities::CryptoSuiteType::SM_TYPE);
-
     std::shared_ptr<bcos::cppsdk::service::Service> m_service;
     JsonRpcRequestFactory::Ptr m_factory;
     std::function<void(const std::string& _group, const std::string& _node,
