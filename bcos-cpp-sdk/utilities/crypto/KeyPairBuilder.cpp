@@ -17,12 +17,14 @@
  * @author: octopus
  * @date 2022-01-13
  */
+#include <bcos-cpp-sdk/utilities/Common.h>
 #include <bcos-cpp-sdk/utilities/crypto/KeyPairBuilder.h>
+#include <bcos-crypto/hash/Keccak256.h>
+#include <bcos-crypto/hash/SM3.h>
 #include <bcos-crypto/signature/fastsm2/FastSM2KeyPairFactory.h>
 #include <bcos-crypto/signature/key/KeyFactoryImpl.h>
 #include <bcos-crypto/signature/secp256k1/Secp256k1Crypto.h>
 #include <bcos-utilities/BoostLog.h>
-#include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/Exceptions.h>
 #include <bcos-utilities/FileUtility.h>
@@ -41,8 +43,8 @@ using namespace bcos::cppsdk::utilities;
 bcos::crypto::KeyInterface::Ptr KeyPairBuilder::loadPem(
     const std::string& _pemPath, std::size_t _hexedPrivateKeySize)
 {
-    BCOS_LOG(DEBUG) << LOG_BADGE("KeyPairBuilder") << LOG_DESC("load pem")
-                    << LOG_KV("pemPath", _pemPath);
+    UTILITIES_KEYPAIR_LOG(DEBUG) << LOG_BADGE("KeyPairBuilder") << LOG_DESC("load pem")
+                                 << LOG_KV("pemPath", _pemPath);
 
     auto keyContent = readContents(boost::filesystem::path(_pemPath));
     if (keyContent->empty())
@@ -112,12 +114,22 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
     {
         bcos::crypto::Secp256k1Crypto secp256k1Crypto;
         auto keyPair = secp256k1Crypto.createKeyPair(keyImpl);
+
+        UTILITIES_KEYPAIR_LOG(DEBUG)
+            << LOG_BADGE("genKeyPair") << LOG_DESC("generate new ecdsa keypair")
+            << LOG_KV("address", keyPair->address(std::make_shared<bcos::crypto::Keccak256>()));
+
         return keyPair;
     }
     else
     {
         bcos::crypto::FastSM2KeyPairFactory fastSM2KeyPairFactory;
         auto keyPair = fastSM2KeyPairFactory.createKeyPair(keyImpl);
+
+        UTILITIES_KEYPAIR_LOG(DEBUG)
+            << LOG_BADGE("genKeyPair") << LOG_DESC("generate new sm keypair")
+            << LOG_KV("address", keyPair->address(std::make_shared<bcos::crypto::SM3>()));
+
         return keyPair;
     }
 }
