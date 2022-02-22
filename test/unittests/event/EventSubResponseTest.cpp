@@ -19,7 +19,7 @@
  * @date 2021-09-22
  */
 #include <bcos-cpp-sdk/event/EventSubResponse.h>
-#include <bcos-framework/testutils/TestPromptFixture.h>
+#include <bcos-utilities/testutils/TestPromptFixture.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
 

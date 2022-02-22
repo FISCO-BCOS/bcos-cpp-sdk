@@ -21,7 +21,7 @@
 #define BOOST_TEST_MAIN
 
 #include <bcos-cpp-sdk/event/EventSubTask.h>
-#include <bcos-framework/testutils/TestPromptFixture.h>
+#include <bcos-utilities/testutils/TestPromptFixture.h>
 #include <boost/test/unit_test.hpp>
 
 using namespace bcos;

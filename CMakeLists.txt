@@ -20,24 +20,18 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.3" CACHE STRING "Minimum OS X deployment version")
 include(FetchContent)
 if (NOT DEFINED URL_BASE)
-    # set(URL_BASE "github.com")
-    set(URL_BASE "github.com.cnpmjs.org")
+    set(URL_BASE "github.com")
+    # set(URL_BASE "github.com.cnpmjs.org")
 endif()
 
-# set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts)
-# FetchContent_Declare(bcos-cmake-scripts
-#    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
-#    GIT_TAG dev
-#    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
-# )
-# FetchContent_MakeAvailable(bcos-cmake-scripts)
-
-# set(HUNTER_PACKAGE_LOG_BUILD ON CACHE STRING "Hunter output build info to log")
-# set(HUNTER_PACKAGE_LOG_INSTALL ON CACHE STRING "Hunter output install info to log")
-# set(HUNTER_STATUS_DEBUG OFF CACHE STRING "Hunter debug output")
-# set(HUNTER_USE_CACHE_SERVERS NO CACHE STRING "Download cache from cache server" FORCE)
-# set(HUNTER_STATUS_PRINT OFF CACHE STRING "Hunter status output")
-# set(HUNTER_CONFIGURATION_TYPES Release CACHE STRING "Build type of Hunter packages")
+include(FetchContent)
+set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_BINARY_DIR}/bcos-cmake-scripts)
+FetchContent_Declare(bcos-cmake-scripts
+    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
+    GIT_TAG 364f603f4ec112cb79840ea4026243399d7c419b
+    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
+)
+FetchContent_MakeAvailable(bcos-cmake-scripts)
 
 set(BCOS_RPC_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "The cmake path for the library")
 list(APPEND CMAKE_MODULE_PATH ${BCOS_CMAKE_SCRIPTS_DIR})
@@ -45,23 +39,31 @@ list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
 #init hunter
 include(HunterGate)
 HunterGate(
-    URL https://${URL_BASE}/FISCO-BCOS/hunter/archive/71170724ef6bec8370132ebd6c75637669e8e815.tar.gz
-    SHA1 393f5bf902b5b7d0d443b43ac25a58771d4fdec9
-    FILEPATH "${CMAKE_SOURCE_DIR}/cmake/config.cmake"
+    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/9bb4c2aa139cfa53af5779105cd0d5570c31fbf5.tar.gz"
+    SHA1 "02165406cd653bedfe88538926453ede8eca84ba"
+    FILEPATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake"
 )
 
 project(bcos-cpp-sdk VERSION "3.0.0")
-set(VERSION_SUFFIX "")
+set(VERSION_SUFFIX "-rc2")
 
+# Boost
 hunter_add_package(Boost COMPONENTS all)
 find_package(Boost CONFIG REQUIRED log chrono system filesystem thread iostreams)
 
+# Jsoncpp
 hunter_add_package(jsoncpp)
 find_package(jsoncpp CONFIG REQUIRED)
 
+# TASSL
 hunter_add_package(OpenSSL)
 find_package(OpenSSL REQUIRED)
 
+# bcos-utilities
+hunter_add_package(bcos-utilities)
+find_package(bcos-utilities CONFIG REQUIRED)
+
+# bcos-boostssl
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
 
@@ -79,65 +81,24 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # install dependencies
 # include(InstallBcosFrameworkDependencies)
 
-set(CPP_SDK_TARGET "cpp-sdk")
-set(WS_SERVICE_TARGET "ws")
-set(JSON_RPC_TARGET "json-rpc")
-set(AMOP_TARGET "amop")
-set(EVENT_TARGET "event")
+set(BCOS_CPP_SDK_TARGET "bcos-cpp-sdk")
 
 add_subdirectory(bcos-cpp-sdk)
 
-if (BUILD_EXEC_TEST)
+if (BUILD_SAMPLE)
     # sample exec binary
-    add_subdirectory(test/client)
+    add_subdirectory(sample)
 endif()
 
-# if(TESTS)
-#    include(InstallBcosCryptoDependencies)
-#    enable_testing()
-#    set(CTEST_OUTPUT_ON_FAILURE TRUE)
-#    add_subdirectory(test)
-# endif()
+if (TESTS)
+   enable_testing()
+   set(CTEST_OUTPUT_ON_FAILURE TRUE)
+   add_subdirectory(test)
+endif()
 
 # install bcos-cpp-sdk target
 install(
-    TARGETS ${CPP_SDK_TARGET}
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
-
-install(
-    TARGETS ${JSON_RPC_TARGET}
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
-
-install(
-    TARGETS ${AMOP_TARGET}
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
-
-install(
-    TARGETS ${EVENT_TARGET}
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
-
-install(
-    TARGETS ${WS_SERVICE_TARGET}
+    TARGETS ${BCOS_CPP_SDK_TARGET}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"

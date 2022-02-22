@@ -19,12 +19,12 @@
  */
 
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
-#include <bcos-boostssl/utilities/Error.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/multigroup/GroupInfo.h>
 #include <bcos-cpp-sdk/multigroup/GroupInfoFactory.h>
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
+#include <bcos-utilities/Common.h>
+#include <bcos-utilities/Error.h>
 #include <functional>
 #include <set>
 #include <unordered_map>
@@ -52,11 +52,11 @@ public:
     virtual void start() override;
     virtual void stop() override;
 
-    virtual void onConnect(bcos::boostssl::utilities::Error::Ptr _error,
-        std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
+    virtual void onConnect(
+        bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
 
-    virtual void onDisconnect(bcos::boostssl::utilities::Error::Ptr _error,
-        std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
+    virtual void onDisconnect(
+        bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
 
     virtual void onRecvMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
@@ -86,6 +86,11 @@ public:
 public:
     //------------------------------ Block Notifier begin --------------------------
     bool getBlockNumber(const std::string& _group, int64_t& _blockNumber);
+    bool getBlockLimit(const std::string& _group, int64_t& _blockLimit);
+    std::pair<bool, bool> updateGroupBlockNumber(const std::string& _groupID, int64_t _blockNumber);
+
+    bool randomGetHighestBlockNumberNode(const std::string& _group, std::string& _node);
+    bool getHighestBlockNumberNodes(const std::string& _group, std::set<std::string>& _nodes);
 
     void onRecvBlockNotifier(const std::string& _msg);
     void onRecvBlockNotifier(BlockNumberInfo::Ptr _blockNumberInfo);
@@ -99,6 +104,7 @@ public:
     void updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
 
 public:
+    bool hasEndPointOfNodeAvailable(const std::string& _groupID, const std::string& _node);
     bool getEndPointsByGroup(const std::string& _group, std::set<std::string>& _endPoints);
     bool getEndPointsByGroupAndNode(
         const std::string& _group, const std::string& _node, std::set<std::string>& _endPoints);
@@ -151,7 +157,7 @@ private:
     std::vector<WsHandshakeSucHandler> m_wsHandshakeSucHandlers;
 
 private:
-    mutable boost::shared_mutex x_lock;
+    mutable boost::shared_mutex x_endPointLock;
     // group => node => endpoints
     std::unordered_map<std::string, std::unordered_map<std::string, std::set<std::string>>>
         m_group2Node2Endpoints;
@@ -165,9 +171,12 @@ private:
     bcos::group::ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
 
     mutable boost::shared_mutex x_blockNotifierLock;
-    // group => blockNotifier
+    // group => blockNotifier callback
     std::unordered_map<std::string, BlockNotifierCallbacks> m_group2callbacks;
-    std::unordered_map<std::string, BlockNumberInfo::Ptr> m_group2BlockNumber;
+    // group => blockNumber
+    std::unordered_map<std::string, int64_t> m_group2BlockNumber;
+    // group => nodes
+    std::unordered_map<std::string, std::set<std::string>> m_group2LatestBlockNumberNodes;
 };
 
 }  // namespace service

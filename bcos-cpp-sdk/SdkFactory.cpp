@@ -18,7 +18,6 @@
  * @date 2021-08-21
  */
 
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsConnector.h>
 #include <bcos-boostssl/websocket/WsInitializer.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
@@ -28,25 +27,41 @@
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/Common.h>
+#include <bcos-cpp-sdk/config/Config.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-utilities/BoostLog.h>
+#include <bcos-utilities/Common.h>
 #include <memory>
 #include <mutex>
 
 using namespace bcos;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 using namespace bcos::cppsdk::amop;
 using namespace bcos::cppsdk;
+using namespace bcos::cppsdk::config;
 using namespace bcos::cppsdk::jsonrpc;
 using namespace bcos::cppsdk::event;
 using namespace bcos::cppsdk::service;
 
-bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk()
+SdkFactory::SdkFactory()
 {
-    auto service = buildService();
+    // TODO: how to init log in cpp sdk
+    LogInitializer::initLog();
+}
+
+bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(
+    std::shared_ptr<bcos::boostssl::ws::WsConfig> _config)
+{
+    if (!_config)
+    {
+        _config = m_config;
+    }
+
+    auto service = buildService(_config);
     auto amop = buildAMOP(service);
     auto jsonRpc = buildJsonRpc(service);
     auto eventSub = buildEventSub(service);
@@ -59,18 +74,22 @@ bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk()
     return sdk;
 }
 
-Service::Ptr SdkFactory::buildService()
+bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(const std::string& _configFile)
 {
-    // TODO: how to init log in cpp sdk
-    LogInitializer::initLog();
+    auto config = std::make_shared<Config>();
+    auto wsConfig = config->loadConfig(_configFile);
+    return buildSdk(wsConfig);
+}
 
+Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConfig> _config)
+{
     auto service = std::make_shared<Service>();
     auto initializer = std::make_shared<WsInitializer>();
 
     auto groupInfoFactory = std::make_shared<bcos::group::GroupInfoFactory>();
     auto chainNodeInfoFactory = std::make_shared<bcos::group::ChainNodeInfoFactory>();
 
-    initializer->setConfig(m_config);
+    initializer->setConfig(_config);
     initializer->initWsService(service);
     service->setWaitConnectFinish(true);
     service->setGroupInfoFactory(groupInfoFactory);

@@ -101,7 +101,7 @@ bool EventSubUnsubRequest::fromJson(const std::string& _request)
         EVENT_REQUEST(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
 
                                << LOG_KV("request", _request)
-                               << LOG_KV("error", std::string(e.what()));
+                               << LOG_KV("error", boost::diagnostic_information(e));
     }
 
     return false;
@@ -280,7 +280,7 @@ bool EventSubSubRequest::fromJson(const std::string& _request)
         EVENT_REQUEST(WARNING) << LOG_BADGE("fromJson") << LOG_DESC("invalid json object")
 
                                << LOG_KV("request", _request)
-                               << LOG_KV("error", std::string(e.what()));
+                               << LOG_KV("error", boost::diagnostic_information(e));
     }
 
     return false;
