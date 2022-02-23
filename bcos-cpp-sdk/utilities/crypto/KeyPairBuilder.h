@@ -40,25 +40,12 @@ public:
     /**
      * @brief
      *
-     * @param _pemPath
-     * @param _hexedPrivateKeySize
-     * @return bcos::crypto::KeyInterface::Ptr
-     */
-    bcos::crypto::KeyInterface::Ptr loadPem(
-        const std::string& _pemPath, std::size_t _hexedPrivateKeySize = 64);
-
-public:
-    /**
-     * @brief
-     *
      * @param _cryptoType
      * @return bcos::crypto::KeyPair::UniquePtr
      */
     bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(CryptoType _cryptoType);
     bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(
         CryptoType _cryptoType, bytesConstRef _privateKey);
-    bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(
-        CryptoType _cryptoType, const std::string& _pemPath);
 };
 }  // namespace utilities
 }  // namespace cppsdk
