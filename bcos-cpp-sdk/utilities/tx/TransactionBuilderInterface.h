@@ -34,6 +34,11 @@ using CryptoType = crypto::KeyPairType;
 class TransactionBuilderInterface
 {
 public:
+    using Ptr = std::shared_ptr<TransactionBuilderInterface>;
+    using ConstPtr = std::shared_ptr<const TransactionBuilderInterface>;
+    using UniquePtr = std::unique_ptr<TransactionBuilderInterface>;
+
+public:
     virtual ~TransactionBuilderInterface() {}
 
 public:
