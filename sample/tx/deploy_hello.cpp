@@ -20,9 +20,11 @@
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/utilities/crypto/KeyPairBuilder.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
+#include <bcos-cpp-sdk/utilities/tx/TransactionBuilderService.h>
 #include <bcos-utilities/Common.h>
 #include <boost/algorithm/string/compare.hpp>
 #include <cstdlib>
+#include <memory>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
@@ -182,9 +184,11 @@ int main(int argc, char** argv)
     auto hexBin = getBinary(groupInfo->smCryptoType());
     auto binBytes = fromHexString(hexBin);
 
+    auto transactionBuilderService =
+        std::make_shared<TransactionBuilderService>(sdk->service(), group, transactionBuilder);
 
-    auto r = transactionBuilder->createSignedTransaction(
-        *keyPair, group, groupInfo->chainID(), "", *binBytes.get(), "", blockLimit, 0);
+    auto r =
+        transactionBuilderService->createSignedTransaction(*keyPair, "", *binBytes.get(), "", 0);
 
     std::cout << LOG_DESC(" [DeployHello] create signed transaction success")
               << LOG_KV("tx hash", r.first) << std::endl;
