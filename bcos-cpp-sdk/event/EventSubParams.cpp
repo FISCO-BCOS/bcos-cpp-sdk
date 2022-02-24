@@ -19,7 +19,7 @@
  */
 
 #include <bcos-cpp-sdk/event/EventSubParams.h>
-#include <bcos-cpp-sdk/event/EventSubTopicTools.h>
+#include <bcos-cpp-sdk/utilities/abi/ContractEventTopic.h>
 #include <json/json.h>
 #include <exception>
 
@@ -39,18 +39,21 @@ bool EventSubParams::verifyParams()
     {
         for (const auto& topic : m_topics[i])
         {
-            if (!EvenSubTopicTools::validTopic(topic))
+            if (!codec::abi::ContractEventTopic::validEventTopic(topic))
             {
                 return false;
             }
         }
     }
 
-    // TODO: address
-    // for (const auto& addr : m_addresses)
-    // {
-    //     //
-    // }
+    // check address
+    for (const auto& addr : m_addresses)
+    {
+        if (addr.empty())
+        {
+            return false;
+        }
+    }
 
     // from to range check
     if (m_fromBlock > 0 && m_toBlock > 0)

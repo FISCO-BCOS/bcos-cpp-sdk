@@ -39,8 +39,8 @@ enum class ABI_ELEMENTARY_TYPE
     ADDR,     // address
     BYTES,    // bytes
     STRING,   // string
-    FIXED,    // fixed, unsupport
-    UNFIXED   // unfixed, unsupport
+    FIXED,    // fixed, unsupported
+    UNFIXED   // unfixed, unsupported
 };
 
 class ABIInType
