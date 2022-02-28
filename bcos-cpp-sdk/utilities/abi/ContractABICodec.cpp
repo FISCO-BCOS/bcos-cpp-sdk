@@ -62,7 +62,7 @@ bool ContractABICodec::abiOutByFuncSelector(
             _out.push_back(str);
         }
         else
-        {  // unsupport type
+        {  // unsupported type
             return false;
         }
 

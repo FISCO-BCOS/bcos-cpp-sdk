@@ -257,7 +257,7 @@ public:
 
     template <class T>
     bytes serialise(const T& _t)
-    {  // unsupport type
+    {  // unsupported type
         (void)_t;
         static_assert(ABIElementType<T>::value, "ABI not support type.");
         return bytes{};
@@ -301,7 +301,7 @@ public:
 
     template <class T>
     void deserialize(const T& _t, std::size_t _offset)
-    {  // unsupport type
+    {  // unsupported type
         (void)_t;
         (void)_offset;
         static_assert(ABIElementType<T>::value, "ABI not support type.");

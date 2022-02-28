@@ -40,60 +40,6 @@ using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::utilities;
 
-bcos::crypto::KeyInterface::Ptr KeyPairBuilder::loadPem(
-    const std::string& _pemPath, std::size_t _hexedPrivateKeySize)
-{
-    UTILITIES_KEYPAIR_LOG(DEBUG) << LOG_BADGE("KeyPairBuilder") << LOG_DESC("load pem")
-                                 << LOG_KV("pemPath", _pemPath);
-
-    auto keyContent = readContents(boost::filesystem::path(_pemPath));
-    if (keyContent->empty())
-    {
-        BOOST_THROW_EXCEPTION(
-            InvalidParameter() << errinfo_comment(
-                "KeyPairBuilder::loadPem the pem file not exist, pem path: " + _pemPath));
-    }
-
-    std::shared_ptr<BIO> bioMem(BIO_new(BIO_s_mem()), [&](BIO* p) { BIO_free(p); });
-    BIO_write(bioMem.get(), keyContent->data(), keyContent->size());
-
-    std::shared_ptr<EVP_PKEY> evpPKey(PEM_read_bio_PrivateKey(bioMem.get(), NULL, NULL, NULL),
-        [](EVP_PKEY* p) { EVP_PKEY_free(p); });
-    if (!evpPKey)
-    {
-        BOOST_THROW_EXCEPTION(
-            InvalidParameter() << errinfo_comment(
-                "KeyPairBuilder::loadPem PEM_read_bio_PrivateKey error, pem: " + _pemPath));
-    }
-
-    std::shared_ptr<EC_KEY> ecKey(
-        EVP_PKEY_get1_EC_KEY(evpPKey.get()), [](EC_KEY* p) { EC_KEY_free(p); });
-    if (!ecKey)
-    {
-        BOOST_THROW_EXCEPTION(
-            InvalidParameter() << errinfo_comment(
-                "KeyPairBuilder::loadPem EVP_PKEY_get1_EC_KEY error, pem: " + _pemPath));
-    }
-
-    std::shared_ptr<const BIGNUM> ecPrivateKey(
-        EC_KEY_get0_private_key(ecKey.get()), [](const BIGNUM*) {});
-    std::shared_ptr<char> privateKeyData(
-        BN_bn2hex(ecPrivateKey.get()), [](char* p) { OPENSSL_free(p); });
-
-    std::string hexPriKey(privateKeyData.get());
-    if (hexPriKey.length() < _hexedPrivateKeySize)
-    {
-        hexPriKey = std::string('0', _hexedPrivateKeySize - hexPriKey.length()) + hexPriKey;
-    }
-    auto priKeyBytes = fromHexString(hexPriKey);
-
-    BCOS_LOG(DEBUG) << LOG_BADGE("KeyPairBuilder") << LOG_DESC("load pem private key")
-                    << LOG_KV("length", priKeyBytes->size());
-
-    auto keyFactory = std::make_shared<bcos::crypto::KeyFactoryImpl>();
-    return keyFactory->createKey(*priKeyBytes);
-}
-
 /**
  * @brief
  *
@@ -132,11 +78,4 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
 
         return keyPair;
     }
-}
-
-bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
-    CryptoType _cryptoType, const std::string& _pemPath)
-{
-    auto key = loadPem(_pemPath);
-    return genKeyPair(_cryptoType, bytesConstRef((byte*)key->mutableData(), key->size()));
 }
