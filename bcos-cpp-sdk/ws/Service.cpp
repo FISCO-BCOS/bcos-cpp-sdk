@@ -248,6 +248,11 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             for (auto& groupInfo : groupInfoList)
             {
                 service->updateGroupInfoByEp(endPoint, groupInfo);
+
+                RPC_WS_LOG(DEBUG) << LOG_BADGE("startHandshake") << LOG_DESC("group info")
+                                  << LOG_KV("endPoint", endPoint)
+                                  << LOG_KV("smCrypto", groupInfo->smCryptoType())
+                                  << LOG_KV("wasm", groupInfo->wasm());
             }
 
             auto groupBlockNumber = pv->groupBlockNumber();
@@ -544,6 +549,8 @@ bcos::group::GroupInfo::Ptr Service::getGroupInfo(const std::string& _groupID)
     auto firstGroupInfo = *groupInfos.begin();
     auto groupInfo =
         m_groupInfoFactory->createGroupInfo(firstGroupInfo->chainID(), firstGroupInfo->groupID());
+    groupInfo->setSmCryptoType(firstGroupInfo->smCryptoType());
+    groupInfo->setWasm(firstGroupInfo->wasm());
     groupInfo->setGenesisConfig(firstGroupInfo->genesisConfig());
     groupInfo->setIniConfig(firstGroupInfo->iniConfig());
 

@@ -125,7 +125,7 @@ bcos::bytesConstPtr TransactionBuilder::signTransactionDataHash(
     }
 
     //  sign transaction data hash
-    auto signData = cryptoSuite->signatureImpl()->sign(_keyPair, _transactionDataHash, false);
+    auto signData = cryptoSuite->signatureImpl()->sign(_keyPair, _transactionDataHash, true);
     return signData;
 }
 

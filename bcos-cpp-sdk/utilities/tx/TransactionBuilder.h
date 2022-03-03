@@ -23,8 +23,8 @@
 #include <bcos-crypto/hash/Keccak256.h>
 #include <bcos-crypto/hash/SM3.h>
 #include <bcos-crypto/interfaces/crypto/CryptoSuite.h>
-#include <bcos-crypto/signature/fastsm2/FastSM2Crypto.h>
 #include <bcos-crypto/signature/secp256k1/Secp256k1Crypto.h>
+#include <bcos-crypto/signature/sm2/SM2Crypto.h>
 #include <bcos-utilities/Common.h>
 #include <memory>
 
@@ -144,7 +144,7 @@ private:
 
     bcos::crypto::CryptoSuite::UniquePtr m_smCryptoSuite =
         std::make_unique<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::SM3>(),
-            std::make_shared<bcos::crypto::FastSM2Crypto>(), nullptr);
+            std::make_shared<bcos::crypto::SM2Crypto>(), nullptr);
 };
 }  // namespace utilities
 }  // namespace cppsdk

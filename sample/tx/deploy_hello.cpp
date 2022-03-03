@@ -170,6 +170,9 @@ int main(int argc, char** argv)
                                                  &*transactionBuilder->smCryptoSuite() :
                                                  &*transactionBuilder->ecdsaCryptoSuite();
 
+    std::cout << LOG_DESC(" [DeployHello] sm_crypto_type ") << groupInfo->smCryptoType()
+              << std::endl;
+
     std::cout << LOG_DESC(" [DeployHello] new account ")
               << LOG_KV(
                      "address", cryptoSuite->calculateAddress(keyPair->publicKey()).hexPrefixed())
