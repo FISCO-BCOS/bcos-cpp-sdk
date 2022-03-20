@@ -60,10 +60,11 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
     {
         bcos::crypto::Secp256k1Crypto secp256k1Crypto;
         auto keyPair = secp256k1Crypto.createKeyPair(keyImpl);
-
+        /*
         UTILITIES_KEYPAIR_LOG(TRACE)
             << LOG_BADGE("genKeyPair") << LOG_DESC("generate new ecdsa keypair")
             << LOG_KV("address", keyPair->address(std::make_shared<bcos::crypto::Keccak256>()));
+        */
 
         return keyPair;
     }
@@ -71,11 +72,11 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
     {
         bcos::crypto::SM2KeyPairFactory sM2KeyPairFactory;
         auto keyPair = sM2KeyPairFactory.createKeyPair(keyImpl);
-
+        /*
         UTILITIES_KEYPAIR_LOG(TRACE)
             << LOG_BADGE("genKeyPair") << LOG_DESC("generate new sm keypair")
             << LOG_KV("address", keyPair->address(std::make_shared<bcos::crypto::SM3>()));
-
+        */
         return keyPair;
     }
 }
