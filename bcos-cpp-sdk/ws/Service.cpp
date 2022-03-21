@@ -595,9 +595,10 @@ bool Service::getBlockNumber(const std::string& _group, int64_t& _blockNumber)
 
         _blockNumber = it->second;
     }
-
+    /*
     RPC_WS_LOG(TRACE) << LOG_BADGE("getBlockNumber") << LOG_KV("group", _group)
                       << LOG_KV("blockNumber", _blockNumber);
+    */
     return true;
 }
 
