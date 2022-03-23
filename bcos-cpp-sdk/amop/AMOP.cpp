@@ -132,7 +132,7 @@ void AMOP::publish(
     m_service->asyncSendMessage(sendMsg, bcos::boostssl::ws::Options(_timeout),
         [_callback](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
-            if (_msg->status() != 0)
+            if (!_error && _msg && _msg->status() != 0)
             {
                 auto errorNew = std::make_shared<Error>();
                 errorNew->setErrorCode(_msg->status());
