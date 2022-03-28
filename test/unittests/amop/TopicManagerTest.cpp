@@ -138,10 +138,10 @@ BOOST_AUTO_TEST_CASE(test_TopicManager)
         BOOST_CHECK(r);
 
         r = topicManager->removeTopic(topic2);
-        BOOST_CHECK(r);
+        BOOST_CHECK(!r);
 
         r = topicManager->removeTopic(topic3);
-        BOOST_CHECK(r);
+        BOOST_CHECK(!r);
 
         r = topicManager->removeTopics(topics);
         BOOST_CHECK(!r);
