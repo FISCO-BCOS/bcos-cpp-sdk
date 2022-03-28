@@ -45,11 +45,17 @@ bool AMOPRequest::encode(bytes& _buffer)
     {
         return false;
     }
-
+    // the version
+    auto version = boost::asio::detail::socket_ops::host_to_network_long(m_version);
+    auto versionLen = sizeof(m_version) / sizeof(uint8_t);
+    _buffer.insert(_buffer.end(), (byte*)&version, (byte*)&version + versionLen);
+    // the topic length
     uint16_t length =
         boost::asio::detail::socket_ops::host_to_network_short((uint16_t)m_topic.size());
     _buffer.insert(_buffer.end(), (byte*)&length, (byte*)&length + 2);
+    // the topic data
     _buffer.insert(_buffer.end(), m_topic.begin(), m_topic.end());
+    // the data
     _buffer.insert(_buffer.end(), m_data.begin(), m_data.end());
     return true;
 }
@@ -65,16 +71,25 @@ int64_t AMOPRequest::decode(bcos::bytesConstRef _data)
     {
         std::size_t length = _data.size();
         std::size_t offset = 0;
+        // decode version
+        auto versionLen = sizeof(m_version) / sizeof(uint8_t);
+        OFFSET_CHECK(offset, versionLen, length);
+        offset += versionLen;
+        m_version =
+            boost::asio::detail::socket_ops::network_to_host_long(*((uint32_t*)_data.data()));
 
+        // decode topicLength
         OFFSET_CHECK(offset, 2, length);
-        uint16_t topicLen =
-            boost::asio::detail::socket_ops::network_to_host_short(*((uint16_t*)_data.data()));
+        uint16_t topicLen = boost::asio::detail::socket_ops::network_to_host_short(
+            *((uint16_t*)(_data.data() + versionLen)));
         offset += 2;
+
+        // decode topic
         OFFSET_CHECK(offset, topicLen, length);
-        // topic
         m_topic = std::string(_data.data() + offset, _data.data() + offset + topicLen);
         offset += topicLen;
-        // data
+
+        // decode data
         m_data = _data.getCroppedData(offset);
         return _data.size();
     }

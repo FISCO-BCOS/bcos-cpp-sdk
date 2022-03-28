@@ -45,9 +45,13 @@ public:
     virtual bool encode(bcos::bytes& _buffer);
     virtual int64_t decode(bcos::bytesConstRef _data);
 
+    virtual uint32_t version() const { return m_version; }
+    virtual void setVersion(uint32_t _version) { m_version = _version; }
+
 private:
     std::string m_topic;
     bcos::bytesConstRef m_data = bcos::bytesConstRef();
+    uint32_t m_version = 0;
 };
 
 class AMOPRequestFactory
