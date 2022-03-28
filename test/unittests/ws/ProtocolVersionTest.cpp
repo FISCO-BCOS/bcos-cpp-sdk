@@ -18,6 +18,7 @@
  * @date 2021-10-26
  */
 
+#include <bcos-cpp-sdk/multigroup/JsonGroupInfoCodec.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/ProtocolVersion.h>
 #include <bcos-utilities/Common.h>
@@ -37,20 +38,21 @@ BOOST_FIXTURE_TEST_SUITE(ProtocolVersionTest, TestPromptFixture)
 
 BOOST_AUTO_TEST_CASE(test_ProtocolVersion)
 {
+    auto groupInfoCodec = std::make_shared<bcos::group::JsonGroupInfoCodec>();
     {
         int protocolVersion = 111;
-        auto pv = std::make_shared<bcos::cppsdk::service::ProtocolVersion>();
+        auto pv = std::make_shared<bcos::cppsdk::service::ProtocolVersion>(groupInfoCodec);
         pv->setProtocolVersion(protocolVersion);
         BOOST_CHECK_EQUAL(pv->protocolVersion(), protocolVersion);
     }
 
     {
         int protocolVersion = 111;
-        auto pv = std::make_shared<bcos::cppsdk::service::ProtocolVersion>();
+        auto pv = std::make_shared<bcos::cppsdk::service::ProtocolVersion>(groupInfoCodec);
         pv->setProtocolVersion(protocolVersion);
         auto s = pv->toJsonString();
 
-        auto pv0 = std::make_shared<bcos::cppsdk::service::ProtocolVersion>();
+        auto pv0 = std::make_shared<bcos::cppsdk::service::ProtocolVersion>(groupInfoCodec);
         auto r = pv0->fromJson(s);
 
         BOOST_CHECK_EQUAL(r, true);
@@ -58,7 +60,7 @@ BOOST_AUTO_TEST_CASE(test_ProtocolVersion)
     }
 
     {
-        auto pv = std::make_shared<bcos::cppsdk::service::ProtocolVersion>();
+        auto pv = std::make_shared<bcos::cppsdk::service::ProtocolVersion>(groupInfoCodec);
         BOOST_CHECK_EQUAL(pv->fromJson("1adf"), false);
     }
 }
