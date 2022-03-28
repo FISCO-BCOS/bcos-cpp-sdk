@@ -45,7 +45,7 @@ HunterGate(
 )
 
 project(bcos-cpp-sdk VERSION "3.0.0")
-set(VERSION_SUFFIX "-rc3")
+set(VERSION_SUFFIX "-rc4")
 
 # Boost
 hunter_add_package(Boost COMPONENTS all)
