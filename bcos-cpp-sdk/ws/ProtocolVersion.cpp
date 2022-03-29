@@ -34,9 +34,6 @@ bool ProtocolVersion::fromJson(const std::string& _json)
         Json::Value root;
         Json::Reader jsonReader;
         std::string errorMessage;
-
-        auto groupInfoFactory = std::make_shared<group::GroupInfoFactory>();
-        auto chainNodeInfoFactory = std::make_shared<group::ChainNodeInfoFactory>();
         do
         {
             if (!jsonReader.parse(_json, root))
@@ -59,13 +56,9 @@ bool ProtocolVersion::fromJson(const std::string& _json)
                 auto& jGroupInfoList = root["groupInfoList"];
                 for (Json::ArrayIndex i = 0; i < jGroupInfoList.size(); ++i)
                 {
-                    auto groupInfo = groupInfoFactory->createGroupInfo();
-                    groupInfo->setChainNodeInfoFactory(chainNodeInfoFactory);
-
                     Json::FastWriter writer;
                     std::string str = writer.write(jGroupInfoList[i]);
-
-                    groupInfo->deserialize(str);
+                    auto groupInfo = m_groupInfoCodec->deserialize(str);
 
                     RPC_WS_LOG(INFO) << LOG_BADGE("fromJson") << LOG_DESC(" new group info")
                                      << LOG_KV("groupInfo", printGroupInfo(groupInfo));
@@ -126,9 +119,13 @@ Json::Value ProtocolVersion::toJson()
     jResult["protocolVersion"] = m_protocolVersion;
     jResult["groupInfoList"] = Json::Value(Json::arrayValue);
 
+    Json::Reader jsonReader;
     for (const auto& groupInfo : m_groupInfoList)
     {
-        jResult["groupInfoList"].append(groupInfo->serialize());
+        auto groupInfoStr = m_groupInfoCodec->serialize(groupInfo);
+        Json::Value root;
+        jsonReader.parse(groupInfoStr, root);
+        jResult["groupInfoList"].append(root);
     }
 
     return jResult;

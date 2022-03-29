@@ -17,7 +17,6 @@
  * @author: octopus
  * @date 2021-08-21
  */
-
 #include <bcos-boostssl/websocket/WsConnector.h>
 #include <bcos-boostssl/websocket/WsInitializer.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
@@ -27,10 +26,13 @@
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
 #include <bcos-cpp-sdk/amop/Common.h>
 #include <bcos-cpp-sdk/config/Config.h>
+#include <bcos-cpp-sdk/multigroup/JsonGroupInfoCodec.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/utilities/logger/LogInitializer.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
+#include <bcos-framework/interfaces/protocol/Protocol.h>
 #include <bcos-utilities/BoostLog.h>
 #include <bcos-utilities/Common.h>
 #include <memory>
@@ -66,11 +68,7 @@ bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(
     auto jsonRpc = buildJsonRpc(service);
     auto eventSub = buildEventSub(service);
 
-    auto sdk = std::make_unique<bcos::cppsdk::Sdk>();
-    sdk->setService(service);
-    sdk->setAmop(amop);
-    sdk->setEventSub(eventSub);
-    sdk->setJsonRpc(jsonRpc);
+    auto sdk = std::make_unique<bcos::cppsdk::Sdk>(service, jsonRpc, amop, eventSub);
     return sdk;
 }
 
@@ -83,18 +81,13 @@ bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(const std::string& _configFile
 
 Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConfig> _config)
 {
-    auto service = std::make_shared<Service>();
-    auto initializer = std::make_shared<WsInitializer>();
-
+    auto groupInfoCodec = std::make_shared<bcos::group::JsonGroupInfoCodec>();
     auto groupInfoFactory = std::make_shared<bcos::group::GroupInfoFactory>();
-    auto chainNodeInfoFactory = std::make_shared<bcos::group::ChainNodeInfoFactory>();
-
+    auto service = std::make_shared<Service>(groupInfoCodec, groupInfoFactory);
+    auto initializer = std::make_shared<WsInitializer>();
     initializer->setConfig(_config);
     initializer->initWsService(service);
-    service->setGroupInfoFactory(groupInfoFactory);
-    service->setChainNodeInfoFactory(chainNodeInfoFactory);
-
-    service->registerMsgHandler(bcos::cppsdk::jsonrpc::MessageType::BLOCK_NOTIFY,
+    service->registerMsgHandler(bcos::protocol::MessageType::BLOCK_NOTIFY,
         [service](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             auto blkMsg = std::string(_msg->data()->begin(), _msg->data()->end());
 
@@ -104,7 +97,7 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
                            << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("blk", blkMsg);
         });
 
-    service->registerMsgHandler(bcos::cppsdk::jsonrpc::MessageType::GROUP_NOTIFY,
+    service->registerMsgHandler(bcos::protocol::MessageType::GROUP_NOTIFY,
         [service](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
             std::string groupInfo = std::string(_msg->data()->begin(), _msg->data()->end());
 
@@ -120,7 +113,8 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
 
 bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _service)
 {
-    auto jsonRpc = std::make_shared<JsonRpcImpl>();
+    auto groupInfoCodec = std::make_shared<bcos::group::JsonGroupInfoCodec>();
+    auto jsonRpc = std::make_shared<JsonRpcImpl>(groupInfoCodec);
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
     jsonRpc->setService(_service);
@@ -129,7 +123,7 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _s
                            const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
         auto data = std::make_shared<bytes>(_request.begin(), _request.end());
         auto msg = _service->messageFactory()->buildMessage();
-        msg->setType(bcos::cppsdk::jsonrpc::MessageType::RPC_REQUEST);
+        msg->setType(bcos::protocol::MessageType::RPC_REQUEST);
         msg->setData(data);
 
         _service->asyncSendMessageByGroupAndNode(_group, _node, msg, Options(),

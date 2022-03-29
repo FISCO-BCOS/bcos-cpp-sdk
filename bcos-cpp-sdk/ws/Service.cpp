@@ -17,12 +17,11 @@
  * @author: octopus
  * @date 2021-10-22
  */
-
 #include <bcos-boostssl/websocket/WsError.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
 #include <bcos-cpp-sdk/ws/Common.h>
 #include <bcos-cpp-sdk/ws/ProtocolVersion.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-framework/interfaces/protocol/Protocol.h>
 #include <bcos-utilities/BoostLog.h>
 #include <bcos-utilities/Common.h>
 #include <boost/thread/thread.hpp>
@@ -207,7 +206,7 @@ bool Service::checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> 
 void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto message = messageFactory()->buildMessage();
-    message->setType(ws::MessageType::HANDESHAKE);
+    message->setType(bcos::protocol::MessageType::HANDESHAKE);
 
     RPC_WS_LOG(INFO) << LOG_BADGE("startHandshake")
                      << LOG_KV("endpoint", _session ? _session->endPoint() : std::string(""));
@@ -230,7 +229,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
 
             std::string endPoint = session ? session->endPoint() : std::string("");
             std::string pvString = std::string(_msg->data()->begin(), _msg->data()->end());
-            auto pv = std::make_shared<ProtocolVersion>();
+            auto pv = std::make_shared<ProtocolVersion>(service->m_groupInfoCodec);
             if (!pv->fromJson(pvString))
             {
                 _session->drop(bcos::boostssl::ws::WsError::UserDisconnect);
@@ -283,10 +282,7 @@ void Service::onNotifyGroupInfo(
 
     try
     {
-        auto groupInfo = m_groupInfoFactory->createGroupInfo();
-        groupInfo->setChainNodeInfoFactory(m_chainNodeInfoFactory);
-        groupInfo->deserialize(_groupInfoJson);
-
+        auto groupInfo = m_groupInfoCodec->deserialize(_groupInfoJson);
         updateGroupInfoByEp(endPoint, groupInfo);
     }
     catch (const std::exception& e)

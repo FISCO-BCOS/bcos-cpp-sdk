@@ -20,9 +20,9 @@
 
 #pragma once
 #include <bcos-boostssl/websocket/WsService.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfoFactory.h>
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoCodec.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/Error.h>
 #include <functional>
@@ -45,6 +45,10 @@ class Service : public bcos::boostssl::ws::WsService
 public:
     using Ptr = std::shared_ptr<Service>;
     using ConstPtr = std::shared_ptr<const Service>;
+    Service(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec,
+        bcos::group::GroupInfoFactory::Ptr _groupInfoFactory)
+      : m_groupInfoCodec(_groupInfoCodec), m_groupInfoFactory(_groupInfoFactory)
+    {}
 
 public:
     // ---------------------overide begin------------------------------------
@@ -111,20 +115,6 @@ public:
 
     void printGroupInfo();
     bcos::group::GroupInfoFactory::Ptr groupInfoFactory() const { return m_groupInfoFactory; }
-    void setGroupInfoFactory(bcos::group::GroupInfoFactory::Ptr _groupInfoFactory)
-    {
-        m_groupInfoFactory = _groupInfoFactory;
-    }
-
-    bcos::group::ChainNodeInfoFactory::Ptr chainNodeInfoFactory() const
-    {
-        return m_chainNodeInfoFactory;
-    }
-
-    void setChainNodeInfoFactory(bcos::group::ChainNodeInfoFactory::Ptr _chainNodeInfoFactory)
-    {
-        m_chainNodeInfoFactory = _chainNodeInfoFactory;
-    }
 
 public:
     uint32_t wsHandshakeTimeout() const { return m_wsHandshakeTimeout; }
@@ -165,10 +155,6 @@ private:
     // endpoint => group => groupInfo
     std::unordered_map<std::string, std::unordered_map<std::string, bcos::group::GroupInfo::Ptr>>
         m_endPoint2GroupId2GroupInfo;
-    //
-    bcos::group::GroupInfoFactory::Ptr m_groupInfoFactory;
-    //
-    bcos::group::ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
 
     mutable boost::shared_mutex x_blockNotifierLock;
     // group => blockNotifier callback
@@ -177,6 +163,9 @@ private:
     std::unordered_map<std::string, int64_t> m_group2BlockNumber;
     // group => nodes
     std::unordered_map<std::string, std::set<std::string>> m_group2LatestBlockNumberNodes;
+
+    bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
+    bcos::group::GroupInfoFactory::Ptr m_groupInfoFactory;
 };
 
 }  // namespace service

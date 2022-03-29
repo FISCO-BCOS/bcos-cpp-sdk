@@ -19,10 +19,7 @@
  */
 
 #pragma once
-#include <bcos-cpp-sdk/multigroup/ChainNodeInfo.h>
-#include <bcos-cpp-sdk/multigroup/ChainNodeInfoFactory.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfoFactory.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoCodec.h>
 #include <json/json.h>
 #include <algorithm>
 #include <unordered_map>
@@ -38,6 +35,9 @@ class ProtocolVersion
 public:
     using Ptr = std::shared_ptr<ProtocolVersion>;
     using ConstPtr = std::shared_ptr<const ProtocolVersion>;
+    ProtocolVersion(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec)
+      : m_groupInfoCodec(_groupInfoCodec)
+    {}
 
 public:
     bool fromJson(const std::string& _json);
@@ -67,6 +67,7 @@ private:
     int m_protocolVersion;
     std::vector<bcos::group::GroupInfo::Ptr> m_groupInfoList;
     std::unordered_map<std::string, int64_t> m_groupBlockNumber;
+    bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
 };
 
 }  // namespace service

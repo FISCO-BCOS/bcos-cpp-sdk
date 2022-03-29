@@ -457,7 +457,7 @@ void JsonRpcImpl::getGroupInfo(const std::string& _groupID, RespFunc _respFunc)
     auto groupInfo = m_service->getGroupInfo(_groupID);
     if (groupInfo)
     {
-        jsonResp.result = groupInfo->serialize();
+        jsonResp.result = m_groupInfoCodec->serialize(groupInfo);
         hitCache = true;
     }
     else

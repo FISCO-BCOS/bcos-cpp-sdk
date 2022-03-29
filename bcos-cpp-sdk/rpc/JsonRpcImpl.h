@@ -22,6 +22,7 @@
 #include <bcos-cpp-sdk/rpc/JsonRpcInterface.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcRequest.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoCodec.h>
 #include <functional>
 
 namespace bcos
@@ -40,7 +41,9 @@ public:
     using UniquePtr = std::unique_ptr<JsonRpcImpl>;
 
 public:
-    JsonRpcImpl() = default;
+    JsonRpcImpl(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec)
+      : m_groupInfoCodec(_groupInfoCodec)
+    {}
 
     virtual ~JsonRpcImpl() { stop(); }
 
@@ -144,6 +147,7 @@ private:
     std::function<void(const std::string& _group, const std::string& _node,
         const std::string& _request, RespFunc _respFunc)>
         m_sender;
+    bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
 };
 
 }  // namespace jsonrpc
