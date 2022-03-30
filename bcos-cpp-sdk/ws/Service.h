@@ -23,6 +23,7 @@
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
 #include <bcos-framework/interfaces/multigroup/GroupInfoCodec.h>
 #include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
+#include <bcos-framework/interfaces/protocol/GlobalConfig.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/Error.h>
 #include <functional>
@@ -46,11 +47,8 @@ public:
     using Ptr = std::shared_ptr<Service>;
     using ConstPtr = std::shared_ptr<const Service>;
     Service(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec,
-        bcos::group::GroupInfoFactory::Ptr _groupInfoFactory)
-      : m_groupInfoCodec(_groupInfoCodec), m_groupInfoFactory(_groupInfoFactory)
-    {}
+        bcos::group::GroupInfoFactory::Ptr _groupInfoFactory);
 
-public:
     // ---------------------overide begin------------------------------------
 
     virtual void start() override;
@@ -68,14 +66,13 @@ public:
 
     void waitForConnectionEstablish();
 
-public:
+
     // ---------------------send message begin-------------------------------
     virtual void asyncSendMessageByGroupAndNode(const std::string& _group, const std::string& _node,
         std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
         bcos::boostssl::ws::RespCallBack _respFunc);
     // ---------------------oversend message begin----------------------------
 
-public:
     virtual void startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
     virtual bool checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
@@ -87,7 +84,6 @@ public:
     void onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
-public:
     //------------------------------ Block Notifier begin --------------------------
     bool getBlockNumber(const std::string& _group, int64_t& _blockNumber);
     bool getBlockLimit(const std::string& _group, int64_t& _blockLimit);
@@ -103,11 +99,9 @@ public:
     void registerBlockNumberNotifier(const std::string& _group, BlockNotifierCallback _callback);
     //------------------------------ Block Notifier end  ----------------------------
 
-public:
     bcos::group::GroupInfo::Ptr getGroupInfo(const std::string& _groupID);
     void updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
 
-public:
     bool hasEndPointOfNodeAvailable(const std::string& _groupID, const std::string& _node);
     bool getEndPointsByGroup(const std::string& _group, std::set<std::string>& _endPoints);
     bool getEndPointsByGroupAndNode(
@@ -116,7 +110,6 @@ public:
     void printGroupInfo();
     bcos::group::GroupInfoFactory::Ptr groupInfoFactory() const { return m_groupInfoFactory; }
 
-public:
     uint32_t wsHandshakeTimeout() const { return m_wsHandshakeTimeout; }
     void setWsHandshakeTimeout(uint32_t _wsHandshakeTimeout)
     {
@@ -164,8 +157,12 @@ private:
     // group => nodes
     std::unordered_map<std::string, std::set<std::string>> m_group2LatestBlockNumberNodes;
 
+    // the groupInfo codec
     bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
+    // the groupInfo factory
     bcos::group::GroupInfoFactory::Ptr m_groupInfoFactory;
+
+    bcos::protocol::ProtocolInfo::ConstPtr m_localProtocol;
 };
 
 }  // namespace service
