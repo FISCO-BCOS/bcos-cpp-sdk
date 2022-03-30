@@ -140,6 +140,25 @@ public:
         {
             chainNodeInfo->setMicroService(value["microService"].asBool());
         }
+        // optional: protocol info
+        auto protocolInfo = std::make_shared<bcos::protocol::ProtocolInfo>();
+        if (value.isMember("protocol"))
+        {
+            auto const& protocol = value["protocol"];
+            if (protocol.isMember("minVersion"))
+            {
+                protocolInfo->setMinVersion(protocol["minVersion"].asUInt());
+            }
+            if (protocol.isMember("maxVersion"))
+            {
+                protocolInfo->setMaxVersion(protocol["maxVersion"].asUInt());
+            }
+            chainNodeInfo->setNodeProtocol(std::move(*protocolInfo));
+            if (protocol.isMember("sysVersion"))
+            {
+                chainNodeInfo->setSystemVersion(protocol["sysVersion"].asUInt());
+            }
+        }
         return chainNodeInfo;
     }
 
@@ -160,7 +179,13 @@ public:
             item["serviceName"] = innerIt.second;
             jResp["serviceInfo"].append(item);
         }
-
+        // set protocol info
+        auto protocol = _chainNodeInfo->nodeProtocol();
+        Json::Value protocolResponse;
+        protocolResponse["minVersion"] = protocol->minVersion();
+        protocolResponse["maxVersion"] = protocol->maxVersion();
+        protocolResponse["sysVersion"] = _chainNodeInfo->systemVersion();
+        jResp["protocol"] = protocolResponse;
         return jResp.toStyledString();
     }
 
