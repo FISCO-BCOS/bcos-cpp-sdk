@@ -106,13 +106,10 @@ void HandshakeResponse::encode(std::string& _encodedData) const
 
     encodedJson["protocolVersion"] = m_protocolVersion;
     encodedJson["groupInfoList"] = Json::Value(Json::arrayValue);
-    Json::Reader reader;
     for (const auto& groupInfo : m_groupInfoList)
     {
-        auto groupInfoStr = m_groupInfoCodec->serialize(groupInfo);
-        Json::Value root;
-        reader.parse(groupInfoStr, root);
-        encodedJson["groupInfoList"].append(root);
+        auto groupInfoResponse = m_groupInfoCodec->serialize(groupInfo);
+        encodedJson["groupInfoList"].append(groupInfoResponse);
     }
     Json::FastWriter writer;
     _encodedData = writer.write(encodedJson);

@@ -166,7 +166,7 @@ public:
     {
         Json::Value jResp;
         jResp["name"] = _chainNodeInfo->nodeName();
-        jResp["type"] = _chainNodeInfo->nodeType();
+        jResp["type"] = _chainNodeInfo->nodeCryptoType();
         jResp["iniConfig"] = _chainNodeInfo->iniConfig();
         // set deployInfo
         jResp["serviceInfo"] = Json::Value(Json::arrayValue);
@@ -186,7 +186,7 @@ public:
         protocolResponse["maxVersion"] = protocol->maxVersion();
         protocolResponse["sysVersion"] = _chainNodeInfo->systemVersion();
         jResp["protocol"] = protocolResponse;
-        return jResp.toStyledString();
+        return jResp;
     }
 
 private:

@@ -103,7 +103,7 @@ public:
         return groupInfo;
     }
 
-    std::string serialize(GroupInfo::Ptr _groupInfo) override
+    Json::Value serialize(GroupInfo::Ptr _groupInfo) override
     {
         Json::Value jResp;
         jResp["chainID"] = _groupInfo->chainID();
@@ -118,8 +118,7 @@ public:
         {
             jResp["nodeList"].append(m_chainNodeInfoCodec->serialize(it.second));
         }
-
-        return jResp.toStyledString();
+        return jResp;
     }
 
 private:
