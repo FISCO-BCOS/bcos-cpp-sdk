@@ -26,8 +26,10 @@
 #include <bcos-utilities/testutils/TestPromptFixture.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
+#include <chrono>
 #include <future>
 #include <memory>
+#include <thread>
 
 using namespace bcos;
 using namespace bcos::cppsdk;
@@ -150,7 +152,6 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
     auto task = std::make_shared<bcos::cppsdk::event::EventSubTask>();
     std::string id = "123";
     task->setId(id);
-
     {
         // task is suspend
         es->addSuspendTask(task);
@@ -170,12 +171,15 @@ BOOST_AUTO_TEST_CASE(test_EventSub_unsubscribeEvent)
         BOOST_CHECK_EQUAL(es->suspendTasksCount(), 0);
     }
 
+
     {
         // task is running
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(*es->ioc());
         auto session = std::make_shared<bcos::cppsdk::test::WsSessionFake>();
-
         task->setSession(session);
+
+        std::string resp = "{}";
+        session->setResp(std::make_shared<bcos::bytes>(resp.begin(), resp.end()));
         es->addTask(task);
 
         // callback error

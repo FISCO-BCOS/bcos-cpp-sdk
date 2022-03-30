@@ -19,7 +19,7 @@ file(GLOB_RECURSE SOURCES "unittests/*.cpp" "unittests/*.h" "unittests/*.sol")
 
 # cmake settings
 include(SearchTestCases)
-set(TEST_BINARY_NAME test-bcos-boostssl)
+set(TEST_BINARY_NAME test-bcos-cpp-sdk)
 config_test_cases("" "${SOURCES}" bin/${TEST_BINARY_NAME} "")
 
 add_executable(${TEST_BINARY_NAME} ${SOURCES})

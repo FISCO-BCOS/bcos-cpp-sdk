@@ -17,7 +17,7 @@
  * @author: octopus
  * @date 2021-10-28
  */
-#include <bcos-cpp-sdk/LogInitializer.h>
+#include <bcos-cpp-sdk/utilities/logger/LogInitializer.h>
 
 std::once_flag bcos::cppsdk::LogInitializer::m_flag;
 bcos::BoostLogInitializer* bcos::cppsdk::LogInitializer::m_logInitializer;

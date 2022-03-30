@@ -75,8 +75,6 @@ public:
     virtual void getBlockHashByNumber(const std::string& _groupID, const std::string& _nodeName,
         int64_t _blockNumber, RespFunc _respFunc) = 0;
 
-    virtual int64_t getBlockLimit(const std::string& _groupID) = 0;
-
     virtual void getBlockNumber(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) = 0;
 
@@ -108,6 +106,7 @@ public:
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) = 0;
 
     virtual void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) = 0;
+
     virtual void getPeers(RespFunc _respFunc) = 0;
 
     virtual void getGroupList(RespFunc _respFunc) = 0;

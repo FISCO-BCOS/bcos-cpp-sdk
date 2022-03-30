@@ -39,13 +39,13 @@ list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
 #init hunter
 include(HunterGate)
 HunterGate(
-    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/41051088cf9eb0abd0e33b4f1641727cbea57aff.tar.gz"
-    SHA1 "8330e7840f53aaba6ef8b6996f5b1fd82f29d0b4"
+    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/a97876640bdca736c23a48dc0ad0f168fd3d695c.tar.gz"
+    SHA1 "bb6f77268bfa8772ca30d5a4a62dda35840078ad"
     FILEPATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake"
 )
 
 project(bcos-cpp-sdk VERSION "3.0.0")
-set(VERSION_SUFFIX "-rc2")
+set(VERSION_SUFFIX "-rc3")
 
 # Boost
 hunter_add_package(Boost COMPONENTS all)
@@ -59,13 +59,19 @@ find_package(jsoncpp CONFIG REQUIRED)
 hunter_add_package(OpenSSL)
 find_package(OpenSSL REQUIRED)
 
+# wedpr-crypto
+hunter_add_package(wedpr-crypto)
+find_package(wedpr-crypto CONFIG REQUIRED)
+
 # bcos-utilities
-hunter_add_package(bcos-utilities)
-find_package(bcos-utilities CONFIG REQUIRED)
+include(InstallBcosUtilities)
 
 # bcos-boostssl
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
+
+# bcos-crypto
+include(InstallBcosCrypto)
 
 # basic settings
 include(Options)
@@ -78,8 +84,6 @@ include(InstallInclude)
 include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-# install dependencies
-# include(InstallBcosFrameworkDependencies)
 
 set(BCOS_CPP_SDK_TARGET "bcos-cpp-sdk")
 

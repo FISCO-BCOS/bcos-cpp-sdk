@@ -22,7 +22,6 @@
 #include <bcos-boostssl/websocket/WsInitializer.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
-#include <bcos-cpp-sdk/LogInitializer.h>
 #include <bcos-cpp-sdk/SdkFactory.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
@@ -30,6 +29,7 @@
 #include <bcos-cpp-sdk/config/Config.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
+#include <bcos-cpp-sdk/utilities/logger/LogInitializer.h>
 #include <bcos-cpp-sdk/ws/Service.h>
 #include <bcos-utilities/BoostLog.h>
 #include <bcos-utilities/Common.h>
@@ -91,7 +91,6 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
 
     initializer->setConfig(_config);
     initializer->initWsService(service);
-    service->setWaitConnectFinish(true);
     service->setGroupInfoFactory(groupInfoFactory);
     service->setChainNodeInfoFactory(chainNodeInfoFactory);
 

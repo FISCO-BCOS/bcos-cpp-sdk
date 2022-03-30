@@ -18,14 +18,13 @@
  * @date 2021-08-10
  */
 
+#include <bcos-boostssl/websocket/WsError.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-utilities/Common.h>
+#include <bcos-utilities/DataConvertUtility.h>
 #include <json/value.h>
-#include <boost/core/ignore_unused.hpp>
 #include <fstream>
-#include <memory>
-#include <string>
 
 using namespace bcos;
 using namespace cppsdk;
@@ -108,6 +107,17 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
     {
         m_service->randomGetHighestBlockNumberNode(_groupID, name);
     }
+
+    auto groupInfo = m_service->getGroupInfo(_groupID);
+    if (!groupInfo)
+    {
+        auto error = std::make_shared<Error>(bcos::boostssl::ws::WsError::EndPointNotExist,
+            "the group does not exist, group: " + _groupID);
+        _respFunc(error, nullptr);
+        return;
+    }
+
+    auto txBytes = fromHexString(_data);
 
     Json::Value params = Json::Value(Json::arrayValue);
     params.append(_groupID);
@@ -244,13 +254,6 @@ void JsonRpcImpl::getBlockNumber(
     auto s = request->toJson();
     m_sender(_groupID, name, s, _respFunc);
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("getBlockNumber") << LOG_KV("request", s);
-}
-
-int64_t JsonRpcImpl::getBlockLimit(const std::string& _groupID)
-{
-    int64_t blockLimit = -1;
-    m_service->getBlockLimit(_groupID, blockLimit);
-    return blockLimit;
 }
 
 void JsonRpcImpl::getCode(const std::string& _groupID, const std::string& _nodeName,

@@ -76,9 +76,40 @@ public:
     virtual std::string const& iniConfig() const { return m_iniConfig; }
     virtual std::string const& nodeID() const { return m_nodeID; }
     virtual void setNodeID(std::string const& _nodeID) { m_nodeID = _nodeID; }
+    virtual void setWasm(bool _wasm) { m_wasm = _wasm; }
+    virtual void setSmCryptoType(bool _smCryptoType) { m_smCryptoType = _smCryptoType; }
 
     void setMicroService(bool _microService) { m_microService = _microService; }
     bool microService() const { return m_microService; }
+    bool wasm() const { return m_wasm; }
+    bool smCryptoType() const { return m_smCryptoType; }
+
+    virtual void deserializeIniConfig()
+    {
+        Json::Value value;
+        Json::Reader jsonReader;
+        if (!jsonReader.parse(m_iniConfig, value))
+        {
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The chain node ini config must be valid json string."));
+        }
+
+        // required: isWasm
+        if (!value.isMember("isWasm"))
+        {
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The chain node ini config must set is wasm info."));
+        }
+        setWasm(value["isWasm"].asBool());
+
+        // required: smCryptoType
+        if (!value.isMember("smCryptoType"))
+        {
+            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
+                                      "The chain node ini config must set sm crypto type."));
+        }
+        setSmCryptoType(value["smCryptoType"].asBool());
+    }
 
     virtual void deserialize(const std::string& _json)
     {
@@ -113,6 +144,7 @@ public:
                                       "The chain node information must set the init config info"));
         }
         setIniConfig(value["iniConfig"].asString());
+        deserializeIniConfig();
 
         // required: parse deployInfo
         if (!value.isMember("serviceInfo"))
@@ -177,6 +209,9 @@ public:
     }
 
 private:
+    bool m_wasm{false};
+    bool m_smCryptoType{false};
+
     bool m_microService = false;
     // the node name
     std::string m_nodeName;
