@@ -17,12 +17,12 @@
  * @author: octopus
  * @date 2021-10-22
  */
-
 #include <bcos-boostssl/websocket/WsError.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
 #include <bcos-cpp-sdk/ws/Common.h>
-#include <bcos-cpp-sdk/ws/ProtocolVersion.h>
+#include <bcos-cpp-sdk/ws/HandshakeResponse.h>
 #include <bcos-cpp-sdk/ws/Service.h>
+#include <bcos-framework/interfaces/protocol/Protocol.h>
+#include <bcos-framework/interfaces/rpc/HandshakeRequest.h>
 #include <bcos-utilities/BoostLog.h>
 #include <bcos-utilities/Common.h>
 #include <boost/thread/thread.hpp>
@@ -41,8 +41,16 @@ using namespace bcos;
 
 static const int32_t BLOCK_LIMIT_RANGE = 500;
 
-// ---------------------overide
-// begin--------------------------------------------------------------
+Service::Service(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec,
+    bcos::group::GroupInfoFactory::Ptr _groupInfoFactory)
+  : m_groupInfoCodec(_groupInfoCodec), m_groupInfoFactory(_groupInfoFactory)
+{
+    m_localProtocol = g_BCOSConfig.protocolInfo(bcos::protocol::ProtocolModuleID::RpcService);
+    RPC_WS_LOG(INFO) << LOG_DESC("init the local protocol")
+                     << LOG_KV("minVersion", m_localProtocol->minVersion())
+                     << LOG_KV("maxVersion", m_localProtocol->maxVersion())
+                     << LOG_KV("module", m_localProtocol->protocolModuleID());
+}
 
 void Service::start()
 {
@@ -207,7 +215,10 @@ bool Service::checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> 
 void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto message = messageFactory()->buildMessage();
-    message->setType(ws::MessageType::HANDESHAKE);
+    message->setType(bcos::protocol::MessageType::HANDESHAKE);
+    bcos::rpc::HandshakeRequest request(m_localProtocol);
+    auto requestData = request.encode();
+    message->setData(requestData);
 
     RPC_WS_LOG(INFO) << LOG_BADGE("startHandshake")
                      << LOG_KV("endpoint", _session ? _session->endPoint() : std::string(""));
@@ -228,10 +239,10 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                 return;
             }
 
-            std::string endPoint = session ? session->endPoint() : std::string("");
-            std::string pvString = std::string(_msg->data()->begin(), _msg->data()->end());
-            auto pv = std::make_shared<ProtocolVersion>();
-            if (!pv->fromJson(pvString))
+            auto endPoint = session ? session->endPoint() : std::string("");
+            auto response = std::string(_msg->data()->begin(), _msg->data()->end());
+            auto handshakeResponse = std::make_shared<HandshakeResponse>(service->m_groupInfoCodec);
+            if (!handshakeResponse->decode(response))
             {
                 _session->drop(bcos::boostssl::ws::WsError::UserDisconnect);
 
@@ -242,9 +253,8 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             }
 
             // set protocol version
-            session->setVersion(pv->protocolVersion());
-
-            auto groupInfoList = pv->groupInfoList();
+            session->setVersion(handshakeResponse->protocolVersion());
+            auto groupInfoList = handshakeResponse->groupInfoList();
             for (auto& groupInfo : groupInfoList)
             {
                 service->updateGroupInfoByEp(endPoint, groupInfo);
@@ -255,7 +265,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                                   << LOG_KV("wasm", groupInfo->wasm());
             }
 
-            auto groupBlockNumber = pv->groupBlockNumber();
+            auto groupBlockNumber = handshakeResponse->groupBlockNumber();
             for (auto entry : groupBlockNumber)
             {
                 service->updateGroupBlockNumber(entry.first, entry.second);
@@ -269,7 +279,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
                              << LOG_KV("handshake version", _session->version())
                              << LOG_KV("groupInfoList size", groupInfoList.size())
                              << LOG_KV("groupBlockNumber size", groupBlockNumber.size())
-                             << LOG_KV("handshake string", pvString);
+                             << LOG_KV("handshake string", response);
         });
 }
 
@@ -283,10 +293,7 @@ void Service::onNotifyGroupInfo(
 
     try
     {
-        auto groupInfo = m_groupInfoFactory->createGroupInfo();
-        groupInfo->setChainNodeInfoFactory(m_chainNodeInfoFactory);
-        groupInfo->deserialize(_groupInfoJson);
-
+        auto groupInfo = m_groupInfoCodec->deserialize(_groupInfoJson);
         updateGroupInfoByEp(endPoint, groupInfo);
     }
     catch (const std::exception& e)

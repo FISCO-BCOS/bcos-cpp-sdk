@@ -38,6 +38,11 @@ public:
     using UniquePtr = std::unique_ptr<Sdk>;
 
 public:
+    Sdk(bcos::cppsdk::service::Service::Ptr _service,
+        bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr _jsonRpc, bcos::cppsdk::amop::AMOP::Ptr _amop,
+        bcos::cppsdk::event::EventSub::Ptr _eventSub)
+      : m_service(_service), m_jsonRpc(_jsonRpc), m_amop(_amop), m_eventSub(_eventSub)
+    {}
     virtual ~Sdk() { stop(); }
 
 private:
@@ -94,17 +99,11 @@ public:
     }
 
 public:
-    void setService(bcos::cppsdk::service::Service::Ptr _service) { m_service = _service; }
     bcos::cppsdk::service::Service::Ptr service() const { return m_service; }
-
-    void setJsonRpc(bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr _jsonRpc) { m_jsonRpc = _jsonRpc; }
     bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr jsonRpc() const { return m_jsonRpc; }
-
-    void setAmop(bcos::cppsdk::amop::AMOP::Ptr _amop) { m_amop = _amop; }
     bcos::cppsdk::amop::AMOP::Ptr amop() const { return m_amop; }
 
     bcos::cppsdk::event::EventSub::Ptr eventSub() const { return m_eventSub; }
-    void setEventSub(bcos::cppsdk::event::EventSub::Ptr _eventSub) { m_eventSub = _eventSub; }
 };
 
 }  // namespace cppsdk

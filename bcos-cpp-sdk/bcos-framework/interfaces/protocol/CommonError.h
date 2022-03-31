@@ -13,22 +13,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @brief define the basic type of the GroupManager
- * @file GroupTypeDef.h
+ * @brief define common error for all the modules
+ * @file CommonError.h
  * @author: yujiechen
- * @date 2021-09-16
+ * @date 2021-04-22
  */
 #pragma once
-#include <bcos-utilities/Exceptions.h>
-#include <memory>
-
-#define GROUP_LOG(LEVEL) BCOS_LOG(LEVEL) << LOG_BADGE("GROUP")
-
+#include <stdint.h>
 namespace bcos
 {
-namespace group
+namespace protocol
 {
-// DERIVE_BCOS_EXCEPTION(InvalidGroupInfo);
-// DERIVE_BCOS_EXCEPTION(InvalidChainNodeInfo);
-}  // namespace group
+enum CommonError : int32_t
+{
+    SUCCESS = 0,
+    TIMEOUT = 1000,  // for gateway
+    NotFoundFrontServiceSendMsg = 1001,
+    NotFoundFrontServiceDispatchMsg = 1002,
+    GatewaySendMsgFailed = 1003,
+    TransactionsMissing = 2000,  // for transaction sync
+    InconsistentTransactions = 2001,
+    TxsSignatureVerifyFailed = 2002,
+    FetchTransactionsFailed = 2003,
+    NotFoundPeerByTopicSendMsg = 3001,
+    NotFoundClientByTopicDispatchMsg = 3002,
+    AMOPSendMsgFailed = 3003,
+    UnSupportedPacketType = 3004,
+};
+
+}  // namespace protocol
 }  // namespace bcos

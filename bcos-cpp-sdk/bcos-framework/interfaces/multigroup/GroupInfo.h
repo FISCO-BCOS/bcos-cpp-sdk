@@ -21,7 +21,6 @@
 #pragma once
 #include "ChainNodeInfoFactory.h"
 #include "GroupTypeDef.h"
-#include <json/json.h>
 namespace bcos
 {
 namespace group
@@ -40,7 +39,7 @@ public:
     virtual std::string const& iniConfig() const { return m_iniConfig; }
     virtual ChainNodeInfo::Ptr nodeInfo(std::string const& _nodeName) const
     {
-        bcos::ReadGuard l(x_nodeInfos);
+        ReadGuard l(x_nodeInfos);
         if (!m_nodeInfos.count(_nodeName))
         {
             return nullptr;
@@ -50,8 +49,6 @@ public:
 
     std::string const& groupID() const { return m_groupID; }
     std::string const& chainID() const { return m_chainID; }
-    bool wasm() const { return m_wasm; }
-    bool smCryptoType() const { return m_smCryptoType; }
 
     virtual void setGenesisConfig(std::string const& _genesisConfig)
     {
@@ -60,20 +57,20 @@ public:
     virtual void setIniConfig(std::string const& _iniConfig) { m_iniConfig = _iniConfig; }
     virtual bool appendNodeInfo(ChainNodeInfo::Ptr _nodeInfo)
     {
-        bcos::UpgradableGuard l(x_nodeInfos);
+        UpgradableGuard l(x_nodeInfos);
         auto const& nodeName = _nodeInfo->nodeName();
         if (m_nodeInfos.count(nodeName))
         {
             return false;
         }
-        bcos::UpgradeGuard ul(l);
+        UpgradeGuard ul(l);
         m_nodeInfos[nodeName] = _nodeInfo;
         return true;
     }
 
     virtual void updateNodeInfo(ChainNodeInfo::Ptr _nodeInfo)
     {
-        bcos::WriteGuard l(x_nodeInfos);
+        WriteGuard l(x_nodeInfos);
         auto const& nodeName = _nodeInfo->nodeName();
         if (m_nodeInfos.count(nodeName))
         {
@@ -85,106 +82,23 @@ public:
 
     virtual bool removeNodeInfo(ChainNodeInfo::Ptr _nodeInfo)
     {
-        bcos::UpgradableGuard l(x_nodeInfos);
+        UpgradableGuard l(x_nodeInfos);
         auto const& nodeName = _nodeInfo->nodeName();
         if (!m_nodeInfos.count(nodeName))
         {
             return false;
         }
-        bcos::UpgradeGuard ul(l);
+        UpgradeGuard ul(l);
         m_nodeInfos.erase(nodeName);
         return true;
     }
 
     virtual void setGroupID(std::string const& _groupID) { m_groupID = _groupID; }
     virtual void setChainID(std::string const& _chainID) { m_chainID = _chainID; }
-    virtual void setWasm(bool _wasm) { m_wasm = _wasm; }
-    virtual void setSmCryptoType(bool _smCryptoType) { m_smCryptoType = _smCryptoType; }
     virtual int64_t nodesNum() const
     {
-        bcos::ReadGuard l(x_nodeInfos);
+        ReadGuard l(x_nodeInfos);
         return m_nodeInfos.size();
-    }
-
-    virtual void deserialize(const std::string& _json)
-    {
-        Json::Value root;
-        Json::Reader jsonReader;
-
-        if (!jsonReader.parse(_json, root))
-        {
-            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
-                                      "The group information must be valid json string."));
-        }
-
-        if (!root.isMember("chainID"))
-        {
-            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
-                                      "The group information must contain chainID"));
-        }
-        setChainID(root["chainID"].asString());
-
-        if (!root.isMember("groupID"))
-        {
-            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
-                                      "The group information must contain groupID"));
-        }
-        setGroupID(root["groupID"].asString());
-
-        if (root.isMember("genesisConfig"))
-        {
-            setGenesisConfig(root["genesisConfig"].asString());
-        }
-
-
-        if (!root.isMember("iniConfig"))
-        {
-            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
-                                      "The group information must contain iniConfig"));
-        }
-        setIniConfig(root["iniConfig"].asString());
-
-        // nodeList
-        if (!root.isMember("nodeList") || !root["nodeList"].isArray())
-        {
-            BOOST_THROW_EXCEPTION(bcos::InvalidParameter() << bcos::errinfo_comment(
-                                      "The group information must contain nodeList"));
-        }
-
-        bool isFirst = true;
-        for (Json::ArrayIndex i = 0; i < root["nodeList"].size(); ++i)
-        {
-            auto& nodeInfo = root["nodeList"][i];
-            Json::FastWriter writer;
-            std::string nodeStr = writer.write(nodeInfo);
-            auto node = m_chainNodeInfoFactory->createNodeInfo(nodeStr);
-            appendNodeInfo(node);
-            if (isFirst)
-            {
-                setWasm(node->wasm());
-                setSmCryptoType(node->smCryptoType());
-                isFirst = false;
-            }
-        }
-    }
-
-    virtual Json::Value serialize()
-    {
-        Json::Value jResp;
-        jResp["chainID"] = chainID();
-        jResp["groupID"] = groupID();
-        jResp["wasm"] = wasm();
-        jResp["smCryptoType"] = smCryptoType();
-        jResp["genesisConfig"] = genesisConfig();
-        jResp["iniConfig"] = iniConfig();
-        jResp["nodeList"] = Json::Value(Json::arrayValue);
-        const auto& nodes = nodeInfos();
-        for (auto const& it : nodes)
-        {
-            jResp["nodeList"].append(it.second->serialize());
-        }
-
-        return jResp;
     }
 
     // return copied nodeInfos to ensure thread-safe
@@ -200,11 +114,16 @@ public:
         m_chainNodeInfoFactory = _chainNodeInfoFactory;
     }
 
-private:
-    ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
+    bool wasm() const { return m_wasm; }
+    bool smCryptoType() const { return m_smCryptoType; }
+    virtual void setWasm(bool _wasm) { m_wasm = _wasm; }
+    virtual void setSmCryptoType(bool _smCryptoType) { m_smCryptoType = _smCryptoType; }
 
+protected:
     bool m_wasm{false};
     bool m_smCryptoType{false};
+
+    ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
 
     std::string m_chainID;
     std::string m_groupID;
@@ -214,7 +133,7 @@ private:
     std::string m_iniConfig;
     // node name to node deployment information mapping
     std::map<std::string, ChainNodeInfo::Ptr> m_nodeInfos;
-    mutable bcos::SharedMutex x_nodeInfos;
+    mutable SharedMutex x_nodeInfos;
 };
 
 inline std::string printGroupInfo(GroupInfo::Ptr _groupInfo)
@@ -225,7 +144,6 @@ inline std::string printGroupInfo(GroupInfo::Ptr _groupInfo)
     }
     std::stringstream oss;
     oss << LOG_KV("group", _groupInfo->groupID()) << LOG_KV("chain", _groupInfo->chainID())
-        << LOG_KV("wasm", _groupInfo->wasm()) << LOG_KV("smCryptoType", _groupInfo->smCryptoType())
         << LOG_KV("nodeSize", _groupInfo->nodesNum());
     return oss.str();
 }

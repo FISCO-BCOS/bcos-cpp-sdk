@@ -20,9 +20,10 @@
 
 #pragma once
 #include <bcos-boostssl/websocket/WsService.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfoFactory.h>
 #include <bcos-cpp-sdk/ws/BlockNumberInfo.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoCodec.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
+#include <bcos-framework/interfaces/protocol/GlobalConfig.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/Error.h>
 #include <functional>
@@ -45,8 +46,9 @@ class Service : public bcos::boostssl::ws::WsService
 public:
     using Ptr = std::shared_ptr<Service>;
     using ConstPtr = std::shared_ptr<const Service>;
+    Service(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec,
+        bcos::group::GroupInfoFactory::Ptr _groupInfoFactory);
 
-public:
     // ---------------------overide begin------------------------------------
 
     virtual void start() override;
@@ -64,14 +66,13 @@ public:
 
     void waitForConnectionEstablish();
 
-public:
+
     // ---------------------send message begin-------------------------------
     virtual void asyncSendMessageByGroupAndNode(const std::string& _group, const std::string& _node,
         std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
         bcos::boostssl::ws::RespCallBack _respFunc);
     // ---------------------oversend message begin----------------------------
 
-public:
     virtual void startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
     virtual bool checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
@@ -83,7 +84,6 @@ public:
     void onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
-public:
     //------------------------------ Block Notifier begin --------------------------
     bool getBlockNumber(const std::string& _group, int64_t& _blockNumber);
     bool getBlockLimit(const std::string& _group, int64_t& _blockLimit);
@@ -99,11 +99,9 @@ public:
     void registerBlockNumberNotifier(const std::string& _group, BlockNotifierCallback _callback);
     //------------------------------ Block Notifier end  ----------------------------
 
-public:
     bcos::group::GroupInfo::Ptr getGroupInfo(const std::string& _groupID);
     void updateGroupInfo(const std::string& _endPoint, bcos::group::GroupInfo::Ptr _groupInfo);
 
-public:
     bool hasEndPointOfNodeAvailable(const std::string& _groupID, const std::string& _node);
     bool getEndPointsByGroup(const std::string& _group, std::set<std::string>& _endPoints);
     bool getEndPointsByGroupAndNode(
@@ -111,22 +109,7 @@ public:
 
     void printGroupInfo();
     bcos::group::GroupInfoFactory::Ptr groupInfoFactory() const { return m_groupInfoFactory; }
-    void setGroupInfoFactory(bcos::group::GroupInfoFactory::Ptr _groupInfoFactory)
-    {
-        m_groupInfoFactory = _groupInfoFactory;
-    }
 
-    bcos::group::ChainNodeInfoFactory::Ptr chainNodeInfoFactory() const
-    {
-        return m_chainNodeInfoFactory;
-    }
-
-    void setChainNodeInfoFactory(bcos::group::ChainNodeInfoFactory::Ptr _chainNodeInfoFactory)
-    {
-        m_chainNodeInfoFactory = _chainNodeInfoFactory;
-    }
-
-public:
     uint32_t wsHandshakeTimeout() const { return m_wsHandshakeTimeout; }
     void setWsHandshakeTimeout(uint32_t _wsHandshakeTimeout)
     {
@@ -165,10 +148,6 @@ private:
     // endpoint => group => groupInfo
     std::unordered_map<std::string, std::unordered_map<std::string, bcos::group::GroupInfo::Ptr>>
         m_endPoint2GroupId2GroupInfo;
-    //
-    bcos::group::GroupInfoFactory::Ptr m_groupInfoFactory;
-    //
-    bcos::group::ChainNodeInfoFactory::Ptr m_chainNodeInfoFactory;
 
     mutable boost::shared_mutex x_blockNotifierLock;
     // group => blockNotifier callback
@@ -177,6 +156,13 @@ private:
     std::unordered_map<std::string, int64_t> m_group2BlockNumber;
     // group => nodes
     std::unordered_map<std::string, std::set<std::string>> m_group2LatestBlockNumberNodes;
+
+    // the groupInfo codec
+    bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
+    // the groupInfo factory
+    bcos::group::GroupInfoFactory::Ptr m_groupInfoFactory;
+
+    bcos::protocol::ProtocolInfo::ConstPtr m_localProtocol;
 };
 
 }  // namespace service

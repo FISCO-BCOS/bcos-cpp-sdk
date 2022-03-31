@@ -45,7 +45,7 @@ HunterGate(
 )
 
 project(bcos-cpp-sdk VERSION "3.0.0")
-set(VERSION_SUFFIX "-rc3")
+set(VERSION_SUFFIX "-rc4")
 
 # Boost
 hunter_add_package(Boost COMPONENTS all)
@@ -62,6 +62,8 @@ find_package(OpenSSL REQUIRED)
 # wedpr-crypto
 hunter_add_package(wedpr-crypto)
 find_package(wedpr-crypto CONFIG REQUIRED)
+
+hunter_add_package(Microsoft.GSL)
 
 # bcos-utilities
 include(InstallBcosUtilities)
@@ -83,10 +85,12 @@ include(InstallInclude)
 
 include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bcos-cpp-sdk)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bcos-cpp-sdk/bcos-framework)
+include_directories(${CMAKE_INSTALL_INCLUDEDIR}/bcos-cpp-sdk)
+include_directories(${CMAKE_INSTALL_INCLUDEDIR}/bcos-cpp-sdk/bcos-framework)
 
 set(BCOS_CPP_SDK_TARGET "bcos-cpp-sdk")
-
 add_subdirectory(bcos-cpp-sdk)
 
 if (BUILD_SAMPLE)
