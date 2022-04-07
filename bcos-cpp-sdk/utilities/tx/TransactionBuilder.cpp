@@ -46,15 +46,17 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     const std::string& _groupID, const string& _chainID, const std::string& _to,
     const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit)
 {
-    auto fixBytes256 = FixedBytes<256>().generateRandomFixedBytes();
-
     auto _transactionData = std::make_unique<bcostars::TransactionData>();
     _transactionData->version = 0;
     _transactionData->chainID = _chainID;
     _transactionData->groupID = _groupID;
     _transactionData->to = _to;
     _transactionData->blockLimit = _blockLimit;
+
+    // TODO: modify random alg for performance optimize
+    auto fixBytes256 = FixedBytes<32>().generateRandomFixedBytes();
     _transactionData->nonce = u256(fixBytes256.hexPrefixed()).str(10);
+
     _transactionData->abi = _abi;
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
 
