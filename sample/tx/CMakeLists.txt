@@ -8,3 +8,9 @@ if (NOT WIN32)
    target_compile_options(deploy_hello PRIVATE -Wno-error -Wno-unused-variable)
 endif()
 target_link_libraries(deploy_hello PUBLIC ${BCOS_CPP_SDK_TARGET} bcos-crypto::bcos-crypto bcos-boostssl::bcos-boostssl bcos-utilities::bcos-utilities jsoncpp_lib_static OpenSSL::SSL OpenSSL::Crypto)
+
+add_executable(tx_sign_perf tx_sign_perf.cpp)
+target_link_libraries(tx_sign_perf PUBLIC ${BCOS_CPP_SDK_TARGET})
+
+add_executable(random_perf random_perf.cpp)
+target_link_libraries(random_perf PUBLIC ${BCOS_CPP_SDK_TARGET})
