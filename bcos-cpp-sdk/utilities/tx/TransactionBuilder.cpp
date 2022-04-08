@@ -24,7 +24,10 @@
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
+#include <time.h>
+#include <chrono>
 #include <memory>
+#include <thread>
 #include <utility>
 
 using namespace bcos;
@@ -53,9 +56,20 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     _transactionData->to = _to;
     _transactionData->blockLimit = _blockLimit;
 
-    // TODO: modify random alg for performance optimize
-    auto fixBytes256 = FixedBytes<32>().generateRandomFixedBytes();
-    _transactionData->nonce = u256(fixBytes256.hexPrefixed()).str(10);
+    static thread_local std::mt19937 generator(
+        std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now().time_since_epoch())
+            .count());
+
+    std::uniform_int_distribution<int> dis(0, 255);
+    std::array<bcos::byte, 32> random256;
+    for (auto& element : random256)
+    {
+        element = dis(generator);
+    }
+    _transactionData->nonce =
+        u256(bcos::toHexStringWithPrefix(bcos::bytesRef(random256.data(), random256.size())))
+            .str(10);
 
     _transactionData->abi = _abi;
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
