@@ -18,6 +18,7 @@
  * @date 2022-04-07
  */
 
+#include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-utilities/FixedBytes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,12 +44,14 @@ int main(int argc, char** argv)
         usage();
     }
 
-    uint32_t count = std::stoul(argv[1]);
+    long long count = std::stoul(argv[1]);
 
-    printf("[Random Gen Test] ===>>>> count: %u\n", count);
+    printf("[Random Gen Test] ===>>>> count: %lld\n", count);
 
-    uint32_t i = 0;
-    uint32_t _10Per = count / 10;
+    long long i = 0;
+    long long _10Per = count / 10;
+
+    auto transactionBuilder = std::make_shared<bcos::cppsdk::utilities::TransactionBuilder>();
 
     auto startPoint = std::chrono::high_resolution_clock::now();
     while (i++ < count)
@@ -59,8 +62,8 @@ int main(int argc, char** argv)
         }
 
         // auto fixBytes = bcos::FixedBytes<32>().generateRandomFixedBytes();
-        auto fixBytes = bcos::FixedBytes<256>().generateRandomFixedBytes();
-        (void)fixBytes;
+        auto u256Value = transactionBuilder->genRandomUint256();
+        (void)u256Value;
     }
 
     auto endPoint = std::chrono::high_resolution_clock::now();
@@ -69,7 +72,7 @@ int main(int argc, char** argv)
             .count();
 
     printf(
-        " [Random Gen Test] total count: %u, total elapsed(ms): %lld, "
+        " [Random Gen Test] total count: %lld, total elapsed(ms): %lld, "
         "count/s: %lld \n",
         count, elapsedMS, 1000 * count / elapsedMS);
 
