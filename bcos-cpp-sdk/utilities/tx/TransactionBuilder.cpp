@@ -55,21 +55,7 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     _transactionData->groupID = _groupID;
     _transactionData->to = _to;
     _transactionData->blockLimit = _blockLimit;
-
-    static thread_local std::mt19937 generator(
-        std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::system_clock::now().time_since_epoch())
-            .count());
-
-    std::uniform_int_distribution<int> dis(0, 255);
-    std::array<bcos::byte, 32> random256;
-    for (auto& element : random256)
-    {
-        element = dis(generator);
-    }
-    _transactionData->nonce =
-        u256(bcos::toHexStringWithPrefix(bcos::bytesRef(random256.data(), random256.size())))
-            .str(10);
+    _transactionData->nonce = genRandomUint256().str(10);
 
     _transactionData->abi = _abi;
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
@@ -230,4 +216,21 @@ std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
 
     return std::make_pair<std::string, std::string>(
         toHexStringWithPrefix(transactionDataHash), toHexStringWithPrefix(*encodedTx));
+}
+
+u256 TransactionBuilder::genRandomUint256()
+{
+    auto static thread_local timeTicks = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch())
+                                             .count();
+    static thread_local std::mt19937 generator(timeTicks);
+
+    std::uniform_int_distribution<int> dis(0, 255);
+    std::array<bcos::byte, 32> random256;
+    for (auto& element : random256)
+    {
+        element = dis(generator);
+    }
+
+    return u256(bcos::toHexStringWithPrefix(bcos::bytesRef(random256.data(), random256.size())));
 }
