@@ -220,10 +220,10 @@ std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
 
 u256 TransactionBuilder::genRandomUint256()
 {
-    auto static thread_local timeTicks = std::chrono::duration_cast<std::chrono::microseconds>(
+    static auto timeTicks = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now().time_since_epoch())
-                                             .count();
-    static thread_local std::mt19937 generator(timeTicks);
+                                .count();
+    static std::mt19937 generator(timeTicks);
 
     std::uniform_int_distribution<int> dis(0, 255);
     std::array<bcos::byte, 32> random256;
