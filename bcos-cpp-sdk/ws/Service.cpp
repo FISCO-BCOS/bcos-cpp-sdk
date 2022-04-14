@@ -42,8 +42,8 @@ using namespace bcos;
 static const int32_t BLOCK_LIMIT_RANGE = 500;
 
 Service::Service(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec,
-    bcos::group::GroupInfoFactory::Ptr _groupInfoFactory)
-  : m_groupInfoCodec(_groupInfoCodec), m_groupInfoFactory(_groupInfoFactory)
+    bcos::group::GroupInfoFactory::Ptr _groupInfoFactory, std::string _moduleName)
+  : WsService(_moduleName), m_groupInfoCodec(_groupInfoCodec), m_groupInfoFactory(_groupInfoFactory)
 {
     m_localProtocol = g_BCOSConfig.protocolInfo(bcos::protocol::ProtocolModuleID::RpcService);
     RPC_WS_LOG(INFO) << LOG_DESC("init the local protocol")
@@ -56,7 +56,7 @@ void Service::start()
 {
     bcos::boostssl::ws::WsService::start();
 
-    waitForConnectionEstablish();
+    // waitForConnectionEstablish();
 }
 
 void Service::stop()
@@ -117,9 +117,9 @@ void Service::onDisconnect(Error::Ptr _error, std::shared_ptr<WsSession> _sessio
     }
 }
 
-void Service::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
+void Service::onRecvMessage(std::shared_ptr<MessageFace> _msg, std::shared_ptr<WsSession> _session)
 {
-    auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
+    auto seq = _msg->seq();
     if (!checkHandshakeDone(_session))
     {
         // Note: The message is received before the handshake with the node is complete
@@ -141,7 +141,7 @@ void Service::onRecvMessage(std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsS
 
 // ---------------------send message begin---------------------------------------------------------
 void Service::asyncSendMessageByGroupAndNode(const std::string& _group, const std::string& _node,
-    std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
+    std::shared_ptr<bcos::boostssl::MessageFace> _msg, bcos::boostssl::ws::Options _options,
     bcos::boostssl::ws::RespCallBack _respFunc)
 {
     std::set<std::string> endPoints;
@@ -215,10 +215,10 @@ bool Service::checkHandshakeDone(std::shared_ptr<bcos::boostssl::ws::WsSession> 
 void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
     auto message = messageFactory()->buildMessage();
-    message->setType(bcos::protocol::MessageType::HANDESHAKE);
+    message->setPacketType(bcos::protocol::MessageType::HANDESHAKE);
     bcos::rpc::HandshakeRequest request(m_localProtocol);
     auto requestData = request.encode();
-    message->setData(requestData);
+    message->setPayload(requestData);
 
     RPC_WS_LOG(INFO) << LOG_BADGE("startHandshake")
                      << LOG_KV("endpoint", _session ? _session->endPoint() : std::string(""));
@@ -226,7 +226,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
     auto session = _session;
     auto service = std::dynamic_pointer_cast<Service>(shared_from_this());
     _session->asyncSendMessage(message, Options(m_wsHandshakeTimeout),
-        [session, service](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+        [message, session, service](Error::Ptr _error, std::shared_ptr<MessageFace> _msg,
             std::shared_ptr<WsSession> _session) {
             if (_error && _error->errorCode() != 0)
             {
@@ -240,7 +240,7 @@ void Service::startHandshake(std::shared_ptr<bcos::boostssl::ws::WsSession> _ses
             }
 
             auto endPoint = session ? session->endPoint() : std::string("");
-            auto response = std::string(_msg->data()->begin(), _msg->data()->end());
+            auto response = std::string(_msg->payload()->begin(), _msg->payload()->end());
             auto handshakeResponse = std::make_shared<HandshakeResponse>(service->m_groupInfoCodec);
             if (!handshakeResponse->decode(response))
             {
@@ -307,7 +307,7 @@ void Service::onNotifyGroupInfo(
 void Service::onNotifyGroupInfo(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
     std::shared_ptr<bcos::boostssl::ws::WsSession> _session)
 {
-    std::string groupInfo = std::string(_msg->data()->begin(), _msg->data()->end());
+    std::string groupInfo = std::string(_msg->payload()->begin(), _msg->payload()->end());
 
     RPC_WS_LOG(INFO) << LOG_BADGE("onNotifyGroupInfo") << LOG_KV("groupInfo", groupInfo);
 

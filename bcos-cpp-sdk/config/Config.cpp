@@ -29,6 +29,7 @@
 
 using namespace bcos;
 using namespace bcos::cppsdk;
+using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
 using namespace bcos::boostssl::context;
 using namespace bcos;
@@ -108,7 +109,7 @@ void Config::loadPeers(
         node.1=127.0.0.1:20201
     */
 
-    EndPointsPtr peers = std::make_shared<EndPoints>();
+    EndPointsPtr peers = std::make_shared<std::set<NodeIPEndpoint>>();
     _config.setConnectedPeers(peers);
 
     for (auto it : _pt.get_child("peers"))
@@ -118,7 +119,7 @@ void Config::loadPeers(
             continue;
         }
 
-        EndPoint ep;
+        NodeIPEndpoint ep;
         if (!WsTools::stringToEndPoint(it.second.data(), ep))
         {
             BCOS_LOG(WARNING)
@@ -132,7 +133,7 @@ void Config::loadPeers(
         BCOS_LOG(INFO) << LOG_BADGE("loadPeers") << LOG_DESC("add one connected peer")
                        << LOG_KV("endpoint", it.second.data());
 
-        peers->push_back(ep);
+        peers->insert(ep);
     }
 
     BCOS_LOG(DEBUG) << LOG_BADGE("loadPeers") << LOG_DESC("load connected peers ok")

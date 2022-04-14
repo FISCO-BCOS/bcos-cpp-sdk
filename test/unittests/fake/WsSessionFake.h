@@ -32,14 +32,14 @@ namespace test
 class WsSessionFake : public bcos::boostssl::ws::WsSession
 {
 public:
-    WsSessionFake() : bcos::boostssl::ws::WsSession()
+    WsSessionFake(std::string _moduleName) : bcos::boostssl::ws::WsSession(_moduleName)
     {
         WEBSOCKET_SESSION(INFO) << LOG_KV("[NEWOBJ][WSSESSION]", this);
     }
     using Ptr = std::shared_ptr<WsSessionFake>;
 
 public:
-    virtual void asyncSendMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+    virtual void asyncSendMessage(std::shared_ptr<bcos::boostssl::MessageFace> _msg,
         bcos::boostssl::ws::Options _options = bcos::boostssl::ws::Options(-1),
         bcos::boostssl::ws::RespCallBack _respCallback =
             bcos::boostssl::ws::RespCallBack()) override
@@ -47,7 +47,7 @@ public:
         (void)_msg;
         (void)_options;
         auto msg = std::make_shared<bcos::boostssl::ws::WsMessage>();
-        msg->setData(m_resp);
+        msg->setPayload(m_resp);
         auto session = shared_from_this();
         _respCallback(m_error, msg, session);
     }

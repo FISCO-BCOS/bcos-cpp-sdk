@@ -83,13 +83,14 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
 {
     auto groupInfoCodec = std::make_shared<bcos::group::JsonGroupInfoCodec>();
     auto groupInfoFactory = std::make_shared<bcos::group::GroupInfoFactory>();
-    auto service = std::make_shared<Service>(groupInfoCodec, groupInfoFactory);
+    auto service = std::make_shared<Service>(groupInfoCodec, groupInfoFactory, "SDK");
     auto initializer = std::make_shared<WsInitializer>();
     initializer->setConfig(_config);
     initializer->initWsService(service);
     service->registerMsgHandler(bcos::protocol::MessageType::BLOCK_NOTIFY,
-        [service](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            auto blkMsg = std::string(_msg->data()->begin(), _msg->data()->end());
+        [service](
+            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
+            auto blkMsg = std::string(_msg->payload()->begin(), _msg->payload()->end());
 
             service->onRecvBlockNotifier(blkMsg);
 
@@ -98,8 +99,9 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
         });
 
     service->registerMsgHandler(bcos::protocol::MessageType::GROUP_NOTIFY,
-        [service](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
-            std::string groupInfo = std::string(_msg->data()->begin(), _msg->data()->end());
+        [service](
+            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
+            std::string groupInfo = std::string(_msg->payload()->begin(), _msg->payload()->end());
 
             service->onNotifyGroupInfo(groupInfo, _session);
 
@@ -123,14 +125,14 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _s
                            const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
         auto data = std::make_shared<bytes>(_request.begin(), _request.end());
         auto msg = _service->messageFactory()->buildMessage();
-        msg->setType(bcos::protocol::MessageType::RPC_REQUEST);
-        msg->setData(data);
+        msg->setPacketType(bcos::protocol::MessageType::RPC_REQUEST);
+        msg->setPayload(data);
 
         _service->asyncSendMessageByGroupAndNode(_group, _node, msg, Options(),
-            [_respFunc](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+            [_respFunc](Error::Ptr _error, std::shared_ptr<MessageFace> _msg,
                 std::shared_ptr<WsSession> _session) {
                 (void)_session;
-                _respFunc(_error, _msg ? _msg->data() : nullptr);
+                _respFunc(_error, _msg ? _msg->payload() : nullptr);
             });
     });
     return jsonRpc;
@@ -152,7 +154,8 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
     auto amopWeakPtr = std::weak_ptr<bcos::cppsdk::amop::AMOP>(amop);
 
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_REQUEST,
-        [amopWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+        [amopWeakPtr](
+            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = amopWeakPtr.lock();
             if (amop)
             {
@@ -160,7 +163,8 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
             }
         });
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_RESPONSE,
-        [amopWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+        [amopWeakPtr](
+            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = amopWeakPtr.lock();
             if (amop)
             {
@@ -168,7 +172,8 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
             }
         });
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_BROADCAST,
-        [amopWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+        [amopWeakPtr](
+            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
             auto amop = amopWeakPtr.lock();
             if (amop)
             {
@@ -198,7 +203,8 @@ bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(Service::Ptr _servi
 
     auto eventWeakPtr = std::weak_ptr<bcos::cppsdk::event::EventSub>(eventSub);
     _service->registerMsgHandler(bcos::cppsdk::event::MessageType::EVENT_LOG_PUSH,
-        [eventWeakPtr](std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session) {
+        [eventWeakPtr](
+            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
             auto eventSub = eventWeakPtr.lock();
             if (eventSub)
             {
