@@ -18,6 +18,7 @@
  * @date 2021-12-14
  */
 #include <bcos-boostssl/context/ContextConfig.h>
+#include <bcos-boostssl/interfaces/NodeInfoDef.h>
 #include <bcos-boostssl/websocket/WsConfig.h>
 #include <bcos-boostssl/websocket/WsTools.h>
 #include <bcos-cpp-sdk/config/Config.h>
