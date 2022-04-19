@@ -125,6 +125,7 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _s
                            const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {
         auto data = std::make_shared<bytes>(_request.begin(), _request.end());
         auto msg = _service->messageFactory()->buildMessage();
+        msg->setSeq(_service->messageFactory()->newSeq());
         msg->setPacketType(bcos::protocol::MessageType::RPC_REQUEST);
         msg->setPayload(data);
 
@@ -135,6 +136,20 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _s
                 _respFunc(_error, _msg ? _msg->payload() : nullptr);
             });
     });
+
+    // // todo: test, register callback for RPC_REQUEST
+    // _service->registerMsgHandler(bcos::protocol::MessageType::RPC_REQUEST,
+    //     [](std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
+    //         std::string requestResp = std::string(_msg->payload()->begin(),
+    //         _msg->payload()->end());
+
+    //         // service->onNotifyGroupInfo(groupInfo, _session);
+
+    //         BCOS_LOG(INFO) << "[WS]" << LOG_DESC("receive PRC request resp")
+    //                        << LOG_KV("endpoint", _session->endPoint())
+    //                        << LOG_KV("requestResp", requestResp);
+    //     });
+
     return jsonRpc;
 }
 

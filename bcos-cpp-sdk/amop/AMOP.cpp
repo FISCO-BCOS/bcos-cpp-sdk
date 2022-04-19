@@ -121,6 +121,7 @@ void AMOP::publish(
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
+    sendMsg->setSeq(m_messageFactory->newSeq());
     sendMsg->setPacketType(bcos::cppsdk::amop::MessageType::AMOP_REQUEST);
     sendMsg->setPayload(buffer);
 
@@ -162,6 +163,7 @@ void AMOP::broadcast(const std::string& _topic, bcos::bytesConstRef _data)
     request->encode(*buffer);
 
     auto sendMsg = m_messageFactory->buildMessage();
+    sendMsg->setSeq(m_messageFactory->newSeq());
     sendMsg->setPacketType(bcos::cppsdk::amop::MessageType::AMOP_BROADCAST);
     sendMsg->setPayload(buffer);
 
@@ -187,6 +189,7 @@ void AMOP::updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _
 {
     std::string request = m_topicManager->toJson();
     auto msg = m_messageFactory->buildMessage();
+    msg->setSeq(m_messageFactory->newSeq());
     msg->setPacketType(bcos::cppsdk::amop::MessageType::AMOP_SUBTOPIC);
     msg->setPayload(std::make_shared<bytes>(request.begin(), request.end()));
 

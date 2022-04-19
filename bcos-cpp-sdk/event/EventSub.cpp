@@ -362,6 +362,7 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
     auto jsonReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
+    message->setSeq(m_messagefactory->newSeq());
     message->setPacketType(bcos::cppsdk::event::MessageType::EVENT_SUBSCRIBE);
     message->setPayload(std::make_shared<bytes>(jsonReq.begin(), jsonReq.end()));
 
@@ -476,6 +477,7 @@ void EventSub::unsubscribeEvent(const std::string& _id)
     auto strReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
+    message->setSeq(m_messagefactory->newSeq());
     message->setPacketType(bcos::cppsdk::event::MessageType::EVENT_UNSUBSCRIBE);
     message->setPayload(std::make_shared<bytes>(strReq.begin(), strReq.end()));
 
