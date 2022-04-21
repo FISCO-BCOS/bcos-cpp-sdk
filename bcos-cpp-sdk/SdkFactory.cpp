@@ -137,19 +137,6 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _s
             });
     });
 
-    // // todo: test, register callback for RPC_REQUEST
-    // _service->registerMsgHandler(bcos::protocol::MessageType::RPC_REQUEST,
-    //     [](std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
-    //         std::string requestResp = std::string(_msg->payload()->begin(),
-    //         _msg->payload()->end());
-
-    //         // service->onNotifyGroupInfo(groupInfo, _session);
-
-    //         BCOS_LOG(INFO) << "[WS]" << LOG_DESC("receive PRC request resp")
-    //                        << LOG_KV("endpoint", _session->endPoint())
-    //                        << LOG_KV("requestResp", requestResp);
-    //     });
-
     return jsonRpc;
 }
 
