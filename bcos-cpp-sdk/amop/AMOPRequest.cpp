@@ -34,7 +34,7 @@
 
 using namespace bcos;
 using namespace bcos::protocol;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 
 const std::size_t AMOPRequest::TOPIC_MAX_LENGTH;
 const std::size_t AMOPRequest::MESSAGE_MIN_LENGTH;
@@ -54,7 +54,7 @@ bool AMOPRequest::encode(bytes& _buffer)
     return true;
 }
 
-int64_t AMOPRequest::decode(bcos::boostssl::utilities::bytesConstRef _data)
+int64_t AMOPRequest::decode(bcos::bytesConstRef _data)
 {
     if (_data.size() < MESSAGE_MIN_LENGTH)
     {
@@ -78,7 +78,7 @@ int64_t AMOPRequest::decode(bcos::boostssl::utilities::bytesConstRef _data)
         m_data = _data.getCroppedData(offset);
         return _data.size();
     }
-    catch (const std::string& )
+    catch (const std::string&)
     {
         return -1;
     }

@@ -19,7 +19,7 @@
  */
 
 #include <bcos-cpp-sdk/event/EventSubParams.h>
-#include <bcos-cpp-sdk/event/EventSubTopicTools.h>
+#include <bcos-cpp-sdk/utilities/abi/ContractEventTopic.h>
 #include <json/json.h>
 #include <exception>
 
@@ -39,18 +39,21 @@ bool EventSubParams::verifyParams()
     {
         for (const auto& topic : m_topics[i])
         {
-            if (!EvenSubTopicTools::validTopic(topic))
+            if (!codec::abi::ContractEventTopic::validEventTopic(topic))
             {
                 return false;
             }
         }
     }
 
-    // TODO: address
-    // for (const auto& addr : m_addresses)
-    // {
-    //     //
-    // }
+    // check address
+    for (const auto& addr : m_addresses)
+    {
+        if (addr.empty())
+        {
+            return false;
+        }
+    }
 
     // from to range check
     if (m_fromBlock > 0 && m_toBlock > 0)
@@ -86,7 +89,7 @@ bool EventSubParams::fromJsonString(const std::string& _jsonString)
         EVENT_PARAMS(WARNING) << LOG_BADGE("fromJsonString")
                               << LOG_DESC("invalid event sub params json object")
                               << LOG_KV("jsonString", _jsonString)
-                              << LOG_KV("error", std::string(_e.what()));
+                              << LOG_KV("error", boost::diagnostic_information(_e));
         return false;
     }
 }

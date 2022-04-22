@@ -19,8 +19,8 @@
  */
 
 #pragma once
-#include <bcos-boostssl/utilities/Common.h>
-#include <bcos-boostssl/utilities/Error.h>
+#include <bcos-utilities/Common.h>
+#include <bcos-utilities/Error.h>
 #include <functional>
 #include <memory>
 
@@ -30,8 +30,7 @@ namespace cppsdk
 {
 namespace jsonrpc
 {
-using RespFunc = std::function<void(
-    bcos::boostssl::utilities::Error::Ptr, std::shared_ptr<bcos::boostssl::utilities::bytes>)>;
+using RespFunc = std::function<void(bcos::Error::Ptr, std::shared_ptr<bcos::bytes>)>;
 
 class JsonRpcInterface
 {
@@ -76,8 +75,6 @@ public:
     virtual void getBlockHashByNumber(const std::string& _groupID, const std::string& _nodeName,
         int64_t _blockNumber, RespFunc _respFunc) = 0;
 
-    virtual int64_t getBlockLimit(const std::string& _groupID) = 0;
-
     virtual void getBlockNumber(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) = 0;
 
@@ -109,6 +106,7 @@ public:
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) = 0;
 
     virtual void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) = 0;
+
     virtual void getPeers(RespFunc _respFunc) = 0;
 
     virtual void getGroupList(RespFunc _respFunc) = 0;

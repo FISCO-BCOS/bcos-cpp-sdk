@@ -7,13 +7,27 @@ hunter_config(
     SHA1
     8064156508312dde1d834fec3dca9b11006555b6
     CMAKE_ARGS
-    # CONFIG_MACRO=BOOST_UUID_RANDOM_PROVIDER_FORCE_POSIX;BOOST_ALL_DYN_LINK
+    CONFIG_MACRO=BOOST_UUID_RANDOM_PROVIDER_FORCE_POSIX
 )
 
-hunter_config(bcos-boostssl
-	VERSION 3.0.0-local
-	URL https://${URL_BASE}/FISCO-BCOS/bcos-boostssl/archive/9ab3284ae671c77646b278ceda94a03424beefee.tar.gz
-	SHA1 c97c195bad39b1e631394fdf76fcdc09cf6c47a8
+hunter_config(OpenSSL VERSION tassl_1.1.1b_v1.4-local
+    URL https://${URL_BASE}/FISCO-BCOS/TASSL-1.1.1b/archive/6a0fddd0eb33433c190c796e5b6d80db4db52810.tar.gz
+    SHA1 802c7c8dfb02aa9c58bb9073bca6085a80165801
 )
 
+hunter_config(bcos-utilities VERSION 1.0.0-rc2-local
+    URL https://${URL_BASE}/FISCO-BCOS/bcos-utilities/archive/55d6bf357719aa030e3898b060b4a3ff2476434b.tar.gz
+	SHA1 d0aeb11cf064a5e9793c50dd7bb8487e2d251f02
+    CMAKE_ARGS HUNTER_PACKAGE_LOG_BUILD=ON HUNTER_PACKAGE_LOG_INSTALL=ON
+)
 
+hunter_config(bcos-crypto VERSION 1.0.0-rc2-local
+    URL https://${URL_BASE}/FISCO-BCOS/bcos-crypto/archive/86fdc960741bd26cea3c9f04e61f138f508c7add.tar.gz
+    SHA1 53dcac50016f5e1bd517ae8d595b586e358ad118
+    CMAKE_ARGS HUNTER_PACKAGE_LOG_BUILD=ON HUNTER_PACKAGE_LOG_INSTALL=ON SM2_OPTIMIZE=ON
+)
+
+hunter_config(bcos-boostssl VERSION 1.0.0-rc3-local
+	URL https://${URL_BASE}/FISCO-BCOS/bcos-boostssl/archive/1c9cecf7ec9ed59d0bdaa9f390c618c8f4208cf2.tar.gz
+	SHA1 95774f3638b4bcb27a6708fca0a28389a7cfa9c3
+)

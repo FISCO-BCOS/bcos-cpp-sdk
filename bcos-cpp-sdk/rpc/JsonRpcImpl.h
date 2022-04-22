@@ -39,7 +39,9 @@ public:
     using Ptr = std::shared_ptr<JsonRpcImpl>;
     using UniquePtr = std::unique_ptr<JsonRpcImpl>;
 
+public:
     JsonRpcImpl() = default;
+
     virtual ~JsonRpcImpl() { stop(); }
 
 public:
@@ -79,9 +81,6 @@ public:
     virtual void getBlockHashByNumber(const std::string& _groupID, const std::string& _nodeName,
         int64_t _blockNumber, RespFunc _respFunc) override;
 
-    // async call
-    virtual int64_t getBlockLimit(const std::string& _groupID) override;
-
     virtual void getBlockNumber(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
 
@@ -112,7 +111,8 @@ public:
     virtual void getTotalTransactionCount(
         const std::string& _groupID, const std::string& _nodeName, RespFunc _respFunc) override;
 
-    void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) override;
+    virtual void getGroupPeers(std::string const& _groupID, RespFunc _respFunc) override;
+
     virtual void getPeers(RespFunc _respFunc) override;
 
     virtual void getGroupList(RespFunc _respFunc) override;

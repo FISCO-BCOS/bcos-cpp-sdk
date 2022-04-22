@@ -17,13 +17,13 @@
  * @author: octopus
  * @date 2021-08-23
  */
-#include <bcos-boostssl/utilities/BoostLog.h>
-#include <bcos-boostssl/utilities/Common.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-boostssl/websocket/WsSession.h>
 #include <bcos-cpp-sdk/amop/AMOP.h>
 #include <bcos-cpp-sdk/amop/Common.h>
+#include <bcos-utilities/BoostLog.h>
+#include <bcos-utilities/Common.h>
 #include <json/json.h>
 #include <memory>
 
@@ -31,7 +31,7 @@
 using namespace bcos;
 using namespace bcos::boostssl;
 using namespace bcos::boostssl::ws;
-using namespace bcos::boostssl::utilities;
+using namespace bcos;
 using namespace bcos::cppsdk;
 using namespace bcos::cppsdk::amop;
 
@@ -98,8 +98,8 @@ void AMOP::subscribe(const std::string& _topic, SubCallback _callback)
 }
 
 //
-void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq,
-    bcos::boostssl::utilities::bytesConstRef _data)
+void AMOP::sendResponse(
+    const std::string& _endPoint, const std::string& _seq, bcos::bytesConstRef _data)
 {
     auto msg = m_messageFactory->buildMessage();
     msg->setSeq(std::make_shared<bytes>(_seq.begin(), _seq.end()));
@@ -110,8 +110,8 @@ void AMOP::sendResponse(const std::string& _endPoint, const std::string& _seq,
 }
 
 // publish message
-void AMOP::publish(const std::string& _topic, bcos::boostssl::utilities::bytesConstRef _data,
-    uint32_t _timeout, PubCallback _callback)
+void AMOP::publish(
+    const std::string& _topic, bcos::bytesConstRef _data, uint32_t _timeout, PubCallback _callback)
 {
     auto request = m_requestFactory->buildRequest();
     request->setTopic(_topic);
@@ -132,7 +132,7 @@ void AMOP::publish(const std::string& _topic, bcos::boostssl::utilities::bytesCo
     m_service->asyncSendMessage(sendMsg, bcos::boostssl::ws::Options(_timeout),
         [_callback](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
             std::shared_ptr<bcos::boostssl::ws::WsSession> _session) {
-            if (_msg->status() != 0)
+            if (!_error && _msg && _msg->status() != 0)
             {
                 auto errorNew = std::make_shared<Error>();
                 errorNew->setErrorCode(_msg->status());
@@ -150,7 +150,7 @@ void AMOP::publish(const std::string& _topic, bcos::boostssl::utilities::bytesCo
 }
 
 // broadcast message
-void AMOP::broadcast(const std::string& _topic, bcos::boostssl::utilities::bytesConstRef _data)
+void AMOP::broadcast(const std::string& _topic, bcos::bytesConstRef _data)
 {
     auto request = m_requestFactory->buildRequest();
     request->setTopic(_topic);
@@ -200,8 +200,7 @@ void AMOP::onRecvAMOPRequest(
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
     auto request = m_requestFactory->buildRequest();
-    auto ret = request->decode(
-        bcos::boostssl::utilities::bytesConstRef(_msg->data()->data(), _msg->data()->size()));
+    auto ret = request->decode(bcos::bytesConstRef(_msg->data()->data(), _msg->data()->size()));
     if (ret < 0)
     {
         AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPRequest")
@@ -246,8 +245,7 @@ void AMOP::onRecvAMOPBroadcast(
 {
     auto seq = std::string(_msg->seq()->begin(), _msg->seq()->end());
     auto request = m_requestFactory->buildRequest();
-    auto ret = request->decode(
-        bcos::boostssl::utilities::bytesConstRef(_msg->data()->data(), _msg->data()->size()));
+    auto ret = request->decode(bcos::bytesConstRef(_msg->data()->data(), _msg->data()->size()));
     if (ret < 0)
     {
         AMOP_CLIENT(WARNING) << LOG_BADGE("onRecvAMOPBroadcast")
