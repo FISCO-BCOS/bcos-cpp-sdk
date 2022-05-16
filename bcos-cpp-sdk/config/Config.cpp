@@ -111,7 +111,7 @@ void Config::loadPeers(
     */
 
     EndPointsPtr peers = std::make_shared<std::set<NodeIPEndpoint>>();
-    _config.setConnectedPeers(peers);
+    _config.setConnectPeers(peers);
 
     for (auto it : _pt.get_child("peers"))
     {
