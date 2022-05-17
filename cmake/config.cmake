@@ -28,6 +28,6 @@ hunter_config(bcos-crypto VERSION 1.0.0-rc2-local
 )
 
 hunter_config(bcos-boostssl VERSION 1.0.0-rc3-local
-	URL https://github.com/LucasLi1024/bcos-boostssl/archive/7fbf9e3b182a0d7140628ebf145566779466e262.tar.gz
-	SHA1 9e321a215028ae665ad2302a0a7a29532f38a6e1
+	URL https://github.com/LucasLi1024/bcos-boostssl/archive/96e7da273c767bc20395418779a02d9f73f44882.tar.gz
+	SHA1 b2cb6df0b1a58de92443756b6b9216c37700245f
 )

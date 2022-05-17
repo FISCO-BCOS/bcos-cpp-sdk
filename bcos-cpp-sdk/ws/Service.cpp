@@ -56,7 +56,7 @@ void Service::start()
 {
     bcos::boostssl::ws::WsService::start();
 
-    // waitForConnectionEstablish();
+    waitForConnectionEstablish();
 }
 
 void Service::stop()
