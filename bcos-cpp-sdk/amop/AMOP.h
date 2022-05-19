@@ -19,8 +19,8 @@
  */
 #pragma once
 
+#include <bcos-boostssl/interfaces/MessageFace.h>
 #include <bcos-boostssl/websocket/Common.h>
-#include <bcos-boostssl/websocket/WsMessage.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/amop/AMOPInterface.h>
 #include <bcos-cpp-sdk/amop/AMOPRequest.h>
@@ -70,11 +70,11 @@ public:
     void updateTopicsToRemote(std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
 public:
-    void onRecvAMOPRequest(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+    void onRecvAMOPRequest(std::shared_ptr<bcos::boostssl::MessageFace> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
-    void onRecvAMOPResponse(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+    void onRecvAMOPResponse(std::shared_ptr<bcos::boostssl::MessageFace> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
-    void onRecvAMOPBroadcast(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+    void onRecvAMOPBroadcast(std::shared_ptr<bcos::boostssl::MessageFace> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
 public:

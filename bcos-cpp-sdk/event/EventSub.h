@@ -61,7 +61,7 @@ public:
     void subscribeEvent(EventSubTask::Ptr _task, Callback _callback);
 
 public:
-    void onRecvEventSubMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+    void onRecvEventSubMessage(std::shared_ptr<bcos::boostssl::MessageFace> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session);
 
 public:

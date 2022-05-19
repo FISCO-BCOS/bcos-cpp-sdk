@@ -47,7 +47,7 @@ public:
     using Ptr = std::shared_ptr<Service>;
     using ConstPtr = std::shared_ptr<const Service>;
     Service(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec,
-        bcos::group::GroupInfoFactory::Ptr _groupInfoFactory);
+        bcos::group::GroupInfoFactory::Ptr _groupInfoFactory, std::string _moduleName);
 
     // ---------------------overide begin------------------------------------
 
@@ -60,7 +60,7 @@ public:
     virtual void onDisconnect(
         bcos::Error::Ptr _error, std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
 
-    virtual void onRecvMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+    virtual void onRecvMessage(std::shared_ptr<bcos::boostssl::MessageFace> _msg,
         std::shared_ptr<bcos::boostssl::ws::WsSession> _session) override;
     // ---------------------overide end -------------------------------------
 
@@ -69,7 +69,7 @@ public:
 
     // ---------------------send message begin-------------------------------
     virtual void asyncSendMessageByGroupAndNode(const std::string& _group, const std::string& _node,
-        std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg, bcos::boostssl::ws::Options _options,
+        std::shared_ptr<bcos::boostssl::MessageFace> _msg, bcos::boostssl::ws::Options _options,
         bcos::boostssl::ws::RespCallBack _respFunc);
     // ---------------------oversend message begin----------------------------
 
