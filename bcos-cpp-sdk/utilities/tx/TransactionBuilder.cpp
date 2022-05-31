@@ -99,11 +99,7 @@ crypto::HashType TransactionBuilder::calculateTransactionDataHash(
     {
         cryptoSuite = &*m_ecdsaCryptoSuite;
     }
-
-    auto encodedTransactionData = encodeTransactionData(_transactionData);
-    auto encodedHash = cryptoSuite->hash(
-        bytesConstRef(encodedTransactionData->data(), encodedTransactionData->size()));
-    return encodedHash;
+    return _transactionData.hash(cryptoSuite->hashImpl());
 }
 
 /**
