@@ -201,7 +201,6 @@ bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(Service::Ptr _servi
     eventSub->setMessageFactory(messageFactory);
     eventSub->setService(_service);
     eventSub->setConfig(_service->config());
-    eventSub->setIoc(_service->ioc());
 
     auto eventWeakPtr = std::weak_ptr<bcos::cppsdk::event::EventSub>(eventSub);
     _service->registerMsgHandler(bcos::cppsdk::event::MessageType::EVENT_LOG_PUSH,
