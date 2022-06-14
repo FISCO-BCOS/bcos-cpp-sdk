@@ -89,10 +89,6 @@ public:
 
     void setService(bcos::cppsdk::service::Service::Ptr _service) { m_service = _service; }
     bcos::cppsdk::service::Service::Ptr service() const { return m_service; }
-
-    void setIoc(std::shared_ptr<boost::asio::io_context> _ioc) { m_ioc = _ioc; }
-    std::shared_ptr<boost::asio::io_context> ioc() const { return m_ioc; }
-
     void setMessageFactory(std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> _messageFactory)
     {
         m_messagefactory = _messageFactory;
@@ -128,9 +124,7 @@ private:
     std::set<std::string> m_waitRespTasks;
 
     // timer
-    std::shared_ptr<boost::asio::deadline_timer> m_timer;
-    // io context
-    std::shared_ptr<boost::asio::io_context> m_ioc;
+    std::shared_ptr<bcos::Timer> m_timer;
     // message factory
     std::shared_ptr<bcos::boostssl::ws::WsMessageFactory> m_messagefactory;
     // websocket service

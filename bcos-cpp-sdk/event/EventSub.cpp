@@ -51,11 +51,9 @@ void EventSub::start()
     // start websocket service
     m_service->start();
 
-    m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
-
-    m_timer->async_wait([this](const boost::system::error_code&) { this->doLoop(); });
-
+    m_timer = std::make_shared<bcos::Timer>(m_config->reconnectPeriod(), "doLoop");
+    m_timer->registerTimeoutHandler([this]() { doLoop(); });
+    m_timer->start();
     EVENT_SUB(INFO) << LOG_BADGE("start") << LOG_DESC("start event sub successfully")
                     << LOG_KV("sendMsgTimeout", m_config->sendMsgTimeout())
                     << LOG_KV("reconnectPeriod", m_config->reconnectPeriod());
@@ -72,7 +70,7 @@ void EventSub::stop()
     m_running = false;
     if (m_timer)
     {
-        m_timer->cancel();
+        m_timer->stop();
     }
 
     EVENT_SUB(INFO) << LOG_BADGE("stop") << LOG_DESC("stop event sub successfully");
@@ -80,6 +78,7 @@ void EventSub::stop()
 
 void EventSub::doLoop()
 {
+    m_timer->restart();
     {
         boost::shared_lock<boost::shared_mutex> lock(x_tasks);
         EVENT_SUB(INFO) << LOG_BADGE("doLoop") << LOG_DESC("event sub tasks report")
@@ -114,10 +113,6 @@ void EventSub::doLoop()
             }
         }
     }
-
-    m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
-    m_timer->async_wait([this](const boost::system::error_code&) { this->doLoop(); });
 }
 
 bool EventSub::addTask(EventSubTask::Ptr _task)
