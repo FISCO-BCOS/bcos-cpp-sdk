@@ -430,13 +430,15 @@ void ContractABICodec::initAbstractTypeWithJsonParams(
         JsonTypeMatchCheck(_tv.name(), _jParams, Json::ValueType::arrayValue);
 
         auto& dynamicList = static_cast<DynamicList&>(_tv);
-        assert(dynamicList.value().size() == 1);
-        auto baseTV = dynamicList.value()[0];
-        dynamicList.setEmpty();
-        for (unsigned index = 0; index < _jParams.size(); index++)
+        if (!dynamicList.value().empty())
         {
-            dynamicList.addMember(baseTV->clone());
-            initAbstractTypeWithJsonParams(*dynamicList.value().back(), _jParams[index]);
+            auto baseTV = dynamicList.value()[0];
+            dynamicList.setEmpty();
+            for (unsigned index = 0; index < _jParams.size(); index++)
+            {
+                dynamicList.addMember(baseTV->clone());
+                initAbstractTypeWithJsonParams(*dynamicList.value().back(), _jParams[index]);
+            }
         }
 
         break;
@@ -473,13 +475,15 @@ void ContractABICodec::initAbstractTypeWithJsonParams(
             // parameter as json array
             if (sPtr.memberSize() != _jParams.size())
             {
+                // TODO: _tv.name() is not initialization
+
                 // parameter number does not match for
                 // tuple param
                 BOOST_THROW_EXCEPTION(std::runtime_error(
                     "use JSON array as the tuple's parameters, but parameter number does not "
-                    "match for the"
+                    "match for the "
                     "tuple(" +
-                    _tv.name() + ") ,the parameter number is " + std::to_string(_jParams.size()) +
+                    _tv.name() + ") ,the parameter number is " + std::to_string(sPtr.memberSize()) +
                     " ,parameter value is :" + _jParams.toStyledString()));
             }
 
