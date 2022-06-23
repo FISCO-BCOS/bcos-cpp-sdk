@@ -310,7 +310,7 @@ Struct::UniquePtr ContractABIDefinitionFactory::buildEvent(
     const auto& inputs = _event.inputs();
     for (const auto& input : inputs)
     {
-        // TODO: how to handle indexed params
+        // Note: does not handle indexed params
         if (input->indexed())
         {
             continue;

@@ -86,6 +86,8 @@ public:
     virtual bool dynamicType() const = 0;
     // the base offset of the type, for solidity codec
     virtual unsigned offsetAsBytes() const = 0;
+    //
+    virtual std::string getTypeAsString() const = 0;
 
     virtual AbstractType::UniquePtr clone() const = 0;
     virtual void clear() = 0;
@@ -155,6 +157,8 @@ public:
 public:
     virtual bool dynamicType() const { return false; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
+    //
+    virtual std::string getTypeAsString() const { return "uint" + std::to_string(m_extent); }
 
     virtual Json::Value toJson() const
     {
@@ -234,7 +238,8 @@ public:
 public:
     virtual bool dynamicType() const { return false; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
-
+    //
+    virtual std::string getTypeAsString() const { return "int" + std::to_string(m_extent); }
     virtual Json::Value toJson() const
     {
         Json::Value jRet(Json::stringValue);
@@ -287,7 +292,8 @@ public:
 public:
     virtual bool dynamicType() const { return false; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
-
+    //
+    virtual std::string getTypeAsString() const { return "bool"; }
     virtual Json::Value toJson() const
     {
         Json::Value jRet(Json::booleanValue);
@@ -345,7 +351,8 @@ public:
 public:
     virtual bool dynamicType() const { return true; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
-
+    //
+    virtual std::string getTypeAsString() const { return "bytes"; }
     virtual Json::Value toJson() const
     {
         Json::Value jRet(Json::stringValue);
@@ -437,7 +444,8 @@ public:
 
     virtual bool dynamicType() const { return false; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
-
+    //
+    virtual std::string getTypeAsString() const { return "bytes" + std::to_string(m_fixedN); }
     virtual Json::Value toJson() const
     {
         Json::Value jRet(Json::stringValue);
@@ -493,7 +501,8 @@ public:
 public:
     virtual bool dynamicType() const { return false; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
-
+    //
+    virtual std::string getTypeAsString() const { return "address"; }
     virtual Json::Value toJson() const
     {
         Json::Value jRet(Json::stringValue);
@@ -547,7 +556,8 @@ public:
 public:
     virtual bool dynamicType() const { return true; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
-
+    //
+    virtual std::string getTypeAsString() const { return "string"; }
     virtual Json::Value toJson() const
     {
         Json::Value jRet(Json::stringValue);
@@ -639,6 +649,11 @@ public:
         }
 
         return m_value.size() * m_value[0]->offsetAsBytes();
+    }
+    //
+    virtual std::string getTypeAsString() const
+    {
+        return m_value[0]->getTypeAsString() + "[" + std::to_string(m_dimension) + "]";
     }
 
     virtual Json::Value toJson() const
@@ -735,6 +750,16 @@ private:
 public:
     virtual bool dynamicType() const { return true; }
     virtual unsigned offsetAsBytes() const { return MAX_BYTE_LENGTH; }
+    //
+    virtual std::string getTypeAsString() const
+    {
+        if (!m_value.empty())
+        {
+            return m_value[0]->getTypeAsString() + "[]";
+        }
+
+        return "";
+    }
 
     virtual Json::Value toJson() const
     {
@@ -844,6 +869,30 @@ public:
         }
 
         return offset;
+    }
+
+    //
+    virtual std::string getTypeAsString() const
+    {
+        if (m_value.empty())
+        {
+            return "";
+        }
+
+        std::string s = "(";
+        for (std::size_t index = 0; index < m_value.size(); index++)
+        {
+            s += m_value[index]->getTypeAsString();
+            s += ",";
+        }
+
+        if (s[s.size() - 1] == ',')
+        {
+            s.resize(s.size() - 1);
+        }
+
+        s += ")";
+        return s;
     }
 
     virtual Json::Value toJson() const

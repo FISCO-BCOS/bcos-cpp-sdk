@@ -44,6 +44,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         value->setName("u");
 
         BOOST_CHECK(!value->dynamicType());  // false
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "uint256");
         BOOST_CHECK(value->type() == Type::UINT);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
@@ -62,6 +63,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
         BOOST_CHECK(!cloneValue->dynamicType());  // false
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "uint256");
         BOOST_CHECK(cloneValue->type() == Type::UINT);
         BOOST_CHECK_EQUAL(cloneValue->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
@@ -78,6 +80,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         s256 s(-111);
         auto value = Int::newValue(s);
         BOOST_CHECK(!value->dynamicType());  // false
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "int256");
         BOOST_CHECK(value->type() == Type::INT);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
@@ -96,6 +99,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
         BOOST_CHECK(!cloneValue->dynamicType());  // false
+        BOOST_CHECK_EQUAL(cloneValue->getTypeAsString(), "int256");
         BOOST_CHECK(cloneValue->type() == Type::INT);
         BOOST_CHECK_EQUAL(cloneValue->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
@@ -112,6 +116,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         bool b(true);
         auto value = Boolean::newValue(b);
         BOOST_CHECK(!value->dynamicType());  // false
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "bool");
         BOOST_CHECK(value->type() == Type::BOOL);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
@@ -131,6 +136,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
         BOOST_CHECK(!cloneValue->dynamicType());  // false
+        BOOST_CHECK_EQUAL(cloneValue->getTypeAsString(), "bool");
         BOOST_CHECK(cloneValue->type() == Type::BOOL);
         BOOST_CHECK_EQUAL(cloneValue->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
@@ -146,6 +152,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         // DynamicBytes
         bcos::bytes bs{h256(2222).asBytes()};
         auto value = DynamicBytes::newValue(bs);
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "bytes");
         BOOST_CHECK(value->dynamicType());  // false
         BOOST_CHECK(value->type() == Type::DYNAMIC_BYTES);
         // BOOST_CHECK(value->name());
@@ -166,6 +173,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         BOOST_CHECK_EQUAL(
             toHexStringWithPrefix(cloneValue->value()), toHexStringWithPrefix(cloneU));
         BOOST_CHECK(cloneValue->dynamicType());  // false
+        BOOST_CHECK_EQUAL(cloneValue->getTypeAsString(), "bytes");
         BOOST_CHECK(cloneValue->type() == Type::DYNAMIC_BYTES);
         BOOST_CHECK_EQUAL(cloneValue->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(
@@ -183,6 +191,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         bcos::bytes bs{h160(2222).asBytes()};
         auto value = bcos::cppsdk::abi::FixedBytes::newValue(20, bs);
         BOOST_CHECK(!value->dynamicType());  // false
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "bytes20");
         BOOST_CHECK(value->type() == Type::FIXED_BYTES);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
@@ -194,6 +203,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         bcos::bytes cloneU{h160(3333).asBytes()};
         auto cloneValue = std::dynamic_pointer_cast<bcos::cppsdk::abi::FixedBytes>(
             AbstractType::Ptr(std::move(cloneValuePtr)));
+        BOOST_CHECK_EQUAL(cloneValue->getTypeAsString(), "bytes20");
 
         BOOST_CHECK(value->isEqual(*cloneValue));
         cloneValue->setValue(cloneU);
@@ -221,6 +231,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         BOOST_CHECK(!value->dynamicType());  // false
         BOOST_CHECK(value->type() == Type::ADDRESS);
         // BOOST_CHECK(value->name());
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "address");
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(value->value(), addr);
         BOOST_CHECK_EQUAL(value->toJson().asString(), addr);
@@ -237,6 +248,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
         BOOST_CHECK(!cloneValue->dynamicType());  // false
+        BOOST_CHECK_EQUAL(cloneValue->getTypeAsString(), "address");
         BOOST_CHECK(cloneValue->type() == Type::ADDRESS);
         BOOST_CHECK_EQUAL(cloneValue->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
@@ -253,6 +265,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         std::string str = "Hello, fisco-bcos 3.0";
         auto value = bcos::cppsdk::abi::String::newValue(str);
         BOOST_CHECK(value->dynamicType());  // true
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "string");
+
         BOOST_CHECK(value->type() == Type::STRING);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
@@ -271,6 +285,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
         BOOST_CHECK(cloneValue->dynamicType());  // false
+        BOOST_CHECK_EQUAL(cloneValue->getTypeAsString(), "string");
+
         BOOST_CHECK(cloneValue->type() == Type::STRING);
         BOOST_CHECK_EQUAL(cloneValue->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(cloneValue->value(), cloneU);
@@ -297,6 +313,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         BOOST_CHECK(value->type() == Type::FIXED_LIST);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH * 4);
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "int256[4]");
+
         BOOST_CHECK_EQUAL(value->value().size(), 4);
         BOOST_CHECK_EQUAL(value->toJson().size(), 4);
 
@@ -322,6 +340,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         value->addMember(String::newValue("3"));
 
         BOOST_CHECK(value->dynamicType());  // true
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "string[4]");
+
         BOOST_CHECK(value->type() == Type::FIXED_LIST);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
@@ -339,6 +359,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         auto cloneValuePtr = value->clone();
         BOOST_CHECK(value->isEqual(*cloneValuePtr));
+        BOOST_CHECK_EQUAL(cloneValuePtr->getTypeAsString(), "string[4]");
     }
 
 
@@ -353,6 +374,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
         value->addMember(Int::newValue(ss[3]));
 
         BOOST_CHECK(value->dynamicType());  // true
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "int256[]");
+
         BOOST_CHECK(value->type() == Type::DYNAMIC_LIST);
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
@@ -366,6 +389,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         auto cloneValuePtr = value->clone();
         BOOST_CHECK(value->isEqual(*cloneValuePtr));
+        BOOST_CHECK_EQUAL(cloneValuePtr->getTypeAsString(), "int256[]");
     }
 
     {  // DynamicList int[]
@@ -380,6 +404,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         BOOST_CHECK(value->dynamicType());  // true
         BOOST_CHECK(value->type() == Type::DYNAMIC_LIST);
+        BOOST_CHECK_EQUAL(value->getTypeAsString(), "int256[]");
+
         // BOOST_CHECK(value->name());
         BOOST_CHECK_EQUAL(value->offsetAsBytes(), MAX_BYTE_LENGTH);
         BOOST_CHECK_EQUAL(value->value().size(), 4);
@@ -392,6 +418,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
         auto cloneValuePtr = value->clone();
         BOOST_CHECK(value->isEqual(*cloneValuePtr));
+        BOOST_CHECK_EQUAL(cloneValuePtr->getTypeAsString(), "int256[]");
     }
 
     {
@@ -422,6 +449,7 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
             BOOST_CHECK(value->isEqual(*cloneStruct));
             BOOST_CHECK_EQUAL(value->toJsonString(), cloneStruct->toJsonString());
+            BOOST_CHECK_EQUAL(value->getTypeAsString(), "(uint256)");
         }
 
         {
@@ -445,12 +473,14 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
             auto cloneStruct = value->clone();
             BOOST_CHECK(value->isEqual(*cloneStruct));
+            BOOST_CHECK_EQUAL(cloneStruct->getTypeAsString(), "(string)");
 
             cloneStruct->clear();
             codec.deserialize(*cloneStruct, buffer, 0);
 
             BOOST_CHECK(value->isEqual(*cloneStruct));
             BOOST_CHECK_EQUAL(value->toJsonString(), cloneStruct->toJsonString());
+            BOOST_CHECK_EQUAL(value->getTypeAsString(), "(string)");
         }
 
         {
@@ -483,9 +513,11 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
             cloneStruct->clear();
             codec.deserialize(*cloneStruct, buffer, 0);
+            BOOST_CHECK_EQUAL(cloneStruct->getTypeAsString(), "(uint256,string)");
 
             BOOST_CHECK(value->isEqual(*cloneStruct));
             BOOST_CHECK_EQUAL(value->toJsonString(), cloneStruct->toJsonString());
+            BOOST_CHECK_EQUAL(value->getTypeAsString(), "(uint256,string)");
         }
 
         {
@@ -518,12 +550,15 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
             auto cloneStruct = value->clone();
             BOOST_CHECK(value->isEqual(*cloneStruct));
+            BOOST_CHECK_EQUAL(
+                cloneStruct->getTypeAsString(), "(uint256,int256,bool,address,bytes32)");
 
             cloneStruct->clear();
             codec.deserialize(*cloneStruct, buffer, 0);
 
             BOOST_CHECK(value->isEqual(*cloneStruct));
             BOOST_CHECK_EQUAL(value->toJsonString(), cloneStruct->toJsonString());
+            BOOST_CHECK_EQUAL(value->getTypeAsString(), "(uint256,int256,bool,address,bytes32)");
         }
 
         {
@@ -553,6 +588,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
             auto cloneValuePtr = value->clone();
             BOOST_CHECK(value->isEqual(*cloneValuePtr));
+            BOOST_CHECK_EQUAL(
+                cloneValuePtr->getTypeAsString(), "(uint256,int256,bool,address,bytes20,string)");
 
             // solidity
             ContractABITypeCodecSolImpl codec;
@@ -567,6 +604,9 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
             BOOST_CHECK(value->isEqual(*cloneStruct));
             BOOST_CHECK_EQUAL(value->toJsonString(), cloneStruct->toJsonString());
+
+            BOOST_CHECK_EQUAL(
+                value->getTypeAsString(), "(uint256,int256,bool,address,bytes20,string)");
         }
 
         {
@@ -599,6 +639,9 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
             // BOOST_CHECK(value->name());
             BOOST_CHECK_EQUAL(struct0->offsetAsBytes(), MAX_BYTE_LENGTH);
             BOOST_CHECK_EQUAL(struct0->value().size(), 7);
+
+            BOOST_CHECK_EQUAL(
+                struct0->getTypeAsString(), "(uint256,int256,bool,address,bytes20,bytes,string)");
 
             // int[]
             auto intDyList = bcos::cppsdk::abi::DynamicList::newValue();
@@ -640,6 +683,8 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
             BOOST_CHECK_EQUAL(struct1->offsetAsBytes(), MAX_BYTE_LENGTH);
             BOOST_CHECK_EQUAL(struct1->value().size(), 3);
 
+            BOOST_CHECK_EQUAL(struct1->getTypeAsString(), "(int256[],string[],address[3])");
+
             auto struct_ = bcos::cppsdk::abi::Struct::newValue();
             struct_->addMember(std::move(struct0));
             struct_->addMember(std::move(struct1));
@@ -650,6 +695,10 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
             BOOST_CHECK(struct_->kvValue().find("struct1") != struct_->kvValue().end());
             BOOST_CHECK(struct_->kvValue().find("struct0") != struct_->kvValue().end());
+
+            BOOST_CHECK_EQUAL(struct_->getTypeAsString(),
+                "((uint256,int256,bool,address,bytes20,bytes,string),(int256[],string[],address[3])"
+                ")");
 
             // clone test
             auto structClone =
@@ -664,6 +713,10 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
             BOOST_CHECK(structClone->kvValue().find("struct1") != structClone->kvValue().end());
             BOOST_CHECK(structClone->kvValue().find("struct0") != structClone->kvValue().end());
             BOOST_CHECK_EQUAL(structClone->toJson().size(), 2);
+
+            BOOST_CHECK_EQUAL(structClone->getTypeAsString(),
+                "((uint256,int256,bool,address,bytes20,bytes,string),(int256[],string[],address[3])"
+                ")");
 
             {
                 // solidity
@@ -710,6 +763,9 @@ BOOST_AUTO_TEST_CASE(test_contractABIType)
 
                 BOOST_CHECK(struct_->isEqual(*cloneStruct));
                 BOOST_CHECK_EQUAL(struct_->toJsonString(), cloneStruct->toJsonString());
+                BOOST_CHECK_EQUAL(cloneStruct->getTypeAsString(),
+                    "((uint256,int256,bool,address,bytes20,bytes,string),(int256[],string[],"
+                    "address[3]))");
             }
 
             {

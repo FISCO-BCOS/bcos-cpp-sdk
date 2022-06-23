@@ -353,6 +353,7 @@ BOOST_AUTO_TEST_CASE(test_abstractType)
 
             codec.deserialize(*sPtr0, buffer, 0);
             BOOST_CHECK_EQUAL(sPtr->toJsonString(), sPtr0->toJsonString());
+            BOOST_CHECK_EQUAL(sPtr->getTypeAsString(), "(string)");
         }
 
         {
@@ -367,6 +368,8 @@ BOOST_AUTO_TEST_CASE(test_abstractType)
             // bool true
             auto b = Boolean::newValue(true);
             sPtr->addMember(std::move(b));
+
+            BOOST_CHECK_EQUAL(sPtr->getTypeAsString(), "(uint256,bool)");
 
             codec.serialize(*sPtr, buffer);
 
@@ -401,6 +404,8 @@ BOOST_AUTO_TEST_CASE(test_abstractType)
             auto bs1 =
                 bcos::cppsdk::abi::FixedBytes::newValue(3, bcos::bytes{s1.begin(), s1.end()});
             sPtr->addMember(std::move(bs1));
+
+            BOOST_CHECK_EQUAL(sPtr->getTypeAsString(), "(bytes3,bytes3)");
 
             codec.serialize(*sPtr, buffer);
 
@@ -443,6 +448,8 @@ BOOST_AUTO_TEST_CASE(test_abstractType)
             uintList->addMember(std::move(u2));
 
             sPtr->addMember(std::move(uintList));
+
+            BOOST_CHECK_EQUAL(sPtr->getTypeAsString(), "(bytes,bool,uint256[])");
 
             codec.serialize(*sPtr, buffer);
 
@@ -516,6 +523,8 @@ BOOST_AUTO_TEST_CASE(test_abstractType)
             auto bs = bcos::cppsdk::abi::DynamicBytes::newValue(bcos::bytes{s.begin(), s.end()});
             sPtr->addMember(std::move(bs));
 
+            BOOST_CHECK_EQUAL(sPtr->getTypeAsString(), "(uint256,uint256[],bytes10,bytes)");
+
             codec.serialize(*sPtr, buffer);
 
             BOOST_CHECK_EQUAL(
@@ -572,6 +581,8 @@ BOOST_AUTO_TEST_CASE(test_abstractType)
             strList->addMember(std::move(s2));
 
             sPtr->addMember(std::move(strList));
+
+            BOOST_CHECK_EQUAL(sPtr->getTypeAsString(), "(uint256[][],string[])");
 
             codec.serialize(*sPtr, buffer);
 
@@ -686,6 +697,9 @@ BOOST_AUTO_TEST_CASE(test_abstractType)
 
             auto s = bcos::cppsdk::abi::String::newValue("Hello world!");
             sPtr->addMember(std::move(s));
+
+            BOOST_CHECK_EQUAL(sPtr->getTypeAsString(),
+                "(uint256,(string,uint256,(uint256,uint256,uint256)[])[],string)");
 
             codec.serialize(*sPtr, buffer);
 
