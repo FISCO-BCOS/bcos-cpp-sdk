@@ -145,18 +145,18 @@ public:
         if (value.isMember("protocol"))
         {
             auto const& protocol = value["protocol"];
-            if (protocol.isMember("minVersion"))
+            if (protocol.isMember("minSupportedVersion"))
             {
-                protocolInfo->setMinVersion(protocol["minVersion"].asUInt());
+                protocolInfo->setMinVersion(protocol["minSupportedVersion"].asUInt());
             }
-            if (protocol.isMember("maxVersion"))
+            if (protocol.isMember("maxSupportedVersion"))
             {
-                protocolInfo->setMaxVersion(protocol["maxVersion"].asUInt());
+                protocolInfo->setMaxVersion(protocol["maxSupportedVersion"].asUInt());
             }
             chainNodeInfo->setNodeProtocol(std::move(*protocolInfo));
-            if (protocol.isMember("sysVersion"))
+            if (protocol.isMember("compatibilityVersion"))
             {
-                chainNodeInfo->setSystemVersion(protocol["sysVersion"].asUInt());
+                chainNodeInfo->setCompatibilityVersion(protocol["compatibilityVersion"].asUInt());
             }
         }
         return chainNodeInfo;
@@ -182,9 +182,9 @@ public:
         // set protocol info
         auto protocol = _chainNodeInfo->nodeProtocol();
         Json::Value protocolResponse;
-        protocolResponse["minVersion"] = protocol->minVersion();
-        protocolResponse["maxVersion"] = protocol->maxVersion();
-        protocolResponse["sysVersion"] = _chainNodeInfo->systemVersion();
+        protocolResponse["minSupportedVersion"] = protocol->minVersion();
+        protocolResponse["maxSupportedVersion"] = protocol->maxVersion();
+        protocolResponse["compatibilityVersion"] = _chainNodeInfo->compatibilityVersion();
         jResp["protocol"] = protocolResponse;
         return jResp;
     }
