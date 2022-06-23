@@ -31,6 +31,27 @@ namespace cppsdk
 {
 namespace utilities
 {
+
+inline bool isUnsigned(const std::string& _s)
+{
+    std::string str = _s;
+    boost::trim(str);
+    return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+inline bool isSigned(const std::string& _s)
+{
+    std::string str = _s;
+    boost::trim(str);
+    if (boost::starts_with(str, "-"))
+    {
+        str.erase(str.begin());
+    }
+    return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+
+
 }  // namespace utilities
 }  // namespace cppsdk
 }  // namespace bcos
