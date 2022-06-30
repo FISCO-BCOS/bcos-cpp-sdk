@@ -32,20 +32,6 @@ namespace cppsdk
 {
 namespace jsonrpc
 {
-/**
- * @brief: jsonrpc message types
- */
-enum MessageType
-{
-    // ------------jsonrpc begin ----------
-    HANDESHAKE = 0x100,    // 256
-    BLOCK_NOTIFY = 0x101,  // 257
-    RPC_REQUEST = 0x102,   // 258
-    GROUP_NOTIFY = 0x103,  // 259
-
-    // ------------jsonrpc end ---------
-};
-
 struct JsonResponse
 {
     struct Error

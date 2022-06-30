@@ -13,19 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @file ProtocolVersion.h
+ * @file HandshakeResponse.h
  * @author: octopus
  * @date 2021-10-26
  */
 
 #pragma once
-#include <bcos-cpp-sdk/multigroup/ChainNodeInfo.h>
-#include <bcos-cpp-sdk/multigroup/ChainNodeInfoFactory.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfo.h>
-#include <bcos-cpp-sdk/multigroup/GroupInfoFactory.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoCodec.h>
 #include <json/json.h>
 #include <algorithm>
 #include <unordered_map>
+
 
 namespace bcos
 {
@@ -33,40 +31,42 @@ namespace cppsdk
 {
 namespace service
 {
-class ProtocolVersion
+class HandshakeResponse
 {
 public:
-    using Ptr = std::shared_ptr<ProtocolVersion>;
-    using ConstPtr = std::shared_ptr<const ProtocolVersion>;
+    using Ptr = std::shared_ptr<HandshakeResponse>;
+    using ConstPtr = std::shared_ptr<const HandshakeResponse>;
+    HandshakeResponse(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec)
+      : m_groupInfoCodec(_groupInfoCodec)
+    {}
+    virtual ~HandshakeResponse() {}
 
-public:
-    bool fromJson(const std::string& _json);
-    Json::Value toJson();
-    std::string toJsonString();
+    virtual bool decode(std::string const& _data);
+    virtual void encode(std::string& _encodedData) const;
 
-public:
     int protocolVersion() const { return m_protocolVersion; }
-    void setProtocolVersion(int _protocolVersion) { m_protocolVersion = _protocolVersion; }
-
     const std::vector<bcos::group::GroupInfo::Ptr>& groupInfoList() const
     {
         return m_groupInfoList;
     }
-
-    void setGroupInfoList(const std::vector<bcos::group::GroupInfo::Ptr>& _groupInfoList)
-    {
-        m_groupInfoList = _groupInfoList;
-    }
-
     const std::unordered_map<std::string, int64_t>& groupBlockNumber() const
     {
         return m_groupBlockNumber;
     }
 
+    void setProtocolVersion(int _protocolVersion) { m_protocolVersion = _protocolVersion; }
+    void setGroupInfoList(const std::vector<bcos::group::GroupInfo::Ptr>& _groupInfoList)
+    {
+        m_groupInfoList = _groupInfoList;
+    }
+
 private:
-    int m_protocolVersion;
     std::vector<bcos::group::GroupInfo::Ptr> m_groupInfoList;
     std::unordered_map<std::string, int64_t> m_groupBlockNumber;
+    bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
+    // Note: the nodes determine the protocol version
+    uint32_t m_protocolVersion;
+    bcos::protocol::ProtocolInfo::Ptr m_localProtocol;
 };
 
 }  // namespace service

@@ -51,11 +51,9 @@ void EventSub::start()
     // start websocket service
     m_service->start();
 
-    m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
-
-    m_timer->async_wait([this](const boost::system::error_code&) { this->doLoop(); });
-
+    m_timer = std::make_shared<bcos::Timer>(m_config->reconnectPeriod(), "doLoop");
+    m_timer->registerTimeoutHandler([this]() { doLoop(); });
+    m_timer->start();
     EVENT_SUB(INFO) << LOG_BADGE("start") << LOG_DESC("start event sub successfully")
                     << LOG_KV("sendMsgTimeout", m_config->sendMsgTimeout())
                     << LOG_KV("reconnectPeriod", m_config->reconnectPeriod());
@@ -72,7 +70,7 @@ void EventSub::stop()
     m_running = false;
     if (m_timer)
     {
-        m_timer->cancel();
+        m_timer->stop();
     }
 
     EVENT_SUB(INFO) << LOG_BADGE("stop") << LOG_DESC("stop event sub successfully");
@@ -80,6 +78,7 @@ void EventSub::stop()
 
 void EventSub::doLoop()
 {
+    m_timer->restart();
     {
         boost::shared_lock<boost::shared_mutex> lock(x_tasks);
         EVENT_SUB(INFO) << LOG_BADGE("doLoop") << LOG_DESC("event sub tasks report")
@@ -114,10 +113,6 @@ void EventSub::doLoop()
             }
         }
     }
-
-    m_timer = std::make_shared<boost::asio::deadline_timer>(boost::asio::make_strand(*m_ioc),
-        boost::posix_time::milliseconds(m_config->reconnectPeriod()));
-    m_timer->async_wait([this](const boost::system::error_code&) { this->doLoop(); });
 }
 
 bool EventSub::addTask(EventSubTask::Ptr _task)
@@ -261,7 +256,7 @@ std::size_t EventSub::suspendTasks(std::shared_ptr<WsSession> _session)
 }
 
 void EventSub::onRecvEventSubMessage(
-    std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession> _session)
+    std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session)
 {
     /*
     {
@@ -276,7 +271,7 @@ void EventSub::onRecvEventSubMessage(
         }
     }
     */
-    auto strResp = std::string(_msg->data()->begin(), _msg->data()->end());
+    auto strResp = std::string(_msg->payload()->begin(), _msg->payload()->end());
 
     EVENT_SUB(TRACE) << LOG_BADGE("onRecvEventSubMessage") << LOG_DESC("receive event sub message")
                      << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("response", strResp);
@@ -362,14 +357,15 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
     auto jsonReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
-    message->setType(bcos::cppsdk::event::MessageType::EVENT_SUBSCRIBE);
-    message->setData(std::make_shared<bytes>(jsonReq.begin(), jsonReq.end()));
+    message->setSeq(m_messagefactory->newSeq());
+    message->setPacketType(bcos::cppsdk::event::MessageType::EVENT_SUBSCRIBE);
+    message->setPayload(std::make_shared<bytes>(jsonReq.begin(), jsonReq.end()));
 
     EVENT_SUB(INFO) << LOG_BADGE("subscribeEvent") << LOG_DESC("subscribe event")
                     << LOG_KV("id", id) << LOG_KV("group", group) << LOG_KV("request", jsonReq);
 
     m_service->asyncSendMessageByGroupAndNode(_task->group(), "", message, Options(),
-        [id, _task, _callback, this](Error::Ptr _error, std::shared_ptr<WsMessage> _msg,
+        [id, _task, _callback, this](Error::Ptr _error, std::shared_ptr<boostssl::MessageFace> _msg,
             std::shared_ptr<WsSession> _session) {
             if (_error && _error->errorCode() != 0)
             {
@@ -382,7 +378,7 @@ void EventSub::subscribeEvent(EventSubTask::Ptr _task, Callback _callback)
                 return;
             }
 
-            auto strResp = std::string(_msg->data()->begin(), _msg->data()->end());
+            auto strResp = std::string(_msg->payload()->begin(), _msg->payload()->end());
             auto resp = std::make_shared<EventSubResponse>();
             if (!resp->fromJson(strResp))
             {
@@ -476,11 +472,13 @@ void EventSub::unsubscribeEvent(const std::string& _id)
     auto strReq = request->generateJson();
 
     auto message = m_messagefactory->buildMessage();
-    message->setType(bcos::cppsdk::event::MessageType::EVENT_UNSUBSCRIBE);
-    message->setData(std::make_shared<bytes>(strReq.begin(), strReq.end()));
+    message->setSeq(m_messagefactory->newSeq());
+    message->setPacketType(bcos::cppsdk::event::MessageType::EVENT_UNSUBSCRIBE);
+    message->setPayload(std::make_shared<bytes>(strReq.begin(), strReq.end()));
 
     session->asyncSendMessage(message, Options(),
-        [_id](Error::Ptr _error, std::shared_ptr<WsMessage> _msg, std::shared_ptr<WsSession>) {
+        [_id](Error::Ptr _error, std::shared_ptr<boostssl::MessageFace> _msg,
+            std::shared_ptr<WsSession>) {
             if (_error && _error->errorCode() != 0)
             {
                 EVENT_SUB(WARNING)
@@ -490,7 +488,7 @@ void EventSub::unsubscribeEvent(const std::string& _id)
                 return;
             }
 
-            auto strResp = std::string(_msg->data()->begin(), _msg->data()->end());
+            auto strResp = std::string(_msg->payload()->begin(), _msg->payload()->end());
             auto resp = std::make_shared<EventSubResponse>();
             if (!resp->fromJson(strResp))
             {

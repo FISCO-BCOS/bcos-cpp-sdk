@@ -37,15 +37,20 @@ set(BCOS_RPC_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "The cmake
 list(APPEND CMAKE_MODULE_PATH ${BCOS_CMAKE_SCRIPTS_DIR})
 list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
 #init hunter
+include(Options)
+set(ARCH_NATIVE OFF)
+if ("${ARCHITECTURE}" MATCHES "aarch64")
+    set(ARCH_NATIVE ON)
+endif()
 include(HunterGate)
 HunterGate(
-    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/a97876640bdca736c23a48dc0ad0f168fd3d695c.tar.gz"
-    SHA1 "bb6f77268bfa8772ca30d5a4a62dda35840078ad"
+    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/162ff7cde3d843e43afdab8fe3214275c35ef168.tar.gz"
+    SHA1 "0ba8099fe89beb0d44986c750fe0d44040725d99"
     FILEPATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake"
 )
 
 project(bcos-cpp-sdk VERSION "3.0.0")
-set(VERSION_SUFFIX "-rc3")
+set(VERSION_SUFFIX "-rc4")
 
 # Boost
 hunter_add_package(Boost COMPONENTS all)
@@ -62,6 +67,8 @@ find_package(OpenSSL REQUIRED)
 # wedpr-crypto
 hunter_add_package(wedpr-crypto)
 find_package(wedpr-crypto CONFIG REQUIRED)
+
+hunter_add_package(Microsoft.GSL)
 
 # bcos-utilities
 include(InstallBcosUtilities)
@@ -83,10 +90,12 @@ include(InstallInclude)
 
 include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bcos-cpp-sdk)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bcos-cpp-sdk/bcos-framework)
+include_directories(${CMAKE_INSTALL_INCLUDEDIR}/bcos-cpp-sdk)
+include_directories(${CMAKE_INSTALL_INCLUDEDIR}/bcos-cpp-sdk/bcos-framework)
 
 set(BCOS_CPP_SDK_TARGET "bcos-cpp-sdk")
-
 add_subdirectory(bcos-cpp-sdk)
 
 if (BUILD_SAMPLE)

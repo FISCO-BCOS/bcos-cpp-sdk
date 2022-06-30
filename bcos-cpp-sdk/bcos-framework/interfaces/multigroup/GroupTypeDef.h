@@ -13,32 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * @brief factory to build the ChainNodeInfo
- * @file ChainNodeInfoFactory.h
+ * @brief define the basic type of the GroupManager
+ * @file GroupTypeDef.h
  * @author: yujiechen
- * @date 2021-09-18
+ * @date 2021-09-16
  */
 #pragma once
-#include "ChainNodeInfo.h"
+#include <bcos-utilities/Exceptions.h>
+#include <bcos-utilities/Log.h>
+#include <memory>
+
+#define GROUP_LOG(LEVEL) BCOS_LOG(LEVEL) << LOG_BADGE("GROUP")
+
 namespace bcos
 {
 namespace group
 {
-class ChainNodeInfoFactory
-{
-public:
-    using Ptr = std::shared_ptr<ChainNodeInfoFactory>;
-    ChainNodeInfoFactory() = default;
-    virtual ~ChainNodeInfoFactory() {}
-    virtual ChainNodeInfo::Ptr createNodeInfo() { return std::make_shared<ChainNodeInfo>(); }
-    virtual ChainNodeInfo::Ptr createNodeInfo(std::string const& _nodeInfoJson)
-    {
-        return std::make_shared<ChainNodeInfo>(_nodeInfoJson);
-    }
-    virtual ChainNodeInfo::Ptr createNodeInfo(std::string const& _nodeName, int32_t _type)
-    {
-        return std::make_shared<ChainNodeInfo>(_nodeName, _type);
-    }
-};
+DERIVE_BCOS_EXCEPTION(InvalidGroupInfo);
+DERIVE_BCOS_EXCEPTION(InvalidChainNodeInfo);
 }  // namespace group
 }  // namespace bcos

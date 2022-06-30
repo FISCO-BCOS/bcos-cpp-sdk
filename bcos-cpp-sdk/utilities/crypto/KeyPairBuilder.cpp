@@ -21,9 +21,9 @@
 #include <bcos-cpp-sdk/utilities/crypto/KeyPairBuilder.h>
 #include <bcos-crypto/hash/Keccak256.h>
 #include <bcos-crypto/hash/SM3.h>
+#include <bcos-crypto/signature/fastsm2/FastSM2KeyPairFactory.h>
 #include <bcos-crypto/signature/key/KeyFactoryImpl.h>
 #include <bcos-crypto/signature/secp256k1/Secp256k1Crypto.h>
-#include <bcos-crypto/signature/sm2/SM2KeyPairFactory.h>
 #include <bcos-utilities/BoostLog.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/Exceptions.h>
@@ -70,7 +70,7 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
     }
     else
     {
-        bcos::crypto::SM2KeyPairFactory sM2KeyPairFactory;
+        bcos::crypto::FastSM2KeyPairFactory sM2KeyPairFactory;
         auto keyPair = sM2KeyPairFactory.createKeyPair(keyImpl);
         /*
         UTILITIES_KEYPAIR_LOG(TRACE)
