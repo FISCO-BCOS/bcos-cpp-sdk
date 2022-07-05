@@ -18,7 +18,7 @@
  * @date: 2019-04-01
  */
 
-#include <bcos-cpp-sdk/utilities/abi/ContractABIType.h>
+#include "ContractABIType.h"
 #include <bcos-utilities/FixedBytes.h>
 
 using namespace std;
