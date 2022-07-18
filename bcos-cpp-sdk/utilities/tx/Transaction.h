@@ -13,12 +13,11 @@
 #include <map>
 #include <string>
 #include <vector>
-using namespace std;
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-
 namespace bcostars
 {
+using namespace std;
 struct TransactionData : public tars::TarsStructBase
 {
 public:
@@ -39,16 +38,34 @@ public:
     template <typename WriterT>
     void writeTo(tars::TarsOutputStream<WriterT>& _os) const
     {
-        _os.write(version, 1);
-        _os.write(chainID, 2);
-        _os.write(groupID, 3);
-        _os.write(blockLimit, 4);
-        _os.write(nonce, 5);
+        if (version != 0)
+        {
+            _os.write(version, 1);
+        }
+        if (chainID != "")
+        {
+            _os.write(chainID, 2);
+        }
+        if (groupID != "")
+        {
+            _os.write(groupID, 3);
+        }
+        if (blockLimit != 0)
+        {
+            _os.write(blockLimit, 4);
+        }
+        if (nonce != "")
+        {
+            _os.write(nonce, 5);
+        }
         if (to != "")
         {
             _os.write(to, 6);
         }
-        _os.write(input, 7);
+        if (input.size() > 0)
+        {
+            _os.write(input, 7);
+        }
         if (abi != "")
         {
             _os.write(abi, 8);
@@ -58,13 +75,13 @@ public:
     void readFrom(tars::TarsInputStream<ReaderT>& _is)
     {
         resetDefautlt();
-        _is.read(version, 1, true);
-        _is.read(chainID, 2, true);
-        _is.read(groupID, 3, true);
-        _is.read(blockLimit, 4, true);
-        _is.read(nonce, 5, true);
+        _is.read(version, 1, false);
+        _is.read(chainID, 2, false);
+        _is.read(groupID, 3, false);
+        _is.read(blockLimit, 4, false);
+        _is.read(nonce, 5, false);
         _is.read(to, 6, false);
-        _is.read(input, 7, true);
+        _is.read(input, 7, false);
         _is.read(abi, 8, false);
     }
     tars::JsonValueObjPtr writeToJson() const
@@ -92,13 +109,13 @@ public:
             throw tars::TC_Json_Exception(s);
         }
         tars::JsonValueObjPtr pObj = tars::JsonValueObjPtr::dynamicCast(p);
-        tars::JsonInput::readJson(version, pObj->value["version"], true);
-        tars::JsonInput::readJson(chainID, pObj->value["chainID"], true);
-        tars::JsonInput::readJson(groupID, pObj->value["groupID"], true);
-        tars::JsonInput::readJson(blockLimit, pObj->value["blockLimit"], true);
-        tars::JsonInput::readJson(nonce, pObj->value["nonce"], true);
+        tars::JsonInput::readJson(version, pObj->value["version"], false);
+        tars::JsonInput::readJson(chainID, pObj->value["chainID"], false);
+        tars::JsonInput::readJson(groupID, pObj->value["groupID"], false);
+        tars::JsonInput::readJson(blockLimit, pObj->value["blockLimit"], false);
+        tars::JsonInput::readJson(nonce, pObj->value["nonce"], false);
         tars::JsonInput::readJson(to, pObj->value["to"], false);
-        tars::JsonInput::readJson(input, pObj->value["input"], true);
+        tars::JsonInput::readJson(input, pObj->value["input"], false);
         tars::JsonInput::readJson(abi, pObj->value["abi"], false);
     }
     void readFromJsonString(const string& str) { readFromJson(tars::TC_Json::getValue(str)); }
@@ -159,7 +176,6 @@ public:
 
         // encode abi
         _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)abi.data(), abi.size()));
-
         auto hashResult = _hashImpl->final(hashContext);
         return hashResult;
     }
@@ -352,6 +368,5 @@ using TransactionUniquePtr = std::unique_ptr<Transaction>;
 using TransactionConstPtr = std::shared_ptr<const Transaction>;
 
 }  // namespace bcostars
-
 
 #endif
