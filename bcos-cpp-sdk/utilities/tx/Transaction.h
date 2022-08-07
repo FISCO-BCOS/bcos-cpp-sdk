@@ -10,6 +10,7 @@
 #include <bcos-cpp-sdk/utilities/tx/tars/tup/TarsJson.h>
 #include <bcos-crypto/interfaces/crypto/Hash.h>
 #include <boost/asio/detail/socket_ops.hpp>
+#include <boost/endian/conversion.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -133,8 +134,7 @@ public:
     {
         auto hashContext = _hashImpl->init();
         // encode version
-        long networkVersion =
-            boost::asio::detail::socket_ops::host_to_network_long((int32_t)version);
+        int32_t networkVersion = boost::endian::native_to_big((int32_t)version);
         _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&networkVersion),
                                            sizeof(networkVersion) / sizeof(uint8_t)));
 
@@ -145,7 +145,8 @@ public:
         _hashImpl->update(
             hashContext, bcos::bytesConstRef((bcos::byte*)groupID.data(), groupID.size()));
         // encode blockLimit
-        long networkBlockLimit = boost::asio::detail::socket_ops::host_to_network_long(blockLimit);
+        int64_t networkBlockLimit = boost::endian::native_to_big((int64_t)blockLimit);
+
         _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&networkBlockLimit),
                                            sizeof(networkBlockLimit) / sizeof(uint8_t)));
         // encode nonce
