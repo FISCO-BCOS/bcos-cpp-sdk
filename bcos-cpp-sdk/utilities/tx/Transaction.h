@@ -133,7 +133,7 @@ public:
     {
         auto hashContext = _hashImpl->init();
         // encode version
-        long networkVersion =
+        int64_t networkVersion =
             boost::asio::detail::socket_ops::host_to_network_long((int32_t)version);
         _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&networkVersion),
                                            sizeof(networkVersion) / sizeof(uint8_t)));
@@ -145,7 +145,7 @@ public:
         _hashImpl->update(
             hashContext, bcos::bytesConstRef((bcos::byte*)groupID.data(), groupID.size()));
         // encode blockLimit
-        long networkBlockLimit = boost::asio::detail::socket_ops::host_to_network_long(blockLimit);
+        int64_t networkBlockLimit = boost::asio::detail::socket_ops::host_to_network_long(blockLimit);
         _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&networkBlockLimit),
                                            sizeof(networkBlockLimit) / sizeof(uint8_t)));
         // encode nonce
