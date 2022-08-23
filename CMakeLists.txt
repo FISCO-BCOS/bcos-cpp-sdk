@@ -1,4 +1,4 @@
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Top-level CMake file for bcos-cpp-sdk
 # ------------------------------------------------------------------------------
 # Copyright (C) 2021 bcos-cpp-sdk
@@ -14,13 +14,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.3" CACHE STRING "Minimum OS X deployment version")
 include(FetchContent)
-if (NOT DEFINED URL_BASE)
+
+if(NOT DEFINED URL_BASE)
     set(URL_BASE "github.com")
+
     # set(URL_BASE "github.com.cnpmjs.org")
 endif()
 
@@ -36,12 +38,15 @@ FetchContent_MakeAvailable(bcos-cmake-scripts)
 set(BCOS_RPC_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "The cmake path for the library")
 list(APPEND CMAKE_MODULE_PATH ${BCOS_CMAKE_SCRIPTS_DIR})
 list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
-#init hunter
+
+# init hunter
 include(Options)
 set(ARCH_NATIVE OFF)
-if ("${ARCHITECTURE}" MATCHES "aarch64")
+
+if("${ARCHITECTURE}" MATCHES "aarch64")
     set(ARCH_NATIVE ON)
 endif()
+
 include(HunterGate)
 HunterGate(
     URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/162ff7cde3d843e43afdab8fe3214275c35ef168.tar.gz"
@@ -50,7 +55,6 @@ HunterGate(
 )
 
 project(bcos-cpp-sdk VERSION "3.0.0")
-set(VERSION_SUFFIX "-rc4")
 
 # Boost
 hunter_add_package(Boost COMPONENTS all)
@@ -85,6 +89,7 @@ include(Options)
 configure_project()
 include(CompilerSettings)
 include(InstallConfig)
+
 # install the include files for hash
 include(InstallInclude)
 
@@ -98,15 +103,15 @@ include_directories(${CMAKE_INSTALL_INCLUDEDIR}/bcos-cpp-sdk/bcos-framework)
 set(BCOS_CPP_SDK_TARGET "bcos-cpp-sdk")
 add_subdirectory(bcos-cpp-sdk)
 
-if (BUILD_SAMPLE)
+if(BUILD_SAMPLE)
     # sample exec binary
     add_subdirectory(sample)
 endif()
 
-if (TESTS)
-   enable_testing()
-   set(CTEST_OUTPUT_ON_FAILURE TRUE)
-   add_subdirectory(test)
+if(TESTS)
+    enable_testing()
+    set(CTEST_OUTPUT_ON_FAILURE TRUE)
+    add_subdirectory(test)
 endif()
 
 # install bcos-cpp-sdk target
@@ -123,7 +128,7 @@ install(
 # include(BuildDocs)
 
 # for code coverage
-if (COVERAGE)
+if(COVERAGE)
     include(Coverage)
     config_coverage("rpc-coverage" "'/usr*' '${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts*' '${CMAKE_SOURCE_DIR}/test/mock**' '${CMAKE_SOURCE_DIR}/test/main**'")
-endif ()
+endif()
