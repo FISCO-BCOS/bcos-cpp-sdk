@@ -18,6 +18,8 @@
  * @date 2022-05-30
  */
 
+#define BOOST_TEST_MAIN
+
 #include <bcos-cpp-sdk/utilities/abi/ContractABICodec.h>
 #include <bcos-cpp-sdk/utilities/abi/ContractABIDefinitionFactory.h>
 #include <bcos-cpp-sdk/utilities/abi/ContractABIType.h>
