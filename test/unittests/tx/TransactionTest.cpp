@@ -53,13 +53,13 @@ BOOST_AUTO_TEST_CASE(test_transaction)
 
     auto hash = txData.hash(cryptoSuite->hashImpl());
     BOOST_CHECK_EQUAL(
-        hash.hex(), "3577ef0338695b03c6f19d8b7c1aa1f443973214dde94879a44188490529ea70");
+        hash.hex(), "a060addbd0f5b02806a48bee54fdac997ca2b3a7ff2311715f3af4d3ee727285");
 
     // set version to 10
     txData.version = 10;
     hash = txData.hash(cryptoSuite->hashImpl());
     BOOST_CHECK_EQUAL(
-        hash.hex(), "435da41370f4711de4259094c8362a7332cf752ec359d057bee97453ca9e5072");
+        hash.hex(), "8717ad33c7ee088d86be7594f2c4e45fecd7c6d1199ae4c11a37fca1ad11da2e");
 }
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace bcos::test
