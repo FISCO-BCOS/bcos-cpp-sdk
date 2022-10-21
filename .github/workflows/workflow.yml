@@ -51,11 +51,11 @@ jobs:
         run: export SDKROOT=$(xcrun --sdk macosx --show-sdk-path) && CC=/usr/bin/clang CXX=/usr/bin/clang++ mkdir build && cd build && cmake ../ -DTESTS=ON
       - name: configure
         if: runner.os == 'Linux'
-        run: CC=/usr/bin/clang CXX=/usr/bin/clang++ mkdir build && cd build && cmake ../ -DTESTS=ON
+        run: CC=/usr/bin/clang CXX=/usr/bin/clang++ mkdir build && cd build && cmake ../ -DTESTS=ON -DBUILD_SAMPLE=ON
       - name: compile
         run: cd build && make -j2
       - name: run test
-        run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
+        run: cd build && CTEST_OUTPUT_ON_FAILURE=TRUE make test
   build_with_gcc:
     name: build_with_gcc
     runs-on: ${{ matrix.os }}
@@ -91,7 +91,7 @@ jobs:
       - name: compile
         run: cd build && make -j4
       - name: run test
-        run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
+        run: cd build && CTEST_OUTPUT_ON_FAILURE=TRUE make test
   #build_with_centos:
   #  name: build_with_centos
   #  runs-on: ubuntu-latest

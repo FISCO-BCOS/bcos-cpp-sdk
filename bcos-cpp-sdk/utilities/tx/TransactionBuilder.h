@@ -133,6 +133,9 @@ public:
         const string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit, int32_t _attribute) override;
 
+
+    u256 genRandomUint256();
+
 public:
     auto ecdsaCryptoSuite() -> auto& { return m_ecdsaCryptoSuite; }
     auto smCryptoSuite() -> auto& { return m_smCryptoSuite; }

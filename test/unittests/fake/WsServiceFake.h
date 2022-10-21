@@ -34,7 +34,7 @@ public:
     using Ptr = std::shared_ptr<WsServiceFake>;
 
 public:
-    virtual void asyncSendMessage(std::shared_ptr<bcos::boostssl::ws::WsMessage> _msg,
+    virtual void asyncSendMessage(std::shared_ptr<bcos::boostssl::MessageFace> _msg,
         bcos::boostssl::ws::Options _options = bcos::boostssl::ws::Options(-1),
         bcos::boostssl::ws::RespCallBack _respFunc = bcos::boostssl::ws::RespCallBack()) override
     {
@@ -42,7 +42,7 @@ public:
         (void)_options;
 
         auto msg = std::make_shared<bcos::boostssl::ws::WsMessage>();
-        msg->setData(m_resp);
+        msg->setPayload(m_resp);
         auto session = shared_from_this();
         _respFunc(m_error, _msg, m_session);
     }

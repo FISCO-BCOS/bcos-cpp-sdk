@@ -8,7 +8,9 @@
 
 #include <bcos-cpp-sdk/utilities/tx/tars/tup/Tars.h>
 #include <bcos-cpp-sdk/utilities/tx/tars/tup/TarsJson.h>
-
+#include <bcos-crypto/interfaces/crypto/Hash.h>
+#include <boost/asio/detail/socket_ops.hpp>
+#include <boost/endian/conversion.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -126,6 +128,41 @@ public:
         _ds.displaySimple(input, true);
         _ds.displaySimple(abi, false);
         return _os;
+    }
+
+    bcos::crypto::HashType hash(bcos::crypto::Hash::Ptr _hashImpl) const
+    {
+        auto hashContext = _hashImpl->init();
+        // encode version
+        int32_t networkVersion = boost::endian::native_to_big((int32_t)version);
+        _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&networkVersion),
+                                           sizeof(networkVersion) / sizeof(uint8_t)));
+
+        // encode chainID
+        _hashImpl->update(
+            hashContext, bcos::bytesConstRef((bcos::byte*)chainID.data(), chainID.size()));
+        // encode groupID
+        _hashImpl->update(
+            hashContext, bcos::bytesConstRef((bcos::byte*)groupID.data(), groupID.size()));
+        // encode blockLimit
+        int64_t networkBlockLimit = boost::endian::native_to_big((int64_t)blockLimit);
+
+        _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&networkBlockLimit),
+                                           sizeof(networkBlockLimit) / sizeof(uint8_t)));
+        // encode nonce
+        _hashImpl->update(
+            hashContext, bcos::bytesConstRef((bcos::byte*)nonce.data(), nonce.size()));
+        // encode to
+        _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)to.data(), to.size()));
+        // encode input
+        _hashImpl->update(
+            hashContext, bcos::bytesConstRef((bcos::byte*)input.data(), input.size()));
+
+        // encode abi
+        _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)abi.data(), abi.size()));
+
+        auto hashResult = _hashImpl->final(hashContext);
+        return hashResult;
     }
 
 public:
