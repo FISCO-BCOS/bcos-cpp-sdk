@@ -54,7 +54,7 @@ public:
      * @return bcostars::TransactionDataUniquePtr
      */
     virtual bcostars::TransactionDataUniquePtr createTransactionData(const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit) = 0;
 
     /**
@@ -138,7 +138,7 @@ public:
      */
     virtual std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit, int32_t _attribute) = 0;
 };
 }  // namespace utilities

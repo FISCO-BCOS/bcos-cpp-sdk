@@ -1,4 +1,4 @@
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Top-level CMake file for bcos-cpp-sdk
 # ------------------------------------------------------------------------------
 # Copyright (C) 2021 bcos-cpp-sdk
@@ -14,13 +14,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.10)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "-std=c++20 -pthread -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -fexceptions")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.3" CACHE STRING "Minimum OS X deployment version")
 include(FetchContent)
-if (NOT DEFINED URL_BASE)
+
+if(NOT DEFINED URL_BASE)
     set(URL_BASE "github.com")
+
     # set(URL_BASE "github.com.cnpmjs.org")
 endif()
 
@@ -36,16 +40,23 @@ FetchContent_MakeAvailable(bcos-cmake-scripts)
 set(BCOS_RPC_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "The cmake path for the library")
 list(APPEND CMAKE_MODULE_PATH ${BCOS_CMAKE_SCRIPTS_DIR})
 list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
-#init hunter
+
+# init hunter
+include(Options)
+set(ARCH_NATIVE OFF)
+
+if("${ARCHITECTURE}" MATCHES "aarch64")
+    set(ARCH_NATIVE ON)
+endif()
+
 include(HunterGate)
 HunterGate(
-    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/a97876640bdca736c23a48dc0ad0f168fd3d695c.tar.gz"
-    SHA1 "bb6f77268bfa8772ca30d5a4a62dda35840078ad"
+    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/155dfdb7b5888493eefb656b3abcc026edb98730.tar.gz"
+    SHA1 "a797abf35de1904ec089a9f517d847637731d467"
     FILEPATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake"
 )
 
 project(bcos-cpp-sdk VERSION "3.0.0")
-set(VERSION_SUFFIX "-rc3")
 
 # Boost
 hunter_add_package(Boost COMPONENTS all)
@@ -63,6 +74,8 @@ find_package(OpenSSL REQUIRED)
 hunter_add_package(wedpr-crypto)
 find_package(wedpr-crypto CONFIG REQUIRED)
 
+hunter_add_package(Microsoft.GSL)
+
 # bcos-utilities
 include(InstallBcosUtilities)
 
@@ -78,26 +91,29 @@ include(Options)
 configure_project()
 include(CompilerSettings)
 include(InstallConfig)
+
 # install the include files for hash
 include(InstallInclude)
 
 include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bcos-cpp-sdk)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bcos-cpp-sdk/bcos-framework)
+include_directories(${CMAKE_INSTALL_INCLUDEDIR}/bcos-cpp-sdk)
+include_directories(${CMAKE_INSTALL_INCLUDEDIR}/bcos-cpp-sdk/bcos-framework)
 
 set(BCOS_CPP_SDK_TARGET "bcos-cpp-sdk")
-
 add_subdirectory(bcos-cpp-sdk)
 
-if (BUILD_SAMPLE)
+if(BUILD_SAMPLE)
     # sample exec binary
     add_subdirectory(sample)
 endif()
 
-if (TESTS)
-   enable_testing()
-   set(CTEST_OUTPUT_ON_FAILURE TRUE)
-   add_subdirectory(test)
+if(TESTS)
+    enable_testing()
+    set(CTEST_OUTPUT_ON_FAILURE TRUE)
+    add_subdirectory(test)
 endif()
 
 # install bcos-cpp-sdk target
@@ -114,7 +130,7 @@ install(
 # include(BuildDocs)
 
 # for code coverage
-if (COVERAGE)
+if(COVERAGE)
     include(Coverage)
     config_coverage("rpc-coverage" "'/usr*' '${CMAKE_CURRENT_SOURCE_DIR}/bcos-cmake-scripts*' '${CMAKE_SOURCE_DIR}/test/mock**' '${CMAKE_SOURCE_DIR}/test/main**'")
-endif ()
+endif()

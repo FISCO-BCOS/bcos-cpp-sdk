@@ -21,9 +21,11 @@
 #include <bcos-cpp-sdk/utilities/crypto/KeyPairBuilder.h>
 #include <bcos-crypto/hash/Keccak256.h>
 #include <bcos-crypto/hash/SM3.h>
+#include <bcos-crypto/signature/fastsm2/FastSM2KeyPairFactory.h>
+#include <bcos-crypto/signature/hsmSM2/HsmSM2KeyPair.h>
+#include <bcos-crypto/signature/hsmSM2/HsmSM2KeyPairFactory.h>
 #include <bcos-crypto/signature/key/KeyFactoryImpl.h>
 #include <bcos-crypto/signature/secp256k1/Secp256k1Crypto.h>
-#include <bcos-crypto/signature/sm2/SM2KeyPairFactory.h>
 #include <bcos-utilities/BoostLog.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/Exceptions.h>
@@ -46,14 +48,15 @@ using namespace bcos::cppsdk::utilities;
  * @param _cryptoType
  * @return bcos::crypto::KeyPair::UniquePtr
  */
-bcos::crypto::KeyPairInterface::UniquePtr KeyPairBuilder::genKeyPair(CryptoType _cryptoType)
+bcos::crypto::KeyPairInterface::UniquePtr KeyPairBuilder::genKeyPair(
+    CryptoType _cryptoType, const std::string _hsmLibPath)
 {
     auto fixBytes = FixedBytes<32>().generateRandomFixedBytes();
-    return genKeyPair(_cryptoType, bytesConstRef(fixBytes.data(), fixBytes.size));
+    return genKeyPair(_cryptoType, bytesConstRef(fixBytes.data(), fixBytes.size()), _hsmLibPath);
 }
 
 bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
-    CryptoType _cryptoType, bytesConstRef _privateKey)
+    CryptoType _cryptoType, bytesConstRef _privateKey, const std::string _hsmLibPath)
 {
     auto keyImpl = std::make_shared<bcos::crypto::KeyImpl>(_privateKey);
     if (_cryptoType == CryptoType::Secp256K1)
@@ -68,9 +71,9 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
 
         return keyPair;
     }
-    else
+    else if (_cryptoType == CryptoType::SM2)
     {
-        bcos::crypto::SM2KeyPairFactory sM2KeyPairFactory;
+        bcos::crypto::FastSM2KeyPairFactory sM2KeyPairFactory;
         auto keyPair = sM2KeyPairFactory.createKeyPair(keyImpl);
         /*
         UTILITIES_KEYPAIR_LOG(TRACE)
@@ -79,4 +82,18 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
         */
         return keyPair;
     }
+    else
+    {
+        auto hsmKeyPairFactory = std::make_shared<bcos::crypto::HsmSM2KeyPairFactory>(_hsmLibPath);
+        UTILITIES_KEYPAIR_LOG(TRACE)
+            << LOG_BADGE("genKeyPair") << LOG_DESC("generate new hsm keypair");
+        return hsmKeyPairFactory->createKeyPair(keyImpl);
+    }
+}
+
+bcos::crypto::KeyPairInterface::UniquePtr genHsmKeyPair(
+    unsigned int _keyIndex, std::string _password, const std::string _hsmLibPath)
+{
+    auto hsmKeyPairFactory = std::make_shared<bcos::crypto::HsmSM2KeyPairFactory>(_hsmLibPath);
+    return hsmKeyPairFactory->createKeyPair(_keyIndex, _password);
 }

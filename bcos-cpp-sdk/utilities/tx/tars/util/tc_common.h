@@ -47,8 +47,6 @@
 #include <thread>
 #include <memory>
 
-using namespace std;
-
 #if TARGET_PLATFORM_WINDOWS
 
 #ifndef ssize_t
@@ -116,20 +114,20 @@ public:
     * @brief  vector double 各种场景比较函数
     * @brief  vector double, comparison functions for various scenarios
     */
-    static bool equal(const vector<double> & vx, const vector<double>& vy, double epsilon = _EPSILON_DOUBLE);
-    static bool equal(const vector<double>& vx, const vector<double>& vy, float epsilon );
-    static bool equal(const vector<float>& vx, const vector<float> & vy, float epsilon = _EPSILON_FLOAT);
-    static bool equal(const vector<float>& vx, const vector<float>& vy, double epsilon );
+    static bool equal(const std::vector<double> & vx, const std::vector<double>& vy, double epsilon = _EPSILON_DOUBLE);
+    static bool equal(const std::vector<double>& vx, const std::vector<double>& vy, float epsilon );
+    static bool equal(const std::vector<float>& vx, const std::vector<float> & vy, float epsilon = _EPSILON_FLOAT);
+    static bool equal(const std::vector<float>& vx, const std::vector<float>& vy, double epsilon );
 
-	static bool equal(const set<double> & vx, const set<double>& vy, double epsilon = _EPSILON_DOUBLE);
-	static bool equal(const set<double>& vx, const set<double>& vy, float epsilon );
-	static bool equal(const set<float>& vx, const set<float> & vy, float epsilon = _EPSILON_FLOAT);
-	static bool equal(const set<float>& vx, const set<float>& vy, double epsilon );
+	static bool equal(const std::set<double> & vx, const std::set<double>& vy, double epsilon = _EPSILON_DOUBLE);
+	static bool equal(const std::set<double>& vx, const std::set<double>& vy, float epsilon );
+	static bool equal(const std::set<float>& vx, const std::set<float> & vy, float epsilon = _EPSILON_FLOAT);
+	static bool equal(const std::set<float>& vx, const std::set<float>& vy, double epsilon );
 
-	static bool equal(const unordered_set<double> & vx, const unordered_set<double>& vy, double epsilon = _EPSILON_DOUBLE);
-	static bool equal(const unordered_set<double>& vx, const unordered_set<double>& vy, float epsilon );
-	static bool equal(const unordered_set<float>& vx, const unordered_set<float> & vy, float epsilon = _EPSILON_FLOAT);
-	static bool equal(const unordered_set<float>& vx, const unordered_set<float>& vy, double epsilon );
+	static bool equal(const std::unordered_set<double> & vx, const std::unordered_set<double>& vy, double epsilon = _EPSILON_DOUBLE);
+	static bool equal(const std::unordered_set<double>& vx, const std::unordered_set<double>& vy, float epsilon );
+	static bool equal(const std::unordered_set<float>& vx, const std::unordered_set<float> & vy, float epsilon = _EPSILON_FLOAT);
+	static bool equal(const std::unordered_set<float>& vx, const std::unordered_set<float>& vy, double epsilon );
 
     /**
     * @brief  map中如果key或者value为double/float字段，则用此模板函数比较
@@ -138,9 +136,9 @@ public:
     template<typename V, typename E>
     static bool equal(const V& x, const V& y, E eps);
     template<typename K, typename V, typename D, typename A , typename E=double>
-    static bool equal(const map<K, V, D, A>& mx , const map<K, V, D, A>& my, E epsilon = _EPSILON_DOUBLE);
+    static bool equal(const std::map<K, V, D, A>& mx , const std::map<K, V, D, A>& my, E epsilon = _EPSILON_DOUBLE);
 	template<typename K, typename V, typename D, typename A , typename E=double>
-	static bool equal(const unordered_map<K, V, D, A>& mx , const unordered_map<K, V, D, A>& my, E epsilon = _EPSILON_DOUBLE);
+	static bool equal(const std::unordered_map<K, V, D, A>& mx , const std::unordered_map<K, V, D, A>& my, E epsilon = _EPSILON_DOUBLE);
 
     /**
      * 固定宽度填充字符串, 用于输出对齐格式用(默认右填充)
@@ -150,15 +148,15 @@ public:
      * @param n
      * @return
      */
-    static string outfill(const string& s, char pad = ' ', size_t n = 50, bool rightPad=true)
+    static std::string outfill(const std::string& s, char pad = ' ', size_t n = 50, bool rightPad=true)
     {
         if(n <= s.length())
             return s;
 
         if(rightPad)
-            return (s + string((n - s.length()), pad));
+            return (s + std::string((n - s.length()), pad));
 
-        return (string((n - s.length()), pad) + s);
+        return (std::string((n - s.length()), pad) + s);
     }
 
     /**
@@ -174,7 +172,7 @@ public:
     * @return string 返回去掉后的字符串
     * @return string Return the removed string
     */
-    static string trim(const string &sStr, const string &s = " \r\n\t", bool bChar = true);
+    static std::string trim(const std::string &sStr, const std::string &s = " \r\n\t", bool bChar = true);
 
     /**
     * @brief  去掉左边的字符或字符串.
@@ -189,7 +187,7 @@ public:
     * @return string 返回去掉后的字符串
     * @return string Return the removed string
     */
-    static string trimleft(const string &sStr, const string &s = " \r\n\t", bool bChar = true);
+    static std::string trimleft(const std::string &sStr, const std::string &s = " \r\n\t", bool bChar = true);
 
     /**
     * @brief  去掉右边的字符或字符串.
@@ -204,7 +202,7 @@ public:
     * @return string 返回去掉后的字符串
     * @return string Return the removed string
     */
-    static string trimright(const string &sStr, const string &s = " \r\n\t", bool bChar = true);
+    static std::string trimright(const std::string &sStr, const std::string &s = " \r\n\t", bool bChar = true);
 
     /**
     * @brief  字符串转换成小写.
@@ -215,7 +213,7 @@ public:
     * @return string  转换后的字符串
     * @return string  the converted string
     */
-    static string lower(const string &sString);
+    static std::string lower(const std::string &sString);
 
     /**
     * @brief  字符串转换成大写.
@@ -226,25 +224,25 @@ public:
     * @return string  转换后的大写的字符串
     * @return string  the converted string
     */
-    static string upper(const string &sString);
+    static std::string upper(const std::string &sString);
 
     /**
     * @brief  字符串是否都是数字的.
     * @brief  Whether strings are all numbers or not.
     *
     * @param sString  字符串
-    * @param sString  string
+    * @param sString  std::string
     * @return bool    是否是数字
     * @return bool    whether number or not
     */
-    static bool isdigit(const string &sInput);
+    static bool isdigit(const std::string &sInput);
 
     /**
     * @brief  字符串转换成时间结构.
-    * @brief  Convert string to time structure.
+    * @brief  Convert std::string to time structure.
     *
     * @param sString  字符串时间格式
-    * @param sString  string Time Format 
+    * @param sString  std::string Time Format 
     * @param sFormat  格式
     * @param sFormat  format
     * @param stTm     时间结构
@@ -252,7 +250,7 @@ public:
     * @return         0: 成功, -1:失败
     * @return         0: success, -1: fail
     */
-    static int str2tm(const string &sString, const string &sFormat, struct tm &stTm);
+    static int str2tm(const std::string &sString, const std::string &sFormat, struct tm &stTm);
 
     /**
      * @brief GMT格式的时间转化为时间结构
@@ -276,46 +274,46 @@ public:
      * @return         0: 成功, -1:失败
      * @return         0: success, -1: fail
      */
-    static int strgmt2tm(const string &sString, struct tm &stTm);
+    static int strgmt2tm(const std::string &sString, struct tm &stTm);
 
     /**
     * @brief  格式化的字符串时间转为时间戳.
-    * @brief  Format time string to timestamp
+    * @brief  Format time std::string to timestamp
     *
     * @param sString  格式化的字符串时间，本地时间
-    * @param sString  format time string
+    * @param sString  format time std::string
     * @param sFormat  格式化的字符串时间的格式，默认为紧凑格式
-    * @param sFormat  format of formatted string time
+    * @param sFormat  format of formatted std::string time
     * @return time_t  转换后的时间戳
     * @return time_t  the converted timestamp
     */
-    static time_t str2time(const string &sString, const string &sFormat = "%Y%m%d%H%M%S");
+    static time_t str2time(const std::string &sString, const std::string &sFormat = "%Y%m%d%H%M%S");
 
     /**
     * @brief  时间转换成字符串.
-    * @brief  Convert time into string.
+    * @brief  Convert time into std::string.
     *
     * @param stTm     时间结构
     * @param stTm     time structure
     * @param sFormat  需要转换的目标格式，默认为紧凑格式
     * @param sFormat  Target format to be converted, default to compact format
     * @return string  转换后的时间字符串
-    * @return string  converted time string
+    * @return string  converted time std::string
     */
-    static string tm2str(const struct tm &stTm, const string &sFormat = "%Y%m%d%H%M%S");
+    static std::string tm2str(const struct tm &stTm, const std::string &sFormat = "%Y%m%d%H%M%S");
 
     /**
     * @brief  时间转换成字符串.
-    * @brief  Convert time into string
+    * @brief  Convert time into std::string
     *
     * @param t        时间结构
     * @param t        time structure
     * @param sFormat  需要转换的目标格式，默认为紧凑格式
     * @param sFormat  Target format to be converted, default to compact format
     * @return string  转换后的时间字符串
-    * @return string  converted time string
+    * @return string  converted time std::string
     */
-    static string tm2str(const time_t &t, const string &sFormat = "%Y%m%d%H%M%S");
+    static std::string tm2str(const time_t &t, const std::string &sFormat = "%Y%m%d%H%M%S");
 
     /**
     * @brief  时间转换tm.
@@ -335,7 +333,7 @@ public:
     * @param sFormat  需要转换的目标格式，默认为紧凑格式
     * @param sFormat  Target format to be converted, default to compact format
     * @return string  转换后的时间字符串
-    * @return string  converted time string
+    * @return string  converted time std::string
     */
     static void tm2tm(const time_t &t, struct tm &stTm);
 
@@ -350,65 +348,65 @@ public:
 
     /**
     * @brief  当前时间转换成紧凑格式字符串
-    * @brief  Convert current time to compact string
+    * @brief  Convert current time to compact std::string
     * @param sFormat 格式，默认为紧凑格式
     * @param sFormat the format, default to compact format
     * @return string 转换后的时间字符串
     * @return string converted time string
     */
-    static string now2str(const string &sFormat = "%Y%m%d%H%M%S");
+    static std::string now2str(const std::string &sFormat = "%Y%m%d%H%M%S");
 
     /**
     * @brief  毫秒时间, 一般用于调试输出
     * @return string 转换后的时间字符串
     */
-    static string now2msstr();
-    static string ms2str(int64_t ms);
+    static std::string now2msstr();
+    static std::string ms2str(int64_t ms);
     /**
     * @brief  时间转换成GMT字符串，GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
-    * @brief  Convert time into GMT string, GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
+    * @brief  Convert time into GMT std::string, GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
     * @param stTm    时间结构
     * @param stTm    time structure
     * @return string GMT格式的时间字符串
-    * @return string time string in GMT format
+    * @return string time std::string in GMT format
     */
-    static string tm2GMTstr(const struct tm &stTm);
+    static std::string tm2GMTstr(const struct tm &stTm);
 
     /**
     * @brief  时间转换成GMT字符串，GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
-    * @brief  Convert time into GMT string, GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
+    * @brief  Convert time into GMT std::string, GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
     * @param stTm    时间结构
     * @param stTm    time structure
     * @return string GMT格式的时间字符串
-    * @return string time string in GMT format
+    * @return string time std::string in GMT format
     */
-    static string tm2GMTstr(const time_t &t);
+    static std::string tm2GMTstr(const time_t &t);
 
     /**
     * @brief  当前时间转换成GMT字符串，GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
-    * @brief  Convert current time into GMT string, GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
+    * @brief  Convert current time into GMT std::string, GMT格式:Fri, 12 Jan 2001 18:18:18 GMT
     * @return string GMT格式的时间字符串
-    * @return string time string in GMT format
+    * @return string time std::string in GMT format
     */
-    static string now2GMTstr();
+    static std::string now2GMTstr();
 
     /**
     * @brief  当前的日期(年月日)转换成字符串(%Y%m%d).
-    * @brief  Get current date(yearmonthday) and convert it into string (%Y%m%d).
+    * @brief  Get current date(yearmonthday) and convert it into std::string (%Y%m%d).
     *
     * @return string (%Y%m%d)格式的时间字符串
-    * @return string time string in (%Y%m%d) format
+    * @return string time std::string in (%Y%m%d) format
     */
-    static string nowdate2str();
+    static std::string nowdate2str();
 
     /**
     * @brief  当前的时间(时分秒)转换成字符串(%H%M%S).
-    * @brief  Get current time(hourminutesecond) and convert it into string (%H%M%S).
+    * @brief  Get current time(hourminutesecond) and convert it into std::string (%H%M%S).
     *
     * @return string (%H%M%S)格式的时间字符串
-    * @return string time string in (%H%M%S) format
+    * @return string time std::string in (%H%M%S) format
     */
-    static string nowtime2str();
+    static std::string nowtime2str();
 
     /**
      * @brief  获取当前时间的的毫秒数.
@@ -430,33 +428,33 @@ public:
 
     /**
     * @brief  字符串转化成T型，如果T是数值类型, 如果str为空,则T为0.
-    * @brief  Convert string to type T. if T is a numeric type and STR is empty, then T values 0.
+    * @brief  Convert std::string to type T. if T is a numeric type and STR is empty, then T values 0.
     *
     * @param sStr  要转换的字符串
-    * @param sStr  the string needs to be converted
+    * @param sStr  the std::string needs to be converted
     * @return T    T型类型
     * @return T    the type of type T
     */
     template<typename T>
-    static T strto(const string &sStr);
+    static T strto(const std::string &sStr);
 
     /**
     * @brief  字符串转化成T型.
-    * @brief  Convert string to type T
+    * @brief  Convert std::string to type T
     *
     * @param sStr      要转换的字符串
-    * @param sStr      the string needs to be converted
+    * @param sStr      the std::string needs to be converted
     * @param sDefault  缺省值
     * @param sDefault  default value
     * @return T        转换后的T类型
     * @return T        the converted type of type T
     */
     template<typename T>
-    static T strto(const string &sStr, const string &sDefault);
+    static T strto(const std::string &sStr, const std::string &sDefault);
 
     /**
     * @brief  解析字符串,用分隔符号分隔,保存在vector里
-    * @brief  Parse string, separate with separator, and save in vector
+    * @brief  Parse std::string, separate with separator, and save in vector
     * 
     * 例子: |a|b||c|
     * Example: |a|b||c|
@@ -468,99 +466,99 @@ public:
     * If 'withEmpty=false' then use '|' to separate it into "a", "b", "c".
     *
     * 如果T类型为int等数值类型, 则分隔的字符串为"", 则强制转化为0
-    * If the T type is a numeric type such as int, the delimited string is' ', then it is forced to 0.
+    * If the T type is a numeric type such as int, the delimited std::string is' ', then it is forced to 0.
     *
     * @param sStr      输入字符串
-    * @param sStr      input string
+    * @param sStr      input std::string
     * @param sSep      分隔字符串(每个字符都算为分隔符)
-    * @param sSep      the separator string (each character counts as a separator)
+    * @param sSep      the separator std::string (each character counts as a separator)
     * @param withEmpty true代表空的也算一个元素, false时空的过滤
     * @param withEmpty bool: true, represented that empty is also an element ; false, filter empty ones. 
     * @return          解析后的字符vector
     * @return          parsed character: vector
     */
     template<typename T>
-    static vector<T> sepstr(const string &sStr, const string &sSep, bool withEmpty = false);
+    static std::vector<T> sepstr(const std::string &sStr, const std::string &sSep, bool withEmpty = false);
 
     /**
     * @brief T型转换成字符串，只要T能够使用ostream对象用<<重载,即可以被该函数支持
-    * @brief Convert T-type to string. As long as T can use ostream object with << to overload, it can be supported by this function.
+    * @brief Convert T-type to std::string. As long as T can use ostream object with << to overload, it can be supported by this function.
     * 
     * @param t 要转换的数据
     * @param t the data needs to be converted
     * @return  转换后的字符串
-    * @return  the converted string
+    * @return  the converted std::string
     */
     template<typename T>
-    inline static string tostr(const T &t)
+    inline static std::string tostr(const T &t)
     {
-        ostringstream sBuffer;
+        std::ostringstream sBuffer;
         sBuffer << t;
         return sBuffer.str();
     }
 
     /**
      * @brief  vector转换成string.
-     * @brief  Convert vector to string.
+     * @brief  Convert vector to std::string.
      *
      * @param t 要转换的vector型的数据
      * @param t data which need to be convertes to vector type
      * @return  转换后的字符串
-     * @return  the converted string
+     * @return  the converted std::string
      */
     template<typename T>
-    static string tostr(const vector<T> &t);
+    static std::string tostr(const std::vector<T> &t);
 
     /**
      * @brief  把map输出为字符串.
-     * @brief  export map as string
+     * @brief  export map as std::string
      *
      * @param map<K, V, D, A>  要转换的map对象
      * @param map<K, V, D, A>  the map object needs to be converted
-     * @return                    string 输出的字符串
-     * @return                    output string 
+     * @return                    std::string 输出的字符串
+     * @return                    output std::string 
      */
     template<typename K, typename V, typename D, typename A>
-    static string tostr(const map<K, V, D, A> &t);
+    static std::string tostr(const std::map<K, V, D, A> &t);
 
     /**
      * @brief  map输出为字符串.
-     * @brief  export map as string
+     * @brief  export map as std::string
      *
      * @param multimap<K, V, D, A>  map对象
      * @param multimap<K, V, D, A>  the map object needs to be converted
      * @return                      输出的字符串
-     * @return                      output string 
+     * @return                      output std::string 
      */
     template<typename K, typename V, typename D, typename A>
-    static string tostr(const multimap<K, V, D, A> &t);
+    static std::string tostr(const std::multimap<K, V, D, A> &t);
 
     /**
      * @brief  把map输出为字符串.
-     * @brief  export map as string
+     * @brief  export map as std::string
      *
      * @param map<K, V, D, A>  要转换的map对象
      * @param map<K, V, D, A>  the map object needs to be converted
-     * @return                    string 输出的字符串
-     * @return                    output string 
+     * @return                    std::string 输出的字符串
+     * @return                    output std::string 
      */
     template<typename K, typename V, typename D, typename P, typename A>
-    static string tostr(const unordered_map<K, V, D, P, A> &t);
+    static std::string tostr(const std::unordered_map<K, V, D, P, A> &t);
 
     /**
     * @brief  pair 转化为字符串，保证map等关系容器可以直接用tostr来输出
-    * @brief  Convert pair to string, ensure that the relationship containers such as map can output directly with tostr.
+    * @brief  Convert pair to std::string, ensure that the relationship containers such as map can output directly with tostr.
     * @param pair<F, S> pair对象
     * @param pair<F, S> object pair
     * @return           输出的字符串
-    * @return           output string 
+    * @return           output std::string 
     */
     template<typename F, typename S>
-    static string tostr(const pair<F, S> &itPair);
+    static std::string tostr(const std::pair<F, S> &itPair);
 
     /**
     * @brief  container 转换成字符串.
-    * @brief  Convert container to string
+    * @brief  Convert container to std::string
     *
     * @param iFirst  迭代器
     * @param iFirst  iterator
@@ -569,14 +567,14 @@ public:
     * @param sSep    两个元素之间的分隔符
     * @param sSep    the separator between two elements
     * @return        转换后的字符串
-    * @return        the converted string 
+    * @return        the converted std::string 
     */
     template<typename InputIter>
-    static string tostr(InputIter iFirst, InputIter iLast, const string &sSep = "|");
+    static std::string tostr(InputIter iFirst, InputIter iLast, const std::string &sSep = "|");
 
     /**
     * @brief  二进制数据转换成字符串.
-    * @brief  Convert binary data t0 string 
+    * @brief  Convert binary data t0 std::string 
     *
     * @param buf     二进制buffer
     * @param buf     binary buffer
@@ -587,13 +585,13 @@ public:
     * @param lines   多少个字节换一行, 默认0表示不换行
     * @param lines   The max number of bytes for oneline.By default, 0 means no new line.
     * @return        转换后的字符串
-    * @return        the converted string 
+    * @return        the converted std::string 
     */
-    static string bin2str(const void *buf, size_t len, const string &sSep = "", size_t lines = 0);
+    static std::string bin2str(const void *buf, size_t len, const std::string &sSep = "", size_t lines = 0);
 
     /**
     * @brief  二进制数据转换成字符串.
-    * @brief  Convert binary data t0 string 
+    * @brief  Convert binary data t0 std::string 
     *
     * @param sBinData  二进制数据
     * @param sBinData  binary data
@@ -602,20 +600,20 @@ public:
     * @param lines    多少个字节换一行, 默认0表示不换行
     * @param lines    The max number of bytes for oneline.By default, 0 means no new line.
     * @return         转换后的字符串
-    * @return         the converted string
+    * @return         the converted std::string
     */
-    static string bin2str(const string &sBinData, const string &sSep = "", size_t lines = 0);
+    static std::string bin2str(const std::string &sBinData, const std::string &sSep = "", size_t lines = 0);
 
     /**
     * @brief   字符串转换成二进制.
-    * @brief   Convert string to binary
+    * @brief   Convert std::string to binary
     *
     * @param psAsciiData 字符串
-    * @param psAsciiData string
+    * @param psAsciiData std::string
     * @param sBinData    二进制数据
     * @param sBinData    binary data
     * @param iBinSize    需要转换的字符串长度
-    * @param iBinSize    the length of the string which needs to be converted.
+    * @param iBinSize    the length of the std::string which needs to be converted.
     * @return            转换长度，小于等于0则表示失败
     * @return            Conversion length, less than or equal to 0 means failure
     */
@@ -623,10 +621,10 @@ public:
 
     /**
      * @brief  字符串转换成二进制.
-     * @brief  convert string to binary
+     * @brief  convert std::string to binary
      *
      * @param sBinData  要转换的字符串
-     * @param sBinData  the string needs to be converted
+     * @param sBinData  the std::string needs to be converted
      * @param sSep      分隔符
      * @param sSep      separator
      * @param lines     多少个字节换一行, 默认0表示不换行
@@ -634,49 +632,49 @@ public:
      * @return          转换后的二进制数据
      * @return          the converted binary data
      */
-    static string str2bin(const string &sBinData, const string &sSep = "", size_t lines = 0);
+    static std::string str2bin(const std::string &sBinData, const std::string &sSep = "", size_t lines = 0);
 
     /**
     * @brief  替换字符串.
-    * @brief  replace string
+    * @brief  replace std::string
     *
     * @param sString  输入字符串
-    * @param sString  input string
+    * @param sString  input std::string
     * @param sSrc     原字符串
-    * @param sSrc     the original string
+    * @param sSrc     the original std::string
     * @param sDest    目的字符串
-    * @param sDest    the target string
+    * @param sDest    the target std::string
     * @return string  替换后的字符串
-    * @return string  the converted string
+    * @return string  the converted std::string
     */
-    static string replace(const string &sString, const string &sSrc, const string &sDest);
+    static std::string replace(const std::string &sString, const std::string &sSrc, const std::string &sDest);
 
     /**
     * @brief  批量替换字符串.
-    * @brief  Batch replace string.
+    * @brief  Batch replace std::string.
     *
     * @param sString  输入字符串
-    * @param sString  input string
+    * @param sString  input std::string
     * @param mSrcDest  map<原字符串,目的字符串>
     * @param mSrcDest  map<original,target>
     * @return string  替换后的字符串
-    * @return string  the converted string
+    * @return string  the converted std::string
     */
-    static string replace(const string &sString, const map<string, string>& mSrcDest);
+    static std::string replace(const std::string &sString, const std::map<std::string, std::string>& mSrcDest);
 
     /**
      * @brief 匹配以.分隔的字符串，pat中*则代表通配符，代表非空的任何字符串
      * s为空, 返回false ，pat为空, 返回true
-     * @brief Match string separated by '.' And '*' in pat represents wildcard which represents any string that is not empty.
+     * @brief Match std::string separated by '.' And '*' in pat represents wildcard which represents any std::string that is not empty.
      * If s is empty, return false. If pat is empty, return true.
      * @param s    普通字符串
-     * @param s    normal string
+     * @param s    normal std::string
      * @param pat  带*则被匹配的字符串，用来匹配ip地址
-     * @param pat  string matched with * to match IP address
+     * @param pat  std::string matched with * to match IP address
      * @return     是否匹配成功
      * @return     whether they matches or not
      */
-    static bool matchPeriod(const string& s, const string& pat);
+    static bool matchPeriod(const std::string& s, const std::string& pat);
 
     /**
      * 判断在同一个周期的时间是否相等
@@ -692,13 +690,13 @@ public:
      * @brief  Match strings separated by '.'
      *
      * @param s   普通字符串
-     * @param s   normal string 
+     * @param s   normal std::string 
      * @param pat vector中的每个元素都是带*则被匹配的字符串，用来匹配ip地址
-     * @param pat each elment in this vector means string matched with * to match IP address
+     * @param pat each elment in this vector means std::string matched with * to match IP address
      * @return    是否匹配成功
      * @return    whether they matches or not
      */
-    static bool matchPeriod(const string& s, const vector<string>& pat);
+    static bool matchPeriod(const std::string& s, const std::vector<std::string>& pat);
 
     /**
      * @brief  判断一个数是否为素数.
@@ -727,9 +725,9 @@ public:
      * @brief  生成基于16进制字符的随机串
      * @brief  Generating random strings based on hexadecimal characters.
      * @param p            存储随机字符串
-     * @param p            store random string
+     * @param p            store random std::string
      * @param len          字符串大小
-     * @param len          string length
+     * @param len          std::string length
      */
     static void getRandomHexChars(char* p, unsigned int len);
 
@@ -737,26 +735,26 @@ public:
 
     /**
      * @brief  将一个string类型转成一个字节 .
-     * @brief  Convert a string type to a byte .
+     * @brief  Convert a std::string type to a byte .
      *
      * @param sWhat 要转换的字符串
-     * @param sWhat the string which needs to be converted
+     * @param sWhat the std::string which needs to be converted
      * @return char    转换后的字节
      * @return char    the converted byte
      */
-    static char x2c(const string &sWhat);
+    static char x2c(const std::string &sWhat);
 
     /**
      * @brief  大小字符串换成字节数，支持K, M, G两种 例如: 1K, 3M, 4G, 4.5M, 2.3G
-     * @brief  The string can be changed into bytes. It supports two kinds of K, M and G, such as 1K, 3M, 4G, 4.5M and 2.3G
+     * @brief  The std::string can be changed into bytes. It supports two kinds of K, M and G, such as 1K, 3M, 4G, 4.5M and 2.3G
      * @param s            要转换的字符串
-     * @param s            the string which needs to be converted
+     * @param s            the std::string which needs to be converted
      * @param iDefaultSize 格式错误时, 缺省的大小
      * @param iDefaultSize the default size in case of format error
      * @return             字节数
      * @return             Bytes
      */
-    static size_t toSize(const string &s, size_t iDefaultSize);
+    static size_t toSize(const std::string &s, size_t iDefaultSize);
 
 	/**
 	* @brief  获取主机名称.
@@ -764,72 +762,72 @@ public:
 	* @return string    主机名，失败是返回空
     * @return string    machine name. if failed returns null
 	*/
-	static string getHostName();
+	static std::string getHostName();
 
     //下一天日期, sDate是:%Y%m%d
-    static string nextDate(const string &sDate);
+    static std::string nextDate(const std::string &sDate);
     //上一天日期, sDate是:%Y%m%d
-    static string prevDate(const string &sDate);
+    static std::string prevDate(const std::string &sDate);
     //下一天日期, iDate是:%Y%m%d
     static int nextDate(int iDate);
     //上一天日期, iDate是:%Y%m%d
     static int prevDate(int iDate);
 
     //下一个月份 sMonth是:%Y%m
-    static string nextMonth(const string &sMonth);
+    static std::string nextMonth(const std::string &sMonth);
     //上一个月份 sMonth是:%Y%m
-    static string prevMonth(const string &sMonth);
+    static std::string prevMonth(const std::string &sMonth);
     //下一个年份 sYear是:%Y
-    static string nextYear(const string &sYear);
+    static std::string nextYear(const std::string &sYear);
     //上一个年份 sYear是:%Y
-    static string prevYear(const string &sYear);
+    static std::string prevYear(const std::string &sYear);
 
     //秒到日期%Y%m%d
     static int secondsToDateInt(time_t seconds);
     //秒到日期%Y%m%d
-    static string secondsToDateString(time_t seconds);
+    static std::string secondsToDateString(time_t seconds);
 
     //秒到周一%Y%m%d
-    static string secondsToMondayString(time_t seconds);
+    static std::string secondsToMondayString(time_t seconds);
     //秒到月 %Y-%m
-    static string secondsToMonthString(time_t seconds);
+    static std::string secondsToMonthString(time_t seconds);
 
     //日期(%Y%m%d)到毫秒
-    static int64_t dateToMs(const string &sDate);
+    static int64_t dateToMs(const std::string &sDate);
 
-    static int64_t dateToSecond(const string &sDate);
+    static int64_t dateToSecond(const std::string &sDate);
 
-    static int dateTo(const string &sDate, const string &sPeriod);
+    static int dateTo(const std::string &sDate, const std::string &sPeriod);
 
     //日期(%Y%m%d)到周几
-    static int dateToWeekday(const string &sDate);
+    static int dateToWeekday(const std::string &sDate);
 
     //日期(%Y%m%d)到第几周
-    static int dateToWeek(const string &sDate);
+    static int dateToWeek(const std::string &sDate);
 
     //日期(%Y%m%d)到x月
-    static int dateToMonth(const string &sDate);
+    static int dateToMonth(const std::string &sDate);
 
     //日期(%Y%m%d)到x季度
-    static int dateToSeason(const string &sDate);
+    static int dateToSeason(const std::string &sDate);
 
     //日期(%Y%m%d)到上下半年
-    static int dateToHalfYear(const string &sDate);
+    static int dateToHalfYear(const std::string &sDate);
 
     //日期(%Y%m%d)到x年
-    static int dateToYear(const string &sDate);
+    static int dateToYear(const std::string &sDate);
 
     //MS到字符串 %Y%m%d-%H%M%S-xxx
-    static string msToTimeString(int64_t ms);
+    static std::string msToTimeString(int64_t ms);
     //字符串到MS %Y%m%d-%H%M%S-xxx，转换失败返回0
-    static int64_t timeStringToMs(const string & timeStr);
+    static int64_t timeStringToMs(const std::string & timeStr);
 
     //MS 中取出日期(%Y%m%d)、时间字符串(%H%M%S)、MS字符串(xxx)
-    static bool getSectionFromMs(int64_t ms,string &date,string& time,string &mstick);
+    static bool getSectionFromMs(int64_t ms,std::string &date,std::string& time,std::string &mstick);
     //MS 中取出日期(%Y%m%d)，失败返回"00000000"
-    static string getDateFromMs(int64_t ms);
+    static std::string getDateFromMs(int64_t ms);
     //MS 中取出时间(%H%M%S)，失败返回"000000"
-    static string getTimeFromMs(int64_t ms);
+    static std::string getTimeFromMs(int64_t ms);
 
     //毫秒换成当天的秒钟
     static int msToNowSeconds(int64_t ms);
@@ -851,7 +849,7 @@ public:
     static int lastDate(int iDate, const char period = 'D');
     // 获取日期列表内和period匹配的日期
     // period: ('W', 1) ('M', -2), ('Q', 5) // 取每周/每月/每季度第几天 (负数则是倒数地几天)
-    static int getMatchPeriodDays(const std::vector<int>& days, const std::pair<string, int>& period, std::vector<int>& matchDays);
+    static int getMatchPeriodDays(const std::vector<int>& days, const std::pair<std::string, int>& period, std::vector<int>& matchDays);
 
 };
 
@@ -860,16 +858,16 @@ namespace p
     template<typename D>
     struct strto1
     {
-        D operator()(const string &sStr)
+        D operator()(const std::string &sStr)
         {
-            string s = "0";
+            std::string s = "0";
 
             if(!sStr.empty())
             {
                 s = sStr;
             }
 
-            istringstream sBuffer(s);
+            std::istringstream sBuffer(s);
 
             D t;
             sBuffer >> t;
@@ -881,7 +879,7 @@ namespace p
     template<>
     struct strto1<char>
     {
-        char operator()(const string &sStr)
+        char operator()(const std::string &sStr)
         {
             if(!sStr.empty())
             {
@@ -894,7 +892,7 @@ namespace p
     template<>
     struct strto1<unsigned char>
     {
-        unsigned char operator()(const string &sStr)
+        unsigned char operator()(const std::string &sStr)
         {
             if(!sStr.empty())
             {
@@ -907,7 +905,7 @@ namespace p
     template<>
     struct strto1<short>
     {
-        short operator()(const string &sStr)
+        short operator()(const std::string &sStr)
         {
             if (!sStr.empty()) {
                 if (sStr.find("0x") == 0) {
@@ -924,7 +922,7 @@ namespace p
     template<>
     struct strto1<unsigned short>
     {
-        unsigned short operator()(const string &sStr)
+        unsigned short operator()(const std::string &sStr)
         {
             if (!sStr.empty()) {
                 if (sStr.find("0x") == 0) {
@@ -941,7 +939,7 @@ namespace p
     template<>
     struct strto1<int>
     {
-        int operator()(const string &sStr)
+        int operator()(const std::string &sStr)
         {
             if (!sStr.empty()) {
                 if (sStr.find("0x") == 0) {
@@ -958,7 +956,7 @@ namespace p
     template<>
     struct strto1<unsigned int>
     {
-        unsigned int operator()(const string &sStr)
+        unsigned int operator()(const std::string &sStr)
         {
             if (!sStr.empty()) {
                 if (sStr.find("0x") == 0) {
@@ -975,7 +973,7 @@ namespace p
     template<>
     struct strto1<long>
     {
-        long operator()(const string &sStr)
+        long operator()(const std::string &sStr)
         {
             if (!sStr.empty()) {
                 if (sStr.find("0x") == 0) {
@@ -992,7 +990,7 @@ namespace p
     template<>
     struct strto1<long long>
     {
-        long long operator()(const string &sStr)
+        long long operator()(const std::string &sStr)
         {
             if (!sStr.empty()) {
                 if (sStr.find("0x") == 0) {
@@ -1009,7 +1007,7 @@ namespace p
     template<>
     struct strto1<unsigned long>
     {
-        unsigned long operator()(const string &sStr)
+        unsigned long operator()(const std::string &sStr)
         {
             if (!sStr.empty()) {
                 if (sStr.find("0x") == 0) {
@@ -1026,7 +1024,7 @@ namespace p
     template<>
     struct strto1<float>
     {
-        float operator()(const string &sStr)
+        float operator()(const std::string &sStr)
         {
             if(!sStr.empty())
             {
@@ -1039,7 +1037,7 @@ namespace p
     template<>
     struct strto1<double>
     {
-        double operator()(const string &sStr)
+        double operator()(const std::string &sStr)
         {
             if(!sStr.empty())
             {
@@ -1052,9 +1050,9 @@ namespace p
     template<typename D>
     struct strto2
     {
-    	D operator()(const string &sStr, typename std::enable_if<!std::is_enum<D>::value, void ***>::type dummy = 0)
+    	D operator()(const std::string &sStr, typename std::enable_if<!std::is_enum<D>::value, void ***>::type dummy = 0)
         {
-            istringstream sBuffer(sStr);
+            std::istringstream sBuffer(sStr);
             D t;
 
             sBuffer >> t;
@@ -1062,9 +1060,9 @@ namespace p
             return t;
         }
 
-        D operator()(const string &sStr, typename std::enable_if<std::is_enum<D>::value, void ***>::type dummy = 0)
+        D operator()(const std::string &sStr, typename std::enable_if<std::is_enum<D>::value, void ***>::type dummy = 0)
         {
-    		istringstream sBuffer(sStr);
+    		std::istringstream sBuffer(sStr);
     		int i;
     		sBuffer >> i;
 
@@ -1073,9 +1071,9 @@ namespace p
     };
 
     template<>
-    struct strto2<string>
+    struct strto2<std::string>
     {
-        string operator()(const string &sStr)
+        std::string operator()(const std::string &sStr)
         {
             return sStr;
         }
@@ -1084,7 +1082,7 @@ namespace p
 }
 
 template<typename T>
-T TC_Common::strto(const string &sStr)
+T TC_Common::strto(const std::string &sStr)
 {
     using strto_type = typename std::conditional<std::is_arithmetic<T>::value, p::strto1<T>, p::strto2<T>>::type;
 
@@ -1092,9 +1090,9 @@ T TC_Common::strto(const string &sStr)
 }
 
 template<typename T>
-T TC_Common::strto(const string &sStr, const string &sDefault)
+T TC_Common::strto(const std::string &sStr, const std::string &sDefault)
 {
-    string s;
+    std::string s;
 
     if(!sStr.empty())
     {
@@ -1109,17 +1107,17 @@ T TC_Common::strto(const string &sStr, const string &sDefault)
 }
 
 template<typename T>
-vector<T> TC_Common::sepstr(const string &sStr, const string &sSep, bool withEmpty)
+std::vector<T> TC_Common::sepstr(const std::string &sStr, const std::string &sSep, bool withEmpty)
 {
-    vector<T> vt;
+    std::vector<T> vt;
 
-    string::size_type pos = 0;
-    string::size_type pos1 = 0;
+    std::string::size_type pos = 0;
+    std::string::size_type pos1 = 0;
 
     while (true) {
-        string s;
+        std::string s;
         pos1 = sStr.find_first_of(sSep, pos);
-        if (pos1 == string::npos) {
+        if (pos1 == std::string::npos) {
             if (pos + 1 <= sStr.length()) {
                 s = sStr.substr(pos);
             }
@@ -1141,7 +1139,7 @@ vector<T> TC_Common::sepstr(const string &sStr, const string &sSep, bool withEmp
             }
         }
 
-        if (pos1 == string::npos) {
+        if (pos1 == std::string::npos) {
             break;
         }
 
@@ -1152,51 +1150,51 @@ vector<T> TC_Common::sepstr(const string &sStr, const string &sSep, bool withEmp
 }
 
 template<>
-string TC_Common::tostr<bool>(const bool &t);
+std::string TC_Common::tostr<bool>(const bool &t);
 
 template<>
-string TC_Common::tostr<char>(const char &t);
+std::string TC_Common::tostr<char>(const char &t);
 
 template<>
-string TC_Common::tostr<unsigned char>(const unsigned char &t);
+std::string TC_Common::tostr<unsigned char>(const unsigned char &t);
 
 template<>
-string TC_Common::tostr<short>(const short &t);
+std::string TC_Common::tostr<short>(const short &t);
 
 template<>
-string TC_Common::tostr<unsigned short>(const unsigned short &t);
+std::string TC_Common::tostr<unsigned short>(const unsigned short &t);
 
 template<>
-string TC_Common::tostr<int>(const int &t);
+std::string TC_Common::tostr<int>(const int &t);
 
 template<>
-string TC_Common::tostr<unsigned int>(const unsigned int &t);
+std::string TC_Common::tostr<unsigned int>(const unsigned int &t);
 
 template<>
-string TC_Common::tostr<long>(const long &t);
+std::string TC_Common::tostr<long>(const long &t);
 
 template<>
-string TC_Common::tostr<long long>(const long long &t);
+std::string TC_Common::tostr<long long>(const long long &t);
 
 template<>
-string TC_Common::tostr<unsigned long>(const unsigned long &t);
+std::string TC_Common::tostr<unsigned long>(const unsigned long &t);
 
 template<>
-string TC_Common::tostr<float>(const float &t);
+std::string TC_Common::tostr<float>(const float &t);
 
 template<>
-string TC_Common::tostr<double>(const double &t);
+std::string TC_Common::tostr<double>(const double &t);
 
 template<>
-string TC_Common::tostr<long double>(const long double &t);
+std::string TC_Common::tostr<long double>(const long double &t);
 
 template<>
-string TC_Common::tostr<std::string>(const std::string &t);
+std::string TC_Common::tostr<std::string>(const std::string &t);
 
 template<typename T>
-string TC_Common::tostr(const vector<T> &t)
+std::string TC_Common::tostr(const std::vector<T> &t)
 {
-    string s;
+    std::string s;
     for(size_t i = 0; i < t.size(); i++)
     {
         s += tostr(t[i]);
@@ -1206,10 +1204,10 @@ string TC_Common::tostr(const vector<T> &t)
 }
 
 template<typename K, typename V, typename D, typename A>
-string TC_Common::tostr(const map<K, V, D, A> &t)
+std::string TC_Common::tostr(const std::map<K, V, D, A> &t)
 {
-    string sBuffer;
-    typename map<K, V, D, A>::const_iterator it = t.begin();
+    std::string sBuffer;
+    typename std::map<K, V, D, A>::const_iterator it = t.begin();
     while(it != t.end())
     {
         sBuffer += " [";
@@ -1223,10 +1221,10 @@ string TC_Common::tostr(const map<K, V, D, A> &t)
 }
 
 template<typename K, typename V, typename D, typename A>
-string TC_Common::tostr(const multimap<K, V, D, A> &t)
+std::string TC_Common::tostr(const std::multimap<K, V, D, A> &t)
 {
-    string sBuffer;
-    typename multimap<K, V, D, A>::const_iterator it = t.begin();
+    std::string sBuffer;
+    typename std::multimap<K, V, D, A>::const_iterator it = t.begin();
     while(it != t.end())
     {
         sBuffer += " [";
@@ -1240,10 +1238,10 @@ string TC_Common::tostr(const multimap<K, V, D, A> &t)
 }
 
 template<typename K, typename V, typename D, typename P, typename A>
-string TC_Common::tostr(const unordered_map<K, V, D, P, A> &t)
+std::string TC_Common::tostr(const std::unordered_map<K, V, D, P, A> &t)
 {
-    string sBuffer;
-    typename unordered_map<K, V, D, P, A>::const_iterator it = t.begin();
+    std::string sBuffer;
+    typename std::unordered_map<K, V, D, P, A>::const_iterator it = t.begin();
     while (it != t.end()) {
         sBuffer += " [";
         sBuffer += tostr(it->first);
@@ -1256,9 +1254,9 @@ string TC_Common::tostr(const unordered_map<K, V, D, P, A> &t)
 }
 
 template<typename F, typename S>
-string TC_Common::tostr(const pair<F, S> &itPair)
+std::string TC_Common::tostr(const std::pair<F, S> &itPair)
 {
-    string sBuffer;
+    std::string sBuffer;
     sBuffer += "[";
     sBuffer += tostr(itPair.first);
     sBuffer += "]=[";
@@ -1268,9 +1266,9 @@ string TC_Common::tostr(const pair<F, S> &itPair)
 }
 
 template<typename InputIter>
-string TC_Common::tostr(InputIter iFirst, InputIter iLast, const string &sSep)
+std::string TC_Common::tostr(InputIter iFirst, InputIter iLast, const std::string &sSep)
 {
-    string sBuffer;
+    std::string sBuffer;
     InputIter it = iFirst;
 
     while(it != iLast)
@@ -1298,7 +1296,7 @@ bool TC_Common::equal(const V& x, const V& y,E eps)
 }
 
 template<typename K, typename V, typename D, typename A, typename E>
-bool TC_Common::equal(const map<K, V, D, A>& mx, const map<K, V, D, A>& my, E epsilon)
+bool TC_Common::equal(const std::map<K, V, D, A>& mx, const std::map<K, V, D, A>& my, E epsilon)
 {
     auto first1= mx.begin();
     auto last1 = mx.end();
@@ -1349,7 +1347,7 @@ bool TC_Common::equal(const map<K, V, D, A>& mx, const map<K, V, D, A>& my, E ep
 }
 
 template<typename K, typename V, typename D, typename A , typename E>
-bool TC_Common::equal(const unordered_map<K, V, D, A>& mx , const unordered_map<K, V, D, A>& my, E epsilon)
+bool TC_Common::equal(const std::unordered_map<K, V, D, A>& mx , const std::unordered_map<K, V, D, A>& my, E epsilon)
 {
 	auto first1= mx.begin();
 	auto last1 = mx.end();

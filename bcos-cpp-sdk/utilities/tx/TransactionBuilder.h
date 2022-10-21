@@ -49,7 +49,7 @@ public:
      * @return bcostars::TransactionDataUniquePtr
      */
     virtual bcostars::TransactionDataUniquePtr createTransactionData(const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit) override;
 
     /**
@@ -130,8 +130,11 @@ public:
      */
     virtual std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit, int32_t _attribute) override;
+
+
+    u256 genRandomUint256();
 
 public:
     auto ecdsaCryptoSuite() -> auto& { return m_ecdsaCryptoSuite; }

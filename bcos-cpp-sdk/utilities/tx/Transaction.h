@@ -8,11 +8,12 @@
 
 #include <bcos-cpp-sdk/utilities/tx/tars/tup/Tars.h>
 #include <bcos-cpp-sdk/utilities/tx/tars/tup/TarsJson.h>
-
+#include <bcos-crypto/interfaces/crypto/Hash.h>
+#include <boost/asio/detail/socket_ops.hpp>
+#include <boost/endian/conversion.hpp>
 #include <map>
 #include <string>
 #include <vector>
-using namespace std;
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -21,8 +22,8 @@ namespace bcostars
 struct TransactionData : public tars::TarsStructBase
 {
 public:
-    static string className() { return "bcostars.TransactionData"; }
-    static string MD5() { return "ea41d47be6b852a5c3edcfe7a805be85"; }
+    static std::string className() { return "bcostars.TransactionData"; }
+    static std::string MD5() { return "ea41d47be6b852a5c3edcfe7a805be85"; }
     TransactionData() { resetDefautlt(); }
     void resetDefautlt()
     {
@@ -79,7 +80,7 @@ public:
         p->value["abi"] = tars::JsonOutput::writeJson(abi);
         return p;
     }
-    string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
+    std::string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
         resetDefautlt();
@@ -100,8 +101,8 @@ public:
         tars::JsonInput::readJson(input, pObj->value["input"], true);
         tars::JsonInput::readJson(abi, pObj->value["abi"], false);
     }
-    void readFromJsonString(const string& str) { readFromJson(tars::TC_Json::getValue(str)); }
-    ostream& display(ostream& _os, int _level = 0) const
+    void readFromJsonString(const std::string& str) { readFromJson(tars::TC_Json::getValue(str)); }
+    std::ostream& display(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.display(version, "version");
@@ -114,7 +115,7 @@ public:
         _ds.display(abi, "abi");
         return _os;
     }
-    ostream& displaySimple(ostream& _os, int _level = 0) const
+    std::ostream& displaySimple(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.displaySimple(version, true);
@@ -128,6 +129,38 @@ public:
         return _os;
     }
 
+    bcos::crypto::HashType hash(bcos::crypto::Hash::Ptr _hashImpl) const
+    {
+        auto anyHasher = _hashImpl->hasher();
+        bcos::crypto::HashType hashResult;
+        std::visit(
+            [this, &hashResult](auto& hasher) {
+                int32_t networkVersion = boost::endian::native_to_big((int32_t)version);
+                hasher.update(networkVersion);
+                // encode chainID
+                hasher.update(bcos::bytesConstRef((bcos::byte*)chainID.data(), chainID.size()));
+                // encode groupID
+                hasher.update(bcos::bytesConstRef((bcos::byte*)groupID.data(), groupID.size()));
+                // encode blockLimit
+                int64_t networkBlockLimit = boost::endian::native_to_big((int64_t)blockLimit);
+                hasher.update(bcos::bytesConstRef((bcos::byte*)(&networkBlockLimit),
+                                           sizeof(networkBlockLimit) / sizeof(uint8_t)));
+                // encode nonce
+                hasher.update(bcos::bytesConstRef((bcos::byte*)nonce.data(), nonce.size()));
+                // encode to
+                hasher.update(bcos::bytesConstRef((bcos::byte*)to.data(), to.size()));
+                // encode input
+                hasher.update(bcos::bytesConstRef((bcos::byte*)input.data(), input.size()));
+                // encode abi
+                hasher.update(bcos::bytesConstRef((bcos::byte*)abi.data(), abi.size()));
+
+                hasher.final(hashResult);
+            },
+            anyHasher);
+
+        return hashResult;
+    }
+
 public:
     tars::Int32 version;
     std::string chainID;
@@ -135,7 +168,7 @@ public:
     tars::Int64 blockLimit;
     std::string nonce;
     std::string to;
-    vector<tars::Char> input;
+    std::vector<tars::Char> input;
     std::string abi;
 };
 inline bool operator==(const TransactionData& l, const TransactionData& r)
@@ -148,12 +181,12 @@ inline bool operator!=(const TransactionData& l, const TransactionData& r)
 {
     return !(l == r);
 }
-inline ostream& operator<<(ostream& os, const TransactionData& r)
+inline std::ostream& operator<<(std::ostream& os, const TransactionData& r)
 {
     os << r.writeToJsonString();
     return os;
 }
-inline istream& operator>>(istream& is, TransactionData& l)
+inline std::istream& operator>>(std::istream& is, TransactionData& l)
 {
     std::istreambuf_iterator<char> eos;
     std::string s(std::istreambuf_iterator<char>(is), eos);
@@ -164,8 +197,8 @@ inline istream& operator>>(istream& is, TransactionData& l)
 struct Transaction : public tars::TarsStructBase
 {
 public:
-    static string className() { return "bcostars.Transaction"; }
-    static string MD5() { return "ad46f3dbb0da87bdc5ed991eb2a8caff"; }
+    static std::string className() { return "bcostars.Transaction"; }
+    static std::string MD5() { return "ad46f3dbb0da87bdc5ed991eb2a8caff"; }
     Transaction() { resetDefautlt(); }
     void resetDefautlt()
     {
@@ -230,7 +263,7 @@ public:
         p->value["sender"] = tars::JsonOutput::writeJson(sender);
         return p;
     }
-    string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
+    std::string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
         resetDefautlt();
@@ -250,8 +283,8 @@ public:
         tars::JsonInput::readJson(source, pObj->value["source"], false);
         tars::JsonInput::readJson(sender, pObj->value["sender"], false);
     }
-    void readFromJsonString(const string& str) { readFromJson(tars::TC_Json::getValue(str)); }
-    ostream& display(ostream& _os, int _level = 0) const
+    void readFromJsonString(const std::string& str) { readFromJson(tars::TC_Json::getValue(str)); }
+    std::ostream& display(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.display(data, "data");
@@ -263,7 +296,7 @@ public:
         _ds.display(sender, "sender");
         return _os;
     }
-    ostream& displaySimple(ostream& _os, int _level = 0) const
+    std::ostream& displaySimple(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.displaySimple(data, true);
@@ -278,12 +311,12 @@ public:
 
 public:
     bcostars::TransactionData data;
-    vector<tars::Char> dataHash;
-    vector<tars::Char> signature;
+    std::vector<tars::Char> dataHash;
+    std::vector<tars::Char> signature;
     tars::Int64 importTime;
     tars::Int32 attribute;
     std::string source;
-    vector<tars::Char> sender;
+    std::vector<tars::Char> sender;
 };
 inline bool operator==(const Transaction& l, const Transaction& r)
 {
@@ -295,12 +328,12 @@ inline bool operator!=(const Transaction& l, const Transaction& r)
 {
     return !(l == r);
 }
-inline ostream& operator<<(ostream& os, const Transaction& r)
+inline std::ostream& operator<<(std::ostream& os, const Transaction& r)
 {
     os << r.writeToJsonString();
     return os;
 }
-inline istream& operator>>(istream& is, Transaction& l)
+inline std::istream& operator>>(std::istream& is, Transaction& l)
 {
     std::istreambuf_iterator<char> eos;
     std::string s(std::istreambuf_iterator<char>(is), eos);
