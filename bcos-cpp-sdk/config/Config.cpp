@@ -121,15 +121,7 @@ void Config::loadPeers(
         }
 
         NodeIPEndpoint ep;
-        if (!WsTools::stringToEndPoint(it.second.data(), ep))
-        {
-            BCOS_LOG(WARNING)
-                << LOG_BADGE("loadPeers")
-                << LOG_DESC(
-                       "invalid endpoint, endpoint must be in IP:Port format, eg: 127.0.0.1:20200")
-                << LOG_KV("endpoint", it.second.data());
-            continue;
-        }
+        WsTools::stringToEndPoint(it.second.data(), ep);
 
         BCOS_LOG(INFO) << LOG_BADGE("loadPeers") << LOG_DESC("add one connected peer")
                        << LOG_KV("endpoint", it.second.data());
