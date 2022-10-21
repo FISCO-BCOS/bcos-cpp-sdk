@@ -18,8 +18,6 @@
  * @author: octopus
  * @date 2021-09-22
  */
-#define BOOST_TEST_MAIN
-
 #include <bcos-cpp-sdk/event/EventSubTask.h>
 #include <bcos-utilities/testutils/TestPromptFixture.h>
 #include <boost/test/unit_test.hpp>

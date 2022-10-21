@@ -23,24 +23,3 @@
 
 #define RPC_WS_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPCWS][SERVICE]"
 #define RPC_BLOCKNUM_LOG(LEVEL) BCOS_LOG(LEVEL) << "[RPC][BLOCK][NUMBER]"
-
-namespace bcos
-{
-namespace cppsdk
-{
-namespace ws
-{
-/**
- * @brief: jsonrpc message types
- */
-enum MessageType
-{
-    // ------------ ws begin ----------
-
-    HANDESHAKE = 0x100  // 256
-
-    // ------------ ws end ------------
-};
-}  // namespace ws
-}  // namespace cppsdk
-}  // namespace bcos

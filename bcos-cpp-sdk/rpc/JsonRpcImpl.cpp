@@ -53,14 +53,14 @@ void JsonRpcImpl::stop()
 void JsonRpcImpl::genericMethod(const std::string& _data, RespFunc _respFunc)
 {
     m_sender("", "", _data, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("genericMethod") << LOG_KV("request", _data);
+    RPCIMPL_LOG(TRACE) << LOG_BADGE("genericMethod") << LOG_KV("request", _data);
 }
 
 void JsonRpcImpl::genericMethod(
     const std::string& _groupID, const std::string& _data, RespFunc _respFunc)
 {
     m_sender(_groupID, "", _data, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("genericMethod") << LOG_KV("group", _groupID)
+    RPCIMPL_LOG(TRACE) << LOG_BADGE("genericMethod") << LOG_KV("group", _groupID)
                        << LOG_KV("request", _data);
 }
 
@@ -74,7 +74,7 @@ void JsonRpcImpl::genericMethod(const std::string& _groupID, const std::string& 
     }
 
     m_sender(_groupID, name, _data, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("genericMethod") << LOG_KV("group", _groupID)
+    RPCIMPL_LOG(TRACE) << LOG_BADGE("genericMethod") << LOG_KV("group", _groupID)
                        << LOG_KV("nodeName", name) << LOG_KV("request", _data);
 }
 
@@ -457,7 +457,7 @@ void JsonRpcImpl::getGroupInfo(const std::string& _groupID, RespFunc _respFunc)
     auto groupInfo = m_service->getGroupInfo(_groupID);
     if (groupInfo)
     {
-        jsonResp.result = groupInfo->serialize();
+        jsonResp.result = m_groupInfoCodec->serialize(groupInfo);
         hitCache = true;
     }
     else

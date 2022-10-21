@@ -24,7 +24,10 @@
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
+#include <time.h>
+#include <chrono>
 #include <memory>
+#include <thread>
 #include <utility>
 
 using namespace bcos;
@@ -46,15 +49,14 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     const std::string& _groupID, const string& _chainID, const std::string& _to,
     const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit)
 {
-    auto fixBytes256 = FixedBytes<256>().generateRandomFixedBytes();
-
     auto _transactionData = std::make_unique<bcostars::TransactionData>();
     _transactionData->version = 0;
     _transactionData->chainID = _chainID;
     _transactionData->groupID = _groupID;
     _transactionData->to = _to;
     _transactionData->blockLimit = _blockLimit;
-    _transactionData->nonce = u256(fixBytes256.hexPrefixed()).str(10);
+    _transactionData->nonce = genRandomUint256().str(10);
+
     _transactionData->abi = _abi;
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
 
@@ -97,11 +99,7 @@ crypto::HashType TransactionBuilder::calculateTransactionDataHash(
     {
         cryptoSuite = &*m_ecdsaCryptoSuite;
     }
-
-    auto encodedTransactionData = encodeTransactionData(_transactionData);
-    auto encodedHash = cryptoSuite->hash(
-        bytesConstRef(encodedTransactionData->data(), encodedTransactionData->size()));
-    return encodedHash;
+    return _transactionData.hash(cryptoSuite->hashImpl());
 }
 
 /**
@@ -214,4 +212,24 @@ std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
 
     return std::make_pair<std::string, std::string>(
         toHexStringWithPrefix(transactionDataHash), toHexStringWithPrefix(*encodedTx));
+}
+
+u256 TransactionBuilder::genRandomUint256()
+{
+    static thread_local std::mt19937 generator(std::random_device{}());
+    /*
+    static thread_local auto timeTicks = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch())
+                                             .count();
+    static thread_local std::mt19937 generator(timeTicks);
+    */
+
+    std::uniform_int_distribution<int> dis(0, 255);
+    std::array<bcos::byte, 32> random256;
+    for (auto& element : random256)
+    {
+        element = dis(generator);
+    }
+
+    return u256(bcos::toHexStringWithPrefix(bcos::bytesRef(random256.data(), random256.size())));
 }
