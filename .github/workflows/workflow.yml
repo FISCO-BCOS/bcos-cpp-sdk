@@ -70,20 +70,20 @@ jobs:
         id: cache
         with:
           path: /home/runner/.hunter
-          key: hunter-gcc-v2-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+          key: hunter-gcc-v3-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
           restore-keys: |
-            hunter-gcc-v2-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
-            hunter-gcc-v2-notest-${{ runner.temp }}-${{ github.base_ref }}-
-            hunter-gcc-v2-notest-${{ runner.temp }}-
+            hunter-gcc-v3-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+            hunter-gcc-v3-notest-${{ runner.temp }}-${{ github.base_ref }}-
+            hunter-gcc-v3-notest-${{ runner.temp }}-
       - uses: actions/cache@v2
         id: ccache
         with:
           path: ccache
-          key: cache-gcc-v2-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+          key: cache-gcc-v3-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
           restore-keys: |
-            ccache-gcc-v2-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
-            cache-gcc-v2-notest-${{ runner.temp }}-${{ github.base_ref }}-
-            cache-gcc-v2-notest-${{ runner.temp }}-
+            ccache-gcc-v3-notest-${{ runner.temp }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+            cache-gcc-v3-notest-${{ runner.temp }}-${{ github.base_ref }}-
+            cache-gcc-v3-notest-${{ runner.temp }}-
       - name: install Ubuntu dependencies
         run: sudo apt install -y git curl openssl build-essential cmake ccache
       - name: configure
