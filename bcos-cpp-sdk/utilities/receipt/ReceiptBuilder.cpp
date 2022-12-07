@@ -34,7 +34,7 @@ bcostars::ReceiptDataUniquePtr bcos::cppsdk::utilities::ReceiptBuilder::createRe
     return _receipt;
 }
 
-bcos::crypto::HashType bcos::cppsdk::utilities::ReceiptBuilder::calculateTransactionDataHash(
+bcos::crypto::HashType bcos::cppsdk::utilities::ReceiptBuilder::calculateReceiptDataHash(
     bcos::cppsdk::utilities::CryptoType _cryptoType,
     const bcostars::TransactionReceiptData& _receiptData)
 {

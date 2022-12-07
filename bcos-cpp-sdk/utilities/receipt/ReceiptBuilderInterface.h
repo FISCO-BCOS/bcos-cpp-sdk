@@ -52,7 +52,7 @@ public:
      * @param _transactionData
      * @return crypto::HashType
      */
-    virtual crypto::HashType calculateTransactionDataHash(
+    virtual crypto::HashType calculateReceiptDataHash(
         CryptoType _cryptoType, const bcostars::TransactionReceiptData& _receiptData) = 0;
 
     /**

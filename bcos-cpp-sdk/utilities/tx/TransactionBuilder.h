@@ -60,6 +60,15 @@ public:
      */
     bytesConstPtr encodeTransactionData(const bcostars::TransactionData& _transactionData) override;
 
+
+    /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) override;
+
     /**
      * @brief
      *

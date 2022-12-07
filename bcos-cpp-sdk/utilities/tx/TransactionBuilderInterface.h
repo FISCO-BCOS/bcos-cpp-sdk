@@ -67,6 +67,14 @@ public:
         const bcostars::TransactionData& _transactionData) = 0;
 
     /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    virtual string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) = 0;
+
+    /**
      * @brief
      *
      * @param _cryptoType
