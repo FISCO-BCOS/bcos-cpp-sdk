@@ -72,6 +72,9 @@ find_package(OpenSSL REQUIRED)
 hunter_add_package(wedpr-crypto)
 find_package(wedpr-crypto CONFIG REQUIRED)
 
+#hunter_add_package(tarscpp)
+#find_package(tarscpp REQUIRED)
+
 hunter_add_package(Microsoft.GSL)
 
 # bcos-utilities
