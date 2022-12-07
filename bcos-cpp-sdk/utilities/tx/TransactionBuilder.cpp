@@ -80,6 +80,16 @@ bytesConstPtr TransactionBuilder::encodeTransactionData(
     return buffer;
 }
 
+string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
+{
+    tars::TarsInputStream<tars::BufferReader> inputStream;
+    inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
+    auto txData = std::make_unique<bcostars::TransactionData>();
+    txData->readFrom(inputStream);
+    auto txDataJson = txData->writeToJsonString();
+    return txDataJson;
+}
+
 /**
  * @brief
  *
@@ -164,6 +174,16 @@ bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction&
     auto buffer = std::make_shared<bcos::bytes>();
     buffer->assign(output.getBuffer(), output.getBuffer() + output.getLength());
     return buffer;
+}
+
+string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
+{
+    tars::TarsInputStream<tars::BufferReader> inputStream;
+    inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
+    auto tx = std::make_unique<bcostars::Transaction>();
+    tx->readFrom(inputStream);
+    auto txDataJson = tx->writeToJsonString();
+    return txDataJson;
 }
 
 /**

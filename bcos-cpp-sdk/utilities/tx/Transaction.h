@@ -14,11 +14,11 @@
 #include <map>
 #include <string>
 #include <vector>
-
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 namespace bcostars
 {
+using namespace std;
 struct TransactionData : public tars::TarsStructBase
 {
 public:
@@ -84,7 +84,7 @@ public:
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
         resetDefautlt();
-        if (NULL == p.get() || p->getType() != tars::eJsonTypeObj)
+        if (nullptr == p.get() || p->getType() != tars::eJsonTypeObj)
         {
             char s[128];
             snprintf(s, sizeof(s), "read 'struct' type mismatch, get type: %d.",

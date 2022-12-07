@@ -17,15 +17,15 @@
  * @author: yujiechen
  * @date 2022-05-31
  */
-#include "utilities/tx/Transaction.h"
-#include <bcos-crypto/hash/SM3.h>
+#include <bcos-cpp-sdk/utilities/receipt/ReceiptBuilder.h>
+#include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-crypto/interfaces/crypto/CryptoSuite.h>
-#include <bcos-crypto/signature/sm2/SM2Crypto.h>
 #include <bcos-utilities/testutils/TestPromptFixture.h>
 
 using namespace bcostars;
 using namespace bcos;
 using namespace bcos::crypto;
+using namespace bcos::cppsdk::utilities;
 
 namespace bcos::test
 {
@@ -33,33 +33,52 @@ BOOST_FIXTURE_TEST_SUITE(TransactionTest, TestPromptFixture)
 
 BOOST_AUTO_TEST_CASE(test_transaction)
 {
-    TransactionData txData;
-    std::string to("Target");
-    bcos::bytes input(bcos::asBytes("Arguments"));
-    bcos::u256 nonce(800);
+    auto txBuilder = std::make_unique<TransactionBuilder>();
+    auto cryptoSuite =
+        std::make_shared<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::Keccak256>(),
+            std::make_shared<bcos::crypto::Secp256k1Crypto>(), nullptr);
+    bcos::bytes input = fromHex(
+        std::string("4ed3885e00000000000000000000000000000000000000000000000000000000000000200000"
+                    "0000000000000000000000000000000000000000000000000000000000033132330000000000"
+                    "000000000000000000000000000000000000000000000000"));
+    auto txData = txBuilder->createTransactionData(
+        "group0", "chain0", "0x0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94", input, "", 509);
+    txData->nonce = "77972073868959774439218594078575551136443541590072266626762998244779252502750";
+    auto hash = txData->hash(cryptoSuite->hashImpl()).hex();
+    BOOST_CHECK_EQUAL(hash, "db2ad0125c0a15b165016af8dfdb24d059075c2a82dc7bc3458e68d3f6bf1aee");
 
-    txData.version = 0;
-    txData.to = to;
-    std::vector<tars::Char> txInput(input.begin(), input.end());
-    txData.input = std::move(txInput);
-    txData.nonce = boost::lexical_cast<std::string>(nonce);
-    txData.blockLimit = 100;
-    txData.chainID = "testChain";
-    txData.groupID = "testGroup";
+    auto txDataBytes = txBuilder->encodeTransactionData(*txData);
+    auto txHash = txBuilder->calculateTransactionDataHash(CryptoType::Secp256K1, *txData).hex();
+
+    BOOST_CHECK_EQUAL(txHash, "db2ad0125c0a15b165016af8dfdb24d059075c2a82dc7bc3458e68d3f6bf1aee");
+
+    auto json = txBuilder->decodeTransactionDataToJsonObj(*txDataBytes);
+    std::cout << "json: " << json << std::endl;
+    BOOST_CHECK(json.find("0x0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(test_receipt)
+{
+    auto receiptBuilder = std::make_unique<ReceiptBuilder>();
+    bcos::bytes output(bcos::asBytes(""));
+
+    auto receiptData = receiptBuilder->createReceiptData(
+        "24363", "0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94", output, 9);
 
     auto cryptoSuite =
-        std::make_shared<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::SM3>(),
-            std::make_shared<bcos::crypto::SM2Crypto>(), nullptr);
+        std::make_shared<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::Keccak256>(),
+            std::make_shared<bcos::crypto::Secp256k1Crypto>(), nullptr);
 
-    auto hash = txData.hash(cryptoSuite->hashImpl());
+    auto hash = receiptData->hash(cryptoSuite->hashImpl()).hex();
     BOOST_CHECK_EQUAL(
-        hash.hex(), "a060addbd0f5b02806a48bee54fdac997ca2b3a7ff2311715f3af4d3ee727285");
+        hash, "296b4598a56d6e2a295e5fe913e6c55459bef0c290f0e713744be8ade2ceec51");
+    auto hash2 = receiptBuilder->calculateReceiptDataHash(CryptoType::Secp256K1, *receiptData).hex();
+    BOOST_CHECK_EQUAL(hash2, "296b4598a56d6e2a295e5fe913e6c55459bef0c290f0e713744be8ade2ceec51");
 
-    // set version to 10
-    txData.version = 10;
-    hash = txData.hash(cryptoSuite->hashImpl());
-    BOOST_CHECK_EQUAL(
-        hash.hex(), "8717ad33c7ee088d86be7594f2c4e45fecd7c6d1199ae4c11a37fca1ad11da2e");
+    auto receiptDataByte = receiptBuilder->encodeReceipt(*receiptData);
+    auto json = receiptBuilder->decodeReceiptDataToJsonObj(*receiptDataByte);
+    std::cout << "json: " << json << std::endl;
+    BOOST_CHECK(json.find("0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94") != std::string::npos);
 }
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace bcos::test
