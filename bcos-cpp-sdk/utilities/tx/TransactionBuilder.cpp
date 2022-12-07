@@ -166,6 +166,16 @@ bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction&
     return buffer;
 }
 
+string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
+{
+    tars::TarsInputStream<tars::BufferReader> inputStream;
+    inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
+    auto txData = std::make_unique<bcostars::TransactionData>();
+    txData->readFrom(inputStream);
+    auto txDataJson = txData->writeToJsonString();
+    return txDataJson;
+}
+
 /**
  * @brief
  *

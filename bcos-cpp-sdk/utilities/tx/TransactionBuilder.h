@@ -103,6 +103,14 @@ public:
     virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) override;
 
     /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
+
+    /**
      * @brief Create a Signed Transaction object
      *
      * @param _transactionData
