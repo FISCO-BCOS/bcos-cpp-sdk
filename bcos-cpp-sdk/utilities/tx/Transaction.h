@@ -9,6 +9,7 @@
 #include <bcos-cpp-sdk/utilities/tx/tars/tup/Tars.h>
 #include <bcos-cpp-sdk/utilities/tx/tars/tup/TarsJson.h>
 #include <bcos-crypto/interfaces/crypto/Hash.h>
+#include <bcos-utilities/DataConvertUtility.h>
 #include <boost/asio/detail/socket_ops.hpp>
 #include <boost/endian/conversion.hpp>
 #include <map>
@@ -76,7 +77,7 @@ public:
         p->value["blockLimit"] = tars::JsonOutput::writeJson(blockLimit);
         p->value["nonce"] = tars::JsonOutput::writeJson(nonce);
         p->value["to"] = tars::JsonOutput::writeJson(to);
-        p->value["input"] = tars::JsonOutput::writeJson(input);
+        p->value["input"] = tars::JsonOutput::writeJson(bcos::toHexStringWithPrefix(input));
         p->value["abi"] = tars::JsonOutput::writeJson(abi);
         return p;
     }
@@ -98,7 +99,10 @@ public:
         tars::JsonInput::readJson(blockLimit, pObj->value["blockLimit"], true);
         tars::JsonInput::readJson(nonce, pObj->value["nonce"], true);
         tars::JsonInput::readJson(to, pObj->value["to"], false);
-        tars::JsonInput::readJson(input, pObj->value["input"], true);
+        std::string inputHex{};
+        tars::JsonInput::readJson(inputHex, pObj->value["input"], true);
+        auto inputBytes = bcos::fromHexString(inputHex);
+        std::copy(inputBytes->begin(), inputBytes->end(), std::back_inserter(input));
         tars::JsonInput::readJson(abi, pObj->value["abi"], false);
     }
     void readFromJsonString(const std::string& str) { readFromJson(tars::TC_Json::getValue(str)); }
