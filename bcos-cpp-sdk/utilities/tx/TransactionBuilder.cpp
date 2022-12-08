@@ -63,6 +63,14 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     return _transactionData;
 }
 
+bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionDataWithJson(
+    const std::string& _json)
+{
+    auto _transactionData = std::make_unique<bcostars::TransactionData>();
+    _transactionData->readFromJsonString(_json);
+    return _transactionData;
+}
+
 /**
  * @brief
  *

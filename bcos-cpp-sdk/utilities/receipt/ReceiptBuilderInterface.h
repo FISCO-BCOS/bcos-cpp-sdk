@@ -46,6 +46,24 @@ public:
         const string& _contractAddress, const bcos::bytes& _output, int64_t _blockNumber) = 0;
 
     /**
+     * @brief Create a Transaction Data object
+     * @param _json
+     *              version: number
+     *              gasUsed: string
+     *              contractAddress: string
+     *              status: number
+     *              output: hex string
+     *              logEntries: array<LogEntry>
+     *              blockNumber: number
+     *              logEntry:
+     *                       address: string
+     *                       topic: array<hex string>
+     *                       data: hex string
+     * @return bcostars::TransactionDataUniquePtr
+     */
+    virtual bcostars::ReceiptDataUniquePtr createReceiptDataWithJson(const std::string& _json) = 0;
+
+    /**
      * @brief
      *
      * @param _cryptoType

@@ -34,6 +34,23 @@ public:
     ~ReceiptBuilder() override = default;
     bcostars::ReceiptDataUniquePtr createReceiptData(const std::string& _gasUsed,
         const string& _contractAddress, const bcos::bytes& _output, int64_t _blockNumber) override;
+    /**
+     * @brief Create a Transaction Data object
+     * @param _json
+     *              version: number
+     *              gasUsed: string
+     *              contractAddress: string
+     *              status: number
+     *              output: hex string
+     *              logEntries: array<LogEntry>
+     *              blockNumber: number
+     *              logEntry:
+     *                       address: string
+     *                       topic: array<hex string>
+     *                       data: hex string
+     * @return bcostars::TransactionDataUniquePtr
+     */
+    bcostars::ReceiptDataUniquePtr createReceiptDataWithJson(const std::string& _json) override;
     crypto::HashType calculateReceiptDataHash(
         CryptoType _cryptoType, const bcostars::TransactionReceiptData& _receiptData) override;
     bytesConstPtr encodeReceipt(const bcostars::TransactionReceiptData& _receipt) override;
