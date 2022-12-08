@@ -53,6 +53,23 @@ public:
         const std::string& _abi, int64_t _blockLimit) override;
 
     /**
+     * @brief Create a Transaction Data object with json string
+     *
+     * @param _json
+     *              version:number
+     *              groupID:string
+     *              chainID:string
+     *              to:string
+     *              data:hex string
+     *              abi:string
+     *              blockLimit:number
+     *              nonce:string
+     * @return bcostars::TransactionDataUniquePtr
+     */
+    bcostars::TransactionDataUniquePtr createTransactionDataWithJson(
+        const std::string& _json) override;
+
+    /**
      * @brief
      *
      * @param _transactionData

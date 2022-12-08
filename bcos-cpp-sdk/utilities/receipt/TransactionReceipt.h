@@ -7,6 +7,7 @@
 #include "bcos-cpp-sdk/utilities/tx/tars/tup/Tars.h"
 #include "bcos-cpp-sdk/utilities/tx/tars/tup/TarsJson.h"
 #include <bcos-crypto/interfaces/crypto/Hash.h>
+#include <bcos-utilities/DataConvertUtility.h>
 #include <boost/asio/detail/socket_ops.hpp>
 #include <boost/endian/conversion.hpp>
 #include <map>
@@ -21,7 +22,7 @@ struct LogEntry : public tars::TarsStructBase
 public:
     static string className() { return "bcostars.LogEntry"; }
     static string MD5() { return "62d086d520cb1c44d615aec11186ef08"; }
-    void resetDefautlt()
+    void resetDefault()
     {
         address = "";
         topic.clear();
@@ -46,7 +47,7 @@ public:
     template <typename ReaderT>
     void readFrom(tars::TarsInputStream<ReaderT>& _is)
     {
-        resetDefautlt();
+        resetDefault();
         _is.read(address, 1, false);
         _is.read(topic, 2, false);
         _is.read(data, 3, false);
@@ -55,9 +56,49 @@ public:
     {
         tars::JsonValueObjPtr p = new tars::JsonValueObj();
         p->value["address"] = tars::JsonOutput::writeJson(address);
-        p->value["topic"] = tars::JsonOutput::writeJson(topic);
-        p->value["data"] = tars::JsonOutput::writeJson(data);
+        std::vector<std::string> topics;
+        topics.resize(topic.size());
+        for (const auto& item : topic)
+        {
+            std::string hex = bcos::toHex(item);
+            topics.push_back(std::move(hex));
+        }
+        p->value["topics"] = tars::JsonOutput::writeJson(topics);
+        p->value["data"] = tars::JsonOutput::writeJson(bcos::toHexStringWithPrefix(data));
         return p;
+    }
+    void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
+    {
+        resetDefault();
+        if (nullptr == p.get() || p->getType() != tars::eJsonTypeObj)
+        {
+            char s[128];
+            snprintf(s, sizeof(s), "read 'struct' type mismatch, get type: %d.",
+                (p.get() ? p->getType() : 0));
+            throw tars::TC_Json_Exception(s);
+        }
+        tars::JsonValueObjPtr pObj = tars::JsonValueObjPtr::dynamicCast(p);
+        tars::JsonInput::readJson(address, pObj->value["address"], true);
+
+        auto topics = pObj->value["topics"];
+        if (topics && topics->getType() == tars::eJsonTypeArray)
+        {
+            auto* pArray = dynamic_cast<tars::JsonValueArray*>(topics.get());
+            topic.resize(pArray->value.size());
+            size_t i = 0;
+            for (auto it = pArray->value.begin(); it != pArray->value.end(); ++it, ++i)
+            {
+                std::string topicHex{};
+                tars::JsonInput::readJson(topicHex, *it, true);
+                auto topicBytes = bcos::fromHexString(topicHex);
+                std::copy(topicBytes->begin(), topicBytes->end(), std::back_inserter(topic[i]));
+            }
+        }
+
+        std::string dataHex{};
+        tars::JsonInput::readJson(dataHex, pObj->value["data"], true);
+        auto dataBytes = bcos::fromHexString(dataHex);
+        std::copy(dataBytes->begin(), dataBytes->end(), std::back_inserter(data));
     }
     ostream& display(ostream& _os, int _level = 0) const
     {
@@ -154,7 +195,7 @@ public:
         p->value["gasUsed"] = tars::JsonOutput::writeJson(gasUsed);
         p->value["contractAddress"] = tars::JsonOutput::writeJson(contractAddress);
         p->value["status"] = tars::JsonOutput::writeJson(status);
-        p->value["output"] = tars::JsonOutput::writeJson(output);
+        p->value["output"] = tars::JsonOutput::writeJson(bcos::toHexStringWithPrefix(output));
         p->value["logEntries"] = tars::JsonOutput::writeJson(logEntries);
         p->value["blockNumber"] = tars::JsonOutput::writeJson(blockNumber);
         return p;
@@ -163,6 +204,32 @@ public:
     {
         return tars::TC_Json::writeValue(writeToJson());
     }
+
+    void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
+    {
+        resetDefault();
+        if (nullptr == p.get() || p->getType() != tars::eJsonTypeObj)
+        {
+            char s[128];
+            snprintf(s, sizeof(s), "read 'struct' type mismatch, get type: %d.",
+                (p.get() ? p->getType() : 0));
+            throw tars::TC_Json_Exception(s);
+        }
+        tars::JsonValueObjPtr pObj = tars::JsonValueObjPtr::dynamicCast(p);
+        tars::JsonInput::readJson(version, pObj->value["version"], true);
+        tars::JsonInput::readJson(gasUsed, pObj->value["gasUsed"], true);
+        tars::JsonInput::readJson(contractAddress, pObj->value["contractAddress"], true);
+        tars::JsonInput::readJson(status, pObj->value["status"], true);
+
+        std::string outputHex{};
+        tars::JsonInput::readJson(outputHex, pObj->value["output"], true);
+        auto outputBytes = bcos::fromHexString(outputHex);
+        std::copy(outputBytes->begin(), outputBytes->end(), std::back_inserter(output));
+
+        tars::JsonInput::readJson(logEntries, pObj->value["logEntries"], false);
+        tars::JsonInput::readJson(blockNumber, pObj->value["blockNumber"], true);
+    }
+    void readFromJsonString(const string& str) { readFromJson(tars::TC_Json::getValue(str)); }
     ostream& display(ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
