@@ -40,13 +40,13 @@ public:
     std::shared_ptr<bcos::bytes> sign(const bcos::crypto::KeyPairInterface& _keyPair,
         const bcos::crypto::HashType& _hash,
         const std::string _hsmLibPath = "/usr/local/lib/libgmt0018.so");
-    bool verify(CryptoType crypto_type, std::shared_ptr<bcos::bytes const> _pubKeyBytes,
+    bool verify(CryptoType _cryptoType, std::shared_ptr<bcos::bytes const> _pubKeyBytes,
         const bcos::crypto::HashType& _hash, bytesConstRef _signatureData,
         const std::string _hsmLibPath = "/usr/local/lib/libgmt0018.so");
-    bcos::crypto::PublicPtr recover(CryptoType crypto_type, const bcos::crypto::HashType& _hash,
+    bcos::crypto::PublicPtr recover(CryptoType _cryptoType, const bcos::crypto::HashType& _hash,
         bytesConstRef _signatureData,
         const std::string _hsmLibPath = "/usr/local/lib/libgmt0018.so");
-    std::pair<bool, bcos::bytes> recoverAddress(CryptoType crypto_type,
+    std::pair<bool, bcos::bytes> recoverAddress(CryptoType _cryptoType,
         bcos::crypto::Hash::Ptr _hashImpl, bytesConstRef _in,
         const std::string _hsmLibPath = "/usr/local/lib/libgmt0018.so");
 };

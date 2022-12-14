@@ -28,12 +28,12 @@
 #include <bcos-crypto/signature/secp256k1/Secp256k1Crypto.h>
 #include <bcos-utilities/BoostLog.h>
 #include <bcos-utilities/DataConvertUtility.h>
-#include <bcos-utilities/Exceptions.h>
 #include <bcos-utilities/FileUtility.h>
 #include <openssl/bio.h>
 #include <openssl/ec.h>
 #include <openssl/ossl_typ.h>
 #include <openssl/pem.h>
+#include <boost/throw_exception.hpp>
 #include <fstream>
 #include <memory>
 #include <utility>
@@ -82,16 +82,20 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
         */
         return keyPair;
     }
-    else
+    else if (_cryptoType == CryptoType::HsmSM2)
     {
         auto hsmKeyPairFactory = std::make_shared<bcos::crypto::HsmSM2KeyPairFactory>(_hsmLibPath);
         UTILITIES_KEYPAIR_LOG(TRACE)
             << LOG_BADGE("genKeyPair") << LOG_DESC("generate new hsm keypair");
         return hsmKeyPairFactory->createKeyPair(keyImpl);
     }
+    else
+    {
+        BOOST_THROW_EXCEPTION(std::runtime_error("genKeyPair don't unsupport algorithm "));
+    }
 }
 
-bcos::crypto::KeyPairInterface::UniquePtr genHsmKeyPair(
+bcos::crypto::KeyPairInterface::UniquePtr useHsmKeyPair(
     unsigned int _keyIndex, std::string _password, const std::string _hsmLibPath)
 {
     auto hsmKeyPairFactory = std::make_shared<bcos::crypto::HsmSM2KeyPairFactory>(_hsmLibPath);

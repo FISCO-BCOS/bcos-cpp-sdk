@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "-std=c++20 -pthread -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -fexceptions")
+set(CMAKE_CXX_FLAGS "-pthread -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -fexceptions")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.3" CACHE STRING "Minimum OS X deployment version")
 include(FetchContent)
 
@@ -74,6 +74,9 @@ find_package(OpenSSL REQUIRED)
 hunter_add_package(wedpr-crypto)
 find_package(wedpr-crypto CONFIG REQUIRED)
 
+#hunter_add_package(tarscpp)
+#find_package(tarscpp REQUIRED)
+
 hunter_add_package(Microsoft.GSL)
 
 # bcos-utilities
@@ -82,6 +85,9 @@ include(InstallBcosUtilities)
 # bcos-boostssl
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
+
+# hsm-crypto
+include(InstallSDF)
 
 # bcos-crypto
 include(InstallBcosCrypto)

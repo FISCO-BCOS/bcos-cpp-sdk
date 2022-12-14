@@ -1,5 +1,4 @@
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "-std=c++20 -pthread -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -fexceptions")
 
 file(GLOB_RECURSE SRC_LIST "*.cpp")
 file(GLOB_RECURSE HEADERS "*.h")

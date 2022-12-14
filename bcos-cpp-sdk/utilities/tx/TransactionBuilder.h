@@ -53,12 +53,38 @@ public:
         const std::string& _abi, int64_t _blockLimit) override;
 
     /**
+     * @brief Create a Transaction Data object with json string
+     *
+     * @param _json
+     *              version:number
+     *              groupID:string
+     *              chainID:string
+     *              to:string
+     *              data:hex string
+     *              abi:string
+     *              blockLimit:number
+     *              nonce:string
+     * @return bcostars::TransactionDataUniquePtr
+     */
+    bcostars::TransactionDataUniquePtr createTransactionDataWithJson(
+        const std::string& _json) override;
+
+    /**
      * @brief
      *
      * @param _transactionData
      * @return bytesConstPtr
      */
     bytesConstPtr encodeTransactionData(const bcostars::TransactionData& _transactionData) override;
+
+
+    /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    std::string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) override;
 
     /**
      * @brief
@@ -101,6 +127,14 @@ public:
      * @return bytesConstPtr
      */
     virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) override;
+
+    /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    std::string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
 
     /**
      * @brief Create a Signed Transaction object

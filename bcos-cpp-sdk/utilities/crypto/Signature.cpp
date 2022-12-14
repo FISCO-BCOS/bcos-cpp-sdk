@@ -22,7 +22,9 @@
 #include <bcos-crypto/interfaces/crypto/KeyInterface.h>
 #include <bcos-crypto/signature/hsmSM2/HsmSM2Crypto.h>
 #include <bcos-crypto/signature/key/KeyPair.h>
-#include <bcos-utilities/Common.h>
+#include <bcos-utilities/BoostLog.h>
+#include <boost/throw_exception.hpp>
+#include <exception>
 #include <memory>
 
 using namespace bcos;
@@ -38,36 +40,52 @@ std::shared_ptr<bcos::bytes> Signature::sign(const bcos::crypto::KeyPairInterfac
         auto signatureImpl = std::make_shared<bcos::crypto::HsmSM2Crypto>(_hsmLibPath);
         return signatureImpl->sign(_keyPair, _hash);
     }
+    else
+    {
+        BOOST_THROW_EXCEPTION(std::runtime_error("sign don't unsupport algorithm "));
+    }
 }
 
-bool Signature::verify(CryptoType crypto_type, std::shared_ptr<bcos::bytes const> _pubKeyBytes,
+bool Signature::verify(CryptoType _cryptoType, std::shared_ptr<bcos::bytes const> _pubKeyBytes,
     const bcos::crypto::HashType& _hash, bcos::bytesConstRef _signatureData,
     const std::string _hsmLibPath)
 {
-    if (crypto_type == CryptoType::HsmSM2)
+    if (_cryptoType == CryptoType::HsmSM2)
     {
         auto signatureImpl = std::make_shared<bcos::crypto::HsmSM2Crypto>(_hsmLibPath);
         return signatureImpl->verify(_pubKeyBytes, _hash, _signatureData);
     }
+    else
+    {
+        BOOST_THROW_EXCEPTION(std::runtime_error("sign don't unsupport algorithm "));
+    }
 }
 
-bcos::crypto::PublicPtr Signature::recover(CryptoType crypto_type,
+bcos::crypto::PublicPtr Signature::recover(CryptoType _cryptoType,
     const bcos::crypto::HashType& _hash, bcos::bytesConstRef _signatureData,
     const std::string _hsmLibPath)
 {
-    if (crypto_type == CryptoType::HsmSM2)
+    if (_cryptoType == CryptoType::HsmSM2)
     {
         auto signatureImpl = std::make_shared<bcos::crypto::HsmSM2Crypto>(_hsmLibPath);
         return signatureImpl->recover(_hash, _signatureData);
     }
+    else
+    {
+        BOOST_THROW_EXCEPTION(std::runtime_error("sign don't unsupport algorithm "));
+    }
 }
 
-std::pair<bool, bcos::bytes> Signature::recoverAddress(CryptoType crypto_type,
+std::pair<bool, bcos::bytes> Signature::recoverAddress(CryptoType _cryptoType,
     bcos::crypto::Hash::Ptr _hashImpl, bcos::bytesConstRef _in, const std::string _hsmLibPath)
 {
-    if (crypto_type == CryptoType::HsmSM2)
+    if (_cryptoType == CryptoType::HsmSM2)
     {
         auto signatureImpl = std::make_shared<bcos::crypto::HsmSM2Crypto>(_hsmLibPath);
         return signatureImpl->recoverAddress(_hashImpl, _in);
+    }
+    else
+    {
+        BOOST_THROW_EXCEPTION(std::runtime_error("sign don't unsupport algorithm "));
     }
 }
