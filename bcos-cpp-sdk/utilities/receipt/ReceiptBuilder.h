@@ -33,7 +33,7 @@ class ReceiptBuilder : public ReceiptBuilderInterface
 public:
     ~ReceiptBuilder() override = default;
     bcostars::ReceiptDataUniquePtr createReceiptData(const std::string& _gasUsed,
-        const string& _contractAddress, const bcos::bytes& _output, int64_t _blockNumber) override;
+        const std::string& _contractAddress, const bcos::bytes& _output, int64_t _blockNumber) override;
     /**
      * @brief Create a Transaction Data object
      * @param _json
@@ -54,7 +54,7 @@ public:
     crypto::HashType calculateReceiptDataHash(
         CryptoType _cryptoType, const bcostars::TransactionReceiptData& _receiptData) override;
     bytesConstPtr encodeReceipt(const bcostars::TransactionReceiptData& _receipt) override;
-    string decodeReceiptDataToJsonObj(const bytes& _receiptBytes) override;
+    std::string decodeReceiptDataToJsonObj(const bytes& _receiptBytes) override;
 
 private:
     bcos::crypto::CryptoSuite::UniquePtr m_ecdsaCryptoSuite =
