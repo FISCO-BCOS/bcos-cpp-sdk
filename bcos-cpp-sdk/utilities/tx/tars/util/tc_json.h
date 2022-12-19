@@ -26,8 +26,6 @@
 
 #include <bcos-cpp-sdk/utilities/tx/tars/util/tc_autoptr.h>
 
-using namespace std;
-
 namespace tars
 {
 
@@ -37,7 +35,7 @@ namespace tars
 */
 struct TC_Json_Exception : public TC_Exception
 {
-	TC_Json_Exception(const string &buffer) : TC_Exception(buffer){};
+	TC_Json_Exception(const std::string &buffer) : TC_Exception(buffer){};
 	~TC_Json_Exception() throw(){};
 };
 
@@ -88,12 +86,12 @@ typedef TC_AutoPtr<JsonValueNull> JsonValueNullPtr;
 
 /*
  * json类型 string类型 例如"dd\ndfd"
- * json type   string type   for example: "dd\ndfd"
+ * json type   std::string type   for example: "dd\ndfd"
  */
 class JsonValueString : public JsonValue
 {
 public:
-	JsonValueString(const string & s):value(s)
+	JsonValueString(const std::string & s):value(s)
 	{
 	}
 	JsonValueString()
@@ -108,7 +106,7 @@ public:
 	virtual ~JsonValueString()
 	{
 	}
-	string value;
+	std::string value;
 };
 typedef TC_AutoPtr<JsonValueString> JsonValueStringPtr;
 
@@ -170,7 +168,7 @@ public:
 
 	virtual ~JsonValueObj(){}
 public:
-	unordered_map<string,JsonValuePtr> value;
+	std::unordered_map<std::string,JsonValuePtr> value;
 };
 typedef TC_AutoPtr<JsonValueObj> JsonValueObjPtr;
 
@@ -191,7 +189,7 @@ public:
 	}
 	virtual ~JsonValueArray(){}
 public:
-	vector<JsonValuePtr> value;
+	std::vector<JsonValuePtr> value;
 };
 typedef TC_AutoPtr<JsonValueArray> JsonValueArrayPtr;
 
@@ -311,36 +309,36 @@ class TC_Json
 {
 public:
 	//json类型到字符串的转换
-	//Conversion of JSON type to string
-	static string writeValue(const JsonValuePtr & p, bool withSpace = false);
-	static void writeValue(const JsonValuePtr & p, string& ostr, bool withSpace = false);
-	static void writeValue(const JsonValuePtr & p, vector<char>& buf, bool withSpace = false);
+	//Conversion of JSON type to std::string
+	static std::string writeValue(const JsonValuePtr & p, bool withSpace = false);
+	static void writeValue(const JsonValuePtr & p, std::string& ostr, bool withSpace = false);
+	static void writeValue(const JsonValuePtr & p, std::vector<char>& buf, bool withSpace = false);
 
 	//json字符串到json结构的转换
-	//Conversion of JSON string to JSON structure
-	static JsonValuePtr getValue(const string & str);
-    static JsonValuePtr getValue(const vector<char>& buf);
+	//Conversion of JSON std::string to JSON structure
+	static JsonValuePtr getValue(const std::string & str);
+    static JsonValuePtr getValue(const std::vector<char>& buf);
 private:
 	//string 类型到json字符串
 	//string type to json string
-	static void writeString(const JsonValueStringPtr & p, string& ostr);
-	static void writeString(const string & s, string& ostr);
+	static void writeString(const JsonValueStringPtr & p, std::string& ostr);
+	static void writeString(const std::string & s, std::string& ostr);
 
 	//num 类型到json字符串
 	//num type to json string
-	static void writeNum(const JsonValueNumPtr & p, string& ostr);
+	static void writeNum(const JsonValueNumPtr & p, std::string& ostr);
 
 	//obj 类型到json字符串
 	//obj type to json string
-	static void writeObj(const JsonValueObjPtr & p, string& ostr, bool withSpace = false);
+	static void writeObj(const JsonValueObjPtr & p, std::string& ostr, bool withSpace = false);
 
 	//array 类型到json字符串
 	//array type to json string
-	static void writeArray(const JsonValueArrayPtr & p, string& ostr, bool withSpace = false);
+	static void writeArray(const JsonValueArrayPtr & p, std::string& ostr, bool withSpace = false);
 
 	//boolean 类型到json字符串
 	//boolean type to json string
-	static void writeBoolean(const JsonValueBooleanPtr & p, string& ostr);
+	static void writeBoolean(const JsonValueBooleanPtr & p, std::string& ostr);
 
 	//读取json的value类型 也就是所有的json类型 如果不符合规范会抛异常
 	//Reading json's value type means that all JSON types throw an exception if they do not conform to the specification
@@ -352,7 +350,7 @@ private:
 	//Reading json's array (array) throws an exception if it does not conform to the specification
 	static JsonValueArrayPtr getArray(BufferJsonReader & reader);
 	//读取json的string 如 "dfdf" 如果不符合规范会抛异常
-	//A string reading json, such as "dfdf", throws an exception if it does not conform to the specification
+	//A std::string reading json, such as "dfdf", throws an exception if it does not conform to the specification
 	static JsonValueStringPtr getString(BufferJsonReader & reader,char head='\"');
 	//读取json的数字 如 -213.56 如果不符合规范会抛异常
 	//Reading JSON numbers such as -213.56 throws an exception if it does not conform to the specification
@@ -376,28 +374,28 @@ private:
 class TC_JsonWriteOstream
 {
 public:
-    static void writeValue(const JsonValuePtr & p, ostream& ostr, bool withSpace = false);
+    static void writeValue(const JsonValuePtr & p, std::ostream& ostr, bool withSpace = false);
 private:
 	//string 类型到json字符串
 	//stirng type to json string
-	static void writeString(const JsonValueStringPtr & p, ostream& ostr);
-	static void writeString(const string & s, ostream& ostr);
+	static void writeString(const JsonValueStringPtr & p, std::ostream& ostr);
+	static void writeString(const std::string & s, std::ostream& ostr);
 
 	//num 类型到json字符串
 	//num type to json string
-	static void writeNum(const JsonValueNumPtr & p, ostream& ostr);
+	static void writeNum(const JsonValueNumPtr & p, std::ostream& ostr);
 
 	//obj 类型到json字符串
 	//obj type to json string
-	static void writeObj(const JsonValueObjPtr & p, ostream& ostr, bool withSpace = false);
+	static void writeObj(const JsonValueObjPtr & p, std::ostream& ostr, bool withSpace = false);
 
 	//array 类型到json字符串
 	//array type to json string
-	static void writeArray(const JsonValueArrayPtr & p, ostream& ostr, bool withSpace = false);
+	static void writeArray(const JsonValueArrayPtr & p, std::ostream& ostr, bool withSpace = false);
 
 	//boolean 类型到json字符串
 	//boolean type to json string
-	static void writeBoolean(const JsonValueBooleanPtr & p, ostream& ostr);
+	static void writeBoolean(const JsonValueBooleanPtr & p, std::ostream& ostr);
 };
 }
 

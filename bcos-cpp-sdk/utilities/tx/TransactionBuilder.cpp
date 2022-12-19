@@ -46,7 +46,7 @@ using namespace bcos::cppsdk::utilities;
  * @return bcostars::TransactionDataUniquePtr
  */
 bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
-    const std::string& _groupID, const string& _chainID, const std::string& _to,
+    const std::string& _groupID, const std::string& _chainID, const std::string& _to,
     const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit)
 {
     auto _transactionData = std::make_unique<bcostars::TransactionData>();
@@ -88,7 +88,7 @@ bytesConstPtr TransactionBuilder::encodeTransactionData(
     return buffer;
 }
 
-string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
+std::string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
 {
     tars::TarsInputStream<tars::BufferReader> inputStream;
     inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
@@ -184,7 +184,7 @@ bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction&
     return buffer;
 }
 
-string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
+std::string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
 {
     tars::TarsInputStream<tars::BufferReader> inputStream;
     inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
@@ -227,7 +227,7 @@ bytesConstPtr TransactionBuilder::createSignedTransaction(
  */
 std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
     const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-    const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+    const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
     const std::string& _abi, int64_t _blockLimit, int32_t _attribute)
 {
     auto transactionData = createTransactionData(_groupID, _chainID, _to, _data, _abi, _blockLimit);

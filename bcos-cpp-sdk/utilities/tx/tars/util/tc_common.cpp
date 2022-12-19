@@ -79,155 +79,155 @@ bool TC_Common::equal(float x, float y, double epsilon)
     return equal(x, y, float(epsilon));
 }
 
-bool TC_Common::equal(const vector<double>& vx, const vector<double>& vy, double epsilon)
+bool TC_Common::equal(const std::vector<double>& vx, const std::vector<double>& vy, double epsilon)
 {
 	MATCH_DOUBLE
 }
 
-bool TC_Common::equal(const vector<double> &vx, const vector<double> &vy, float epsilon)
+bool TC_Common::equal(const std::vector<double> &vx, const std::vector<double> &vy, float epsilon)
 {
     return equal(vx, vy, double(epsilon));
 }
 
-bool TC_Common::equal(const vector<float> &vx, const vector<float> &vy, float epsilon)
+bool TC_Common::equal(const std::vector<float> &vx, const std::vector<float> &vy, float epsilon)
 {
 	MATCH_DOUBLE
 }
 
-bool TC_Common::equal(const vector<float> &vx, const vector<float> &vy, double epsilon)
+bool TC_Common::equal(const std::vector<float> &vx, const std::vector<float> &vy, double epsilon)
 {
     return equal(vx, vy, float(epsilon));
 }
 
-bool TC_Common::equal(const set<double> & vx, const set<double>& vy, double epsilon)
+bool TC_Common::equal(const std::set<double> & vx, const std::set<double>& vy, double epsilon)
 {
 	MATCH_DOUBLE
 }
 
-bool TC_Common::equal(const set<double>& vx, const set<double>& vy, float epsilon )
+bool TC_Common::equal(const std::set<double>& vx, const std::set<double>& vy, float epsilon )
 {
 	return equal(vx, vy, double(epsilon));
 }
 
-bool TC_Common::equal(const set<float>& vx, const set<float> & vy, float epsilon)
+bool TC_Common::equal(const std::set<float>& vx, const std::set<float> & vy, float epsilon)
 {
 	return equal(vx, vy, double(epsilon));
 }
 
-bool TC_Common::equal(const set<float>& vx, const set<float>& vy, double epsilon )
+bool TC_Common::equal(const std::set<float>& vx, const std::set<float>& vy, double epsilon )
 {
 	MATCH_DOUBLE
 }
 
-bool TC_Common::equal(const unordered_set<double> & vx, const unordered_set<double>& vy, double epsilon)
+bool TC_Common::equal(const std::unordered_set<double> & vx, const std::unordered_set<double>& vy, double epsilon)
 {
 	MATCH_DOUBLE
 }
 
-bool TC_Common::equal(const unordered_set<double>& vx, const unordered_set<double>& vy, float epsilon )
+bool TC_Common::equal(const std::unordered_set<double>& vx, const std::unordered_set<double>& vy, float epsilon )
 {
 	return equal(vx, vy, double(epsilon));
 
 }
 
-bool TC_Common::equal(const unordered_set<float>& vx, const unordered_set<float> & vy, float epsilon)
+bool TC_Common::equal(const std::unordered_set<float>& vx, const std::unordered_set<float> & vy, float epsilon)
 {
 	return equal(vx, vy, double(epsilon));
 }
 
-bool TC_Common::equal(const unordered_set<float>& vx, const unordered_set<float>& vy, double epsilon )
+bool TC_Common::equal(const std::unordered_set<float>& vx, const std::unordered_set<float>& vy, double epsilon )
 {
 	MATCH_DOUBLE
 }
 
 template<>
-string TC_Common::tostr<bool>(const bool &t)
+std::string TC_Common::tostr<bool>(const bool &t)
 {
     char buf[2];
     buf[0] = t ? '1' : '0';
     buf[1] = '\0';
-    return string(buf);
+    return std::string(buf);
 }
 
 
 template<>
-string TC_Common::tostr<char>(const char &t)
+std::string TC_Common::tostr<char>(const char &t)
 {
     char buf[2];
     snprintf(buf, 2, "%c", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<unsigned char>(const unsigned char &t)
+std::string TC_Common::tostr<unsigned char>(const unsigned char &t)
 {
     char buf[2];
     snprintf(buf, 2, "%c", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<short>(const short &t)
+std::string TC_Common::tostr<short>(const short &t)
 {
     char buf[16];
     snprintf(buf, 16, "%d", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<unsigned short>(const unsigned short &t)
+std::string TC_Common::tostr<unsigned short>(const unsigned short &t)
 {
     char buf[16];
     snprintf(buf, 16, "%u", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<int>(const int &t)
+std::string TC_Common::tostr<int>(const int &t)
 {
     char buf[16];
     snprintf(buf, 16, "%d", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<unsigned int>(const unsigned int &t)
+std::string TC_Common::tostr<unsigned int>(const unsigned int &t)
 {
     char buf[16];
     snprintf(buf, 16, "%u", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<long>(const long &t)
+std::string TC_Common::tostr<long>(const long &t)
 {
     char buf[32];
     snprintf(buf, 32, "%ld", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<long long>(const long long &t)
+std::string TC_Common::tostr<long long>(const long long &t)
 {
     char buf[32];
     snprintf(buf, 32, "%lld", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 
 template<>
-string TC_Common::tostr<unsigned long>(const unsigned long &t)
+std::string TC_Common::tostr<unsigned long>(const unsigned long &t)
 {
     char buf[32];
     snprintf(buf, 32, "%lu", t);
-    return string(buf);
+    return std::string(buf);
 }
 
 template<>
-string TC_Common::tostr<float>(const float &t)
+std::string TC_Common::tostr<float>(const float &t)
 {
     //C++11 to_string，默认保留后面6位小数
-    string s = std::to_string(t);
+    std::string s = std::to_string(t);
 
     //去掉无效0, eg. 1.0300 -> 1.03;1.00 -> 1
     bool bFlag = false;
@@ -257,10 +257,10 @@ string TC_Common::tostr<float>(const float &t)
 }
 
 template<>
-string TC_Common::tostr<double>(const double &t)
+std::string TC_Common::tostr<double>(const double &t)
 {
     //C++11 to_string，默认保留后面6位小数
-    string s = std::to_string(t);
+    std::string s = std::to_string(t);
     //去掉无效0, eg. 1.0300 -> 1.03;1.00 -> 1
     bool bFlag = false;
     int pos = int(s.size() - 1);
@@ -290,11 +290,11 @@ string TC_Common::tostr<double>(const double &t)
 }
 
 template<>
-string TC_Common::tostr<long double>(const long double &t)
+std::string TC_Common::tostr<long double>(const long double &t)
 {
     char buf[32];
     snprintf(buf, 32, "%Lf", t);
-    string s(buf);
+    std::string s(buf);
 
     //去掉无效0, eg. 1.0300 -> 1.03;1.00 -> 1
     bool bFlag = false;
@@ -325,12 +325,12 @@ string TC_Common::tostr<long double>(const long double &t)
 }
 
 template<>
-string TC_Common::tostr<std::string>(const std::string &t)
+std::string TC_Common::tostr<std::string>(const std::string& t)
 {
     return t;
 }
 
-string TC_Common::trim(const string &sStr, const string &s, bool bChar)
+std::string TC_Common::trim(const std::string& sStr, const std::string& s, bool bChar)
 {
     if (sStr.empty())
     {
@@ -348,7 +348,7 @@ string TC_Common::trim(const string &sStr, const string &s, bool bChar)
     return trimright(trimleft(sStr, s, true), s, true);
 }
 
-string TC_Common::trimleft(const string &sStr, const string &s, bool bChar)
+std::string TC_Common::trimleft(const std::string& sStr, const std::string& s, bool bChar)
 {
     if (sStr.empty())
     {
@@ -376,10 +376,10 @@ string TC_Common::trimleft(const string &sStr, const string &s, bool bChar)
     /**
     * 去掉sStr左边的 字符串s中的字符
     */
-    string::size_type pos = 0;
+    std::string::size_type pos = 0;
     while (pos < sStr.length())
     {
-        if (s.find_first_of(sStr[pos]) == string::npos)
+        if (s.find_first_of(sStr[pos]) == std::string::npos)
         {
             break;
         }
@@ -392,7 +392,7 @@ string TC_Common::trimleft(const string &sStr, const string &s, bool bChar)
     return sStr.substr(pos);
 }
 
-string TC_Common::trimright(const string &sStr, const string &s, bool bChar)
+std::string TC_Common::trimright(const std::string& sStr, const std::string& s, bool bChar)
 {
     if (sStr.empty())
     {
@@ -420,10 +420,10 @@ string TC_Common::trimright(const string &sStr, const string &s, bool bChar)
     /**
     * 去掉sStr右边的 字符串s中的字符
     */
-    string::size_type pos = sStr.length();
+    std::string::size_type pos = sStr.length();
     while (pos != 0)
     {
-        if (s.find_first_of(sStr[pos - 1]) == string::npos)
+        if (s.find_first_of(sStr[pos - 1]) == std::string::npos)
         {
             break;
         }
@@ -436,10 +436,10 @@ string TC_Common::trimright(const string &sStr, const string &s, bool bChar)
     return sStr.substr(0, pos);
 }
 
-string TC_Common::lower(const string &s)
+std::string TC_Common::lower(const std::string& s)
 {
-    string sString = s;
-    for (string::iterator iter = sString.begin(); iter != sString.end(); ++iter)
+    std::string sString = s;
+    for (std::string::iterator iter = sString.begin(); iter != sString.end(); ++iter)
     {
         *iter = tolower(*iter);
     }
@@ -447,11 +447,11 @@ string TC_Common::lower(const string &s)
     return sString;
 }
 
-string TC_Common::upper(const string &s)
+std::string TC_Common::upper(const std::string& s)
 {
-    string sString = s;
+    std::string sString = s;
 
-    for (string::iterator iter = sString.begin(); iter != sString.end(); ++iter)
+    for (std::string::iterator iter = sString.begin(); iter != sString.end(); ++iter)
     {
         *iter = toupper(*iter);
     }
@@ -459,9 +459,9 @@ string TC_Common::upper(const string &s)
     return sString;
 }
 
-bool TC_Common::isdigit(const string &sInput)
+bool TC_Common::isdigit(const std::string& sInput)
 {
-    string::const_iterator iter = sInput.begin();
+    std::string::const_iterator iter = sInput.begin();
 
     if (sInput.empty())
     {
@@ -496,7 +496,7 @@ public:
         TC_Port::localtime_r(&secs, &timeinfo);
         local_secs = ::mktime(&timeinfo);
 #if !TARGET_PLATFORM_WINDOWS
-        timezone_local = string(timeinfo.tm_zone);
+        timezone_local = std::string(timeinfo.tm_zone);
 #endif
 
         //不带时区时间
@@ -507,25 +507,25 @@ public:
     }
 
 #if !TARGET_PLATFORM_WINDOWS
-    static string timezone_local;
+    static std::string timezone_local;
 #endif
 
     static int64_t timezone_diff_secs;
 };
 
 #if !TARGET_PLATFORM_WINDOWS
-string TimezoneHelper::timezone_local;
+std::string TimezoneHelper::timezone_local;
 #endif
 
 int64_t TimezoneHelper::timezone_diff_secs = 0;
 
-int TC_Common::str2tm(const string &sString, const string &sFormat, struct tm &stTm)
+int TC_Common::str2tm(const std::string& sString, const std::string& sFormat, struct tm &stTm)
 {
     char *p = strptime(sString.c_str(), sFormat.c_str(), &stTm);
     return (p != NULL) ? 0 : -1;
 }
 
-time_t TC_Common::str2time(const string &sString, const string &sFormat)
+time_t TC_Common::str2time(const std::string& sString, const std::string& sFormat)
 {
     struct tm stTm;
     if (0 == str2tm(sString, sFormat, stTm))
@@ -537,18 +537,18 @@ time_t TC_Common::str2time(const string &sString, const string &sFormat)
     return 0;
 }
 
-int TC_Common::strgmt2tm(const string &sString, struct tm &stTm)
+int TC_Common::strgmt2tm(const std::string& sString, struct tm &stTm)
 {
     return str2tm(sString, "%a, %d %b %Y %H:%M:%S GMT", stTm);
 }
 
-string TC_Common::tm2str(const struct tm &stTm, const string &sFormat)
+std::string TC_Common::tm2str(const struct tm &stTm, const std::string& sFormat)
 {
     char sTimeString[255] = "\0";
 
     strftime(sTimeString, sizeof(sTimeString), sFormat.c_str(), &stTm);
 
-    return string(sTimeString);
+    return std::string(sTimeString);
 }
 
 int TC_Common::gettimeofday(struct timeval &tv)
@@ -566,13 +566,13 @@ void TC_Common::tm2time(const time_t &t, struct tm &tt)
     TC_Port::gmtime_r(&localt, &tt);
 
 #if !TARGET_PLATFORM_WINDOWS
-    static string local_timezone = TimezoneHelper::timezone_local;
+    static std::string local_timezone = TimezoneHelper::timezone_local;
     tt.tm_zone = const_cast<char *>(local_timezone.c_str());
     tt.tm_gmtoff = TimezoneHelper::timezone_diff_secs;
 #endif
 }
 
-string TC_Common::tm2str(const time_t &t, const string &sFormat)
+std::string TC_Common::tm2str(const time_t &t, const std::string& sFormat)
 {
     struct tm tt;
     tm2time(t, tt);
@@ -585,18 +585,18 @@ void TC_Common::tm2tm(const time_t &t, struct tm &tt)
     tm2time(t, tt);
 }
 
-string TC_Common::now2str(const string &sFormat)
+std::string TC_Common::now2str(const std::string& sFormat)
 {
     time_t t = time(NULL);
     return tm2str(t, sFormat.c_str());
 }
 
-//string TC_Common::now2msstr()
+//std::string TC_Common::now2msstr()
 //{
 //    return ms2str(now2ms());
 //}
 
-string TC_Common::ms2str(int64_t ms)
+std::string TC_Common::ms2str(int64_t ms)
 {
     time_t t = ms / 1000;
 
@@ -605,7 +605,7 @@ string TC_Common::ms2str(int64_t ms)
 
     TC_Port::localtime_r(&t, &tt);
 
-    string s;
+    std::string s;
     s.resize(128);
     const char *szFormat = "%04d-%02d-%02d %02d:%02d:%02d.%03ld";
     size_t n = snprintf(&s[0], s.size(), szFormat, tt.tm_year + 1900, tt.tm_mon + 1, tt.tm_mday, tt.tm_hour, tt.tm_min, tt.tm_sec, duration_in_ms);
@@ -614,7 +614,7 @@ string TC_Common::ms2str(int64_t ms)
     return s;
 }
 
-string TC_Common::now2msstr()
+std::string TC_Common::now2msstr()
 {
     time_t t = time(NULL);
 
@@ -624,7 +624,7 @@ string TC_Common::now2msstr()
 
     TC_Port::localtime_r(&t, &tt);
 
-    string s;
+    std::string s;
     s.resize(128);
     const char *szFormat = "%04d-%02d-%02d %02d:%02d:%02d.%03ld";
     size_t n = snprintf(&s[0], s.size(), szFormat, tt.tm_year + 1900, tt.tm_mon + 1, tt.tm_mday, tt.tm_hour, tt.tm_min, tt.tm_sec, duration_in_ms % 1000);
@@ -633,13 +633,13 @@ string TC_Common::now2msstr()
     return s;
 }
 
-string TC_Common::now2GMTstr()
+std::string TC_Common::now2GMTstr()
 {
     time_t t = time(NULL);
     return tm2GMTstr(t);
 }
 
-string TC_Common::tm2GMTstr(const time_t &t)
+std::string TC_Common::tm2GMTstr(const time_t &t)
 {
     struct tm tt;
 
@@ -647,17 +647,17 @@ string TC_Common::tm2GMTstr(const time_t &t)
     return tm2str(tt, "%a, %d %b %Y %H:%M:%S GMT");
 }
 
-string TC_Common::tm2GMTstr(const struct tm &stTm)
+std::string TC_Common::tm2GMTstr(const struct tm &stTm)
 {
     return tm2str(stTm, "%a, %d %b %Y %H:%M:%S GMT");
 }
 
-string TC_Common::nowdate2str()
+std::string TC_Common::nowdate2str()
 {
     return now2str("%Y%m%d");
 }
 
-string TC_Common::nowtime2str()
+std::string TC_Common::nowtime2str()
 {
     return now2str("%H%M%S");
 }
@@ -690,14 +690,14 @@ static char c_b2s[256][4] = {"00", "01", "02", "03", "04", "05", "06", "07", "08
                              "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd", "de", "df", "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef", "f0", "f1", "f2", "f3", "f4",
                              "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"};
 
-string TC_Common::bin2str(const void *buf, size_t len, const string &sSep, size_t lines)
+std::string TC_Common::bin2str(const void *buf, size_t len, const std::string& sSep, size_t lines)
 {
     if (buf == NULL || len <= 0)
     {
         return "";
     }
 
-    string sOut;
+    std::string sOut;
     const unsigned char *p = (const unsigned char *) buf;
 
     for (size_t i = 0; i < len; ++i, ++p)
@@ -716,23 +716,23 @@ string TC_Common::bin2str(const void *buf, size_t len, const string &sSep, size_
     return sOut;
 }
 
-string TC_Common::bin2str(const string &sBinData, const string &sSep, size_t lines)
+std::string TC_Common::bin2str(const std::string& sBinData, const std::string& sSep, size_t lines)
 {
     return bin2str((const void *) sBinData.data(), sBinData.length(), sSep, lines);
 }
 
-string TC_Common::replace(const string &sString, const string &sSrc, const string &sDest)
+std::string TC_Common::replace(const std::string& sString, const std::string& sSrc, const std::string& sDest)
 {
     if (sSrc.empty())
     {
         return sString;
     }
 
-    string sBuf = sString;
+    std::string sBuf = sString;
 
-    string::size_type pos = 0;
+    std::string::size_type pos = 0;
 
-    while ((pos = sBuf.find(sSrc, pos)) != string::npos)
+    while ((pos = sBuf.find(sSrc, pos)) != std::string::npos)
     {
         sBuf.replace(pos, sSrc.length(), sDest);
         pos += sDest.length();
@@ -741,21 +741,21 @@ string TC_Common::replace(const string &sString, const string &sSrc, const strin
     return sBuf;
 }
 
-string TC_Common::replace(const string &sString, const map<string, string> &mSrcDest)
+std::string TC_Common::replace(const std::string& sString, const std::map<std::string, std::string> &mSrcDest)
 {
     if (sString.empty())
     {
         return sString;
     }
 
-    string tmp = sString;
-    map<string, string>::const_iterator it = mSrcDest.begin();
+    std::string tmp = sString;
+    std::map<std::string, std::string>::const_iterator it = mSrcDest.begin();
 
     while (it != mSrcDest.end())
     {
 
-        string::size_type pos = 0;
-        while ((pos = tmp.find(it->first, pos)) != string::npos)
+        std::string::size_type pos = 0;
+        while ((pos = tmp.find(it->first, pos)) != std::string::npos)
         {
             tmp.replace(pos, it->first.length(), it->second);
             pos += it->second.length();
@@ -767,7 +767,7 @@ string TC_Common::replace(const string &sString, const map<string, string> &mSrc
     return tmp;
 }
 
-bool TC_Common::matchPeriod(const string &s, const string &pat)
+bool TC_Common::matchPeriod(const std::string& s, const std::string& pat)
 {
     if (s.empty())
     {
@@ -779,13 +779,13 @@ bool TC_Common::matchPeriod(const string &s, const string &pat)
         return true;
     }
 
-    if (pat.find('*') == string::npos)
+    if (pat.find('*') == std::string::npos)
     {
         return s == pat;
     }
 
-    string::size_type sIndex = 0;
-    string::size_type patIndex = 0;
+    std::string::size_type sIndex = 0;
+    std::string::size_type patIndex = 0;
     do
     {
         if (pat[patIndex] == '*')
@@ -815,7 +815,7 @@ bool TC_Common::matchPeriod(const string &s, const string &pat)
     return sIndex == s.size() && patIndex == pat.size();
 }
 
-bool TC_Common::matchPeriod(const string &s, const vector<string> &pat)
+bool TC_Common::matchPeriod(const std::string& s, const std::vector<std::string> &pat)
 {
     for (size_t i = 0; i < pat.size(); i++)
     {
@@ -888,7 +888,7 @@ bool TC_Common::isPrimeNumber(size_t n)
     return true;
 }
 
-size_t TC_Common::toSize(const string &s, size_t iDefaultSize)
+size_t TC_Common::toSize(const std::string& s, size_t iDefaultSize)
 {
     if (s.empty())
     {
@@ -932,14 +932,14 @@ size_t TC_Common::toSize(const string &s, size_t iDefaultSize)
     return iDefaultSize;
 }
 
-string TC_Common::getHostName()
+std::string TC_Common::getHostName()
 {
-    string hostName;
+    std::string hostName;
     char buff[256] = {0};
     int ret = ::gethostname(buff, sizeof(buff));
     if (0 == ret)
     {
-        hostName = string(buff);
+        hostName = std::string(buff);
     }
     else
     {
@@ -972,14 +972,14 @@ void TC_Common::getRandomHexChars(char *p, unsigned int len)
 
 #endif
 
-string TC_Common::nextDate(const string &sDate)
+std::string TC_Common::nextDate(const std::string& sDate)
 {
     time_t tomorrow = TC_Common::str2time(sDate + "000000", "%Y%m%d%H%M%S") + 60 * 60 * 24;
 
     return TC_Common::tm2str(tomorrow, "%Y%m%d");
 }
 
-string TC_Common::prevDate(const string &sDate)
+std::string TC_Common::prevDate(const std::string& sDate)
 {
     time_t tomorrow = TC_Common::str2time(sDate + "000000", "%Y%m%d%H%M%S") - 60 * 60 * 24;
 
@@ -996,7 +996,7 @@ int TC_Common::prevDate(int iDate)
     return TC_Common::strto<int>(prevDate(TC_Common::tostr(iDate)));
 }
 
-string TC_Common::nextMonth(const string &sMonth)
+std::string TC_Common::nextMonth(const std::string& sMonth)
 {
     if (sMonth.length() != 6)
     {
@@ -1021,7 +1021,7 @@ string TC_Common::nextMonth(const string &sMonth)
     return TC_Common::tostr(yearNew) + szMonth;
 }
 
-string TC_Common::prevMonth(const string &sMonth)
+std::string TC_Common::prevMonth(const std::string& sMonth)
 {
     if (sMonth.length() != 6)
     {
@@ -1045,7 +1045,7 @@ string TC_Common::prevMonth(const string &sMonth)
     return TC_Common::tostr(yearNew) + szMonth;
 }
 
-string TC_Common::nextYear(const string &sYear)
+std::string TC_Common::nextYear(const std::string& sYear)
 {
     if (sYear.length() != 4)
     {
@@ -1059,7 +1059,7 @@ string TC_Common::nextYear(const string &sYear)
     return TC_Common::tostr(yearNew);
 }
 
-string TC_Common::prevYear(const string &sYear)
+std::string TC_Common::prevYear(const std::string& sYear)
 {
     if (sYear.length() != 4)
     {
@@ -1081,12 +1081,12 @@ int TC_Common::secondsToDateInt(time_t seconds)
     return (1900 + tt.tm_year) * 10000 + (tt.tm_mon + 1) * 100 + tt.tm_mday;
 }
 
-string TC_Common::secondsToDateString(time_t seconds)
+std::string TC_Common::secondsToDateString(time_t seconds)
 {
     return TC_Common::tostr(secondsToDateInt(seconds));
 }
 
-string TC_Common::secondsToMondayString(time_t seconds)
+std::string TC_Common::secondsToMondayString(time_t seconds)
 {
     //换到周一
     int week = TC_Common::strto<int>(TC_Common::tm2str(seconds, "%w"));
@@ -1095,12 +1095,12 @@ string TC_Common::secondsToMondayString(time_t seconds)
     return TC_Common::tm2str(seconds, "%Y%m%d");
 }
 
-string TC_Common::secondsToMonthString(time_t seconds)
+std::string TC_Common::secondsToMonthString(time_t seconds)
 {
     return TC_Common::tm2str(seconds, "%Y-%m");
 }
 
-string TC_Common::msToTimeString(int64_t ms)
+std::string TC_Common::msToTimeString(int64_t ms)
 {
 
     int64_t sec = ms / 1000;
@@ -1109,21 +1109,21 @@ string TC_Common::msToTimeString(int64_t ms)
     char szMS[5] = {0};
     snprintf(szMS, sizeof(szMS) - 1, "%03d", (int) msec);
 
-    return TC_Common::tm2str(sec, "%Y%m%d-%H%M%S-") + string(szMS);
+    return TC_Common::tm2str(sec, "%Y%m%d-%H%M%S-") + std::string(szMS);
 }
 
 
-int64_t TC_Common::timeStringToMs(const string &timeStr)
+int64_t TC_Common::timeStringToMs(const std::string& timeStr)
 {
-    vector<string> vt = TC_Common::sepstr<string>(timeStr, "-");
+    std::vector<std::string> vt = TC_Common::sepstr<std::string>(timeStr, "-");
     if (vt.size() != 3)
     {
         return 0;
     }
 
-    string &date = vt[0];
-    string &time = vt[1];
-    string &ms = vt[2];
+    std::string& date = vt[0];
+    std::string& time = vt[1];
+    std::string& ms = vt[2];
 
     if (date.size() != 8 || time.size() != 6 || ms.size() != 3)
     {
@@ -1136,10 +1136,10 @@ int64_t TC_Common::timeStringToMs(const string &timeStr)
     return lsec * 1000 + lms;
 }
 
-bool TC_Common::getSectionFromMs(int64_t ms, string &date, string &time, string &mstick)
+bool TC_Common::getSectionFromMs(int64_t ms, std::string& date, std::string& time, std::string& mstick)
 {
-    string timeStr = msToTimeString(ms);
-    vector<string> vt = TC_Common::sepstr<string>(timeStr, "-");
+    std::string timeStr = msToTimeString(ms);
+    std::vector<std::string> vt = TC_Common::sepstr<std::string>(timeStr, "-");
     if (vt.size() != 3)
     {
         return false;
@@ -1152,11 +1152,11 @@ bool TC_Common::getSectionFromMs(int64_t ms, string &date, string &time, string 
     return true;
 }
 
-string TC_Common::getDateFromMs(int64_t ms)
+std::string TC_Common::getDateFromMs(int64_t ms)
 {
-    string date;
-    string time;
-    string mstick;
+    std::string date;
+    std::string time; 
+    std::string mstick;
     if (!getSectionFromMs(ms, date, time, mstick))
     {
         return "00000000";
@@ -1165,11 +1165,11 @@ string TC_Common::getDateFromMs(int64_t ms)
     return date;
 }
 
-string TC_Common::getTimeFromMs(int64_t ms)
+std::string TC_Common::getTimeFromMs(int64_t ms)
 {
-    string date;
-    string time;
-    string mstick;
+    std::string date;
+    std::string time;
+    std::string mstick;
     if (!getSectionFromMs(ms, date, time, mstick))
     {
         return "000000";
@@ -1210,11 +1210,11 @@ int64_t TC_Common::us()
     return tv.tv_sec * (int64_t) 1000000 + tv.tv_usec;
 }
 
-int64_t TC_Common::dateToMs(const string &sDate)
+int64_t TC_Common::dateToMs(const std::string& sDate)
 {
     int64_t now;
 
-    if (sDate.find('-') != string::npos)
+    if (sDate.find('-') != std::string::npos)
     {
         now = TC_Common::str2time(sDate + "000000", "%Y-%m-%d%H%M%S");
     }
@@ -1227,11 +1227,11 @@ int64_t TC_Common::dateToMs(const string &sDate)
     return now * 1000;
 }
 
-int64_t TC_Common::dateToSecond(const string &sDate)
+int64_t TC_Common::dateToSecond(const std::string& sDate)
 {
     int64_t now;
 
-    if (sDate.find('-') != string::npos)
+    if (sDate.find('-') != std::string::npos)
     {
         now = TC_Common::str2time(sDate + "000000", "%Y-%m-%d%H%M%S");
     }
@@ -1244,7 +1244,7 @@ int64_t TC_Common::dateToSecond(const string &sDate)
     return now;
 }
 
-int TC_Common::dateTo(const string &sDate, const string &sPeriod)
+int TC_Common::dateTo(const std::string& sDate, const std::string& sPeriod)
 {
     if (sPeriod == "W")
     {
@@ -1270,7 +1270,7 @@ int TC_Common::dateTo(const string &sDate, const string &sPeriod)
     return 0;
 }
 
-int TC_Common::dateToWeekday(const string &sDate)
+int TC_Common::dateToWeekday(const std::string& sDate)
 {
     struct tm date;
     TC_Common::str2tm(sDate, "%Y%m%d", date);
@@ -1278,7 +1278,7 @@ int TC_Common::dateToWeekday(const string &sDate)
     return date.tm_wday;
 }
 
-int TC_Common::dateToWeek(const string &sDate)
+int TC_Common::dateToWeek(const std::string& sDate)
 {
     struct tm date;
     TC_Common::str2tm(sDate, "%Y%m%d", date);
@@ -1286,14 +1286,14 @@ int TC_Common::dateToWeek(const string &sDate)
     return TC_Common::strto<int>(TC_Common::tm2str(date, "%W"));
 }
 
-int TC_Common::dateToMonth(const string &sDate)
+int TC_Common::dateToMonth(const std::string& sDate)
 {
     return TC_Common::strto<int>(sDate.substr(4, 2));
 }
 
-int TC_Common::dateToSeason(const string &sDate)
+int TC_Common::dateToSeason(const std::string& sDate)
 {
-    string month = sDate.substr(4, 2);
+    std::string month = sDate.substr(4, 2);
     if (month == "01" || (month == "02") || (month == "03"))
     {
         return 1;
@@ -1314,9 +1314,9 @@ int TC_Common::dateToSeason(const string &sDate)
     return 0;
 }
 
-int TC_Common::dateToHalfYear(const string &sDate)
+int TC_Common::dateToHalfYear(const std::string &sDate)
 {
-    string month = sDate.substr(4, 2);
+    std::string month = sDate.substr(4, 2);
     if (month == "01" || (month == "02") || (month == "03") || (month == "04") || (month == "05") || (month == "06"))
     {
         return 1;
@@ -1329,7 +1329,7 @@ int TC_Common::dateToHalfYear(const string &sDate)
     return 0;
 }
 
-int TC_Common::dateToYear(const string &sDate)
+int TC_Common::dateToYear(const std::string &sDate)
 {
     return TC_Common::strto<int>(sDate.substr(0, 4));
 }
@@ -1500,7 +1500,7 @@ inline bool TC_Common::matchPeriod(int lastDate, int date, const std::string &pe
     return false;
 }
 
-int TC_Common::getMatchPeriodDays(const std::vector<int> &days, const std::pair<string, int> &period, std::vector<int> &matchDays)
+int TC_Common::getMatchPeriodDays(const std::vector<int> &days, const std::pair<std::string, int> &period, std::vector<int> &matchDays)
 {
     std::map<std::string, int> periodList{{"W", 5},
                                           {"M", 25},

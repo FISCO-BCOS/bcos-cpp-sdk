@@ -221,15 +221,15 @@ int64_t TC_Port::getpid()
 	return pid;
 }
 
-string TC_Port::getEnv(const string &name)
+std::string TC_Port::getEnv(const std::string &name)
 {
 	char* p = getenv(name.c_str());
-    string str = p ? string(p) : "";
+    std::string str = p ? std::string(p) : "";
 
 	return str;
 }
 
-void TC_Port::setEnv(const string &name, const string &value)
+void TC_Port::setEnv(const std::string &name, const std::string &value)
 {
 #if TARGET_PLATFORM_WINDOWS
 	SetEnvironmentVariable(name.c_str(), value.c_str());
@@ -238,22 +238,22 @@ void TC_Port::setEnv(const string &name, const string &value)
 #endif
 }
 
-string TC_Port::exec(const char *cmd)
+std::string TC_Port::exec(const char *cmd)
 {
-	string err;
+	std::string err;
 	return exec(cmd, err);
 }
 
 std::string TC_Port::exec(const char* cmd, std::string &err)
 {
-	string fileData;
+	std::string fileData;
 #if TARGET_PLATFORM_WINDOWS
     FILE* fp = _popen(cmd, "r");
 #else
     FILE* fp = popen(cmd, "r");
 #endif
 	if(fp == NULL) {
-		err = "open '" + string(cmd) + "' error";
+		err = "open '" + std::string(cmd) + "' error";
 		return "";
 	}
     static size_t buf_len = 2 * 1024 * 1024;
@@ -265,13 +265,13 @@ std::string TC_Port::exec(const char* cmd, std::string &err)
 #else
     pclose(fp);
 #endif
-    fileData = string(buf);
+    fileData = std::string(buf);
     delete []buf;
 
 	return fileData;
 }
 
-shared_ptr<TC_Port::SigInfo> TC_Port::_sigInfo = std::make_shared<TC_Port::SigInfo>();
+std::shared_ptr<TC_Port::SigInfo> TC_Port::_sigInfo = std::make_shared<TC_Port::SigInfo>();
 
 
 size_t TC_Port::registerSig(int sig, std::function<void()> callback)
@@ -362,7 +362,7 @@ void TC_Port::sighandler( int sig_no )
 {
 	std::thread th([&]()
 				   {
-					   unordered_map<size_t, std::function<void()>> data;
+					   std::unordered_map<size_t, std::function<void()>> data;
 
 					   {
 					   	std::lock_guard<std::mutex> lock(_sigInfo->_mutex);
@@ -392,7 +392,7 @@ BOOL WINAPI TC_Port::HandlerRoutine(DWORD dwCtrlType)
 {
 	std::thread th([&]()
 				   {
-					   unordered_map<size_t, std::function<void()>> data;
+					   std::unordered_map<size_t, std::function<void()>> data;
 
 					   {
 					   	std::lock_guard<std::mutex> lock(_sigInfo->_mutex);

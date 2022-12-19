@@ -22,7 +22,6 @@
 
 namespace tars
 {
-using namespace std;
 
 /////////////////////////////////////////////////
 /** 
@@ -36,7 +35,7 @@ using namespace std;
 * @brief 异常类.
 * @brief Exception Class
 */
-class TC_Exception : public exception
+class TC_Exception : public std::exception
 {
 public:
     /**
@@ -48,7 +47,7 @@ public:
 	 * @param buffer 异常的告警信息 
      * @param buffer alert information of exceptions
      */
-	explicit TC_Exception(const string &buffer);
+	explicit TC_Exception(const std::string &buffer);
 
     /**
 	 * @brief 构造函数,提供了一个可以传入errno的构造函数，
@@ -63,7 +62,7 @@ public:
      * @param errno  传入:errno, windows版本 传入:GetLastError()
      * @param errno  pass:errno, windows version pass:GetLastError()
      */
-	TC_Exception(const string &buffer, int err);
+	TC_Exception(const std::string &buffer, int err);
 
     /**
      * @brief 析够数函
@@ -90,12 +89,12 @@ public:
 
     /**
      * @brief 获取错误字符串(linux是errno, windows是GetLastError())
-     * @brief Get the error string (linux: errno, windows: GetLastError())
+     * @brief Get the error std::string (linux: errno, windows: GetLastError())
      * 
      * @return 成功获取返回0
      * @return if get successfully , return 0
      */
-    static string parseError(int err);
+    static std::string parseError(int err);
 
     /**
      * @brief 获取系统错误码(linux是errno, windows是GetLastError)
@@ -111,7 +110,7 @@ public:
      *
      * @return 获取系统错误描述
      */
-    static string getSystemError();
+    static std::string getSystemError();
 
 private:
     void getBacktrace();
@@ -122,12 +121,12 @@ private:
 	 * 错误码
      * Error Code
      */
-    int     _code;
+    int _code;
     /**
 	 * 异常的相关信息
      * Information about exceptions
      */
-    string  _buffer;
+    std::string _buffer;
 
 };
 
@@ -143,6 +142,7 @@ private:
     throw EX_CLASS(buffer, ret);              \
     }
 
-}
+}  // namespace tars
 #endif
+
 

@@ -49,7 +49,7 @@ public:
      * @return bcostars::TransactionDataUniquePtr
      */
     virtual bcostars::TransactionDataUniquePtr createTransactionData(const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit) override;
 
     /**
@@ -84,7 +84,7 @@ public:
      * @param _txBytes encoded bytes
      * @return transaction data json string
      */
-    string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) override;
+    std::string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) override;
 
     /**
      * @brief
@@ -134,7 +134,7 @@ public:
      * @param _txBytes encoded bytes
      * @return transaction data json string
      */
-    string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
+    std::string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
 
     /**
      * @brief Create a Signed Transaction object
@@ -164,7 +164,7 @@ public:
      */
     virtual std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit, int32_t _attribute) override;
 
 
