@@ -25,8 +25,8 @@ struct TransactionData : public tars::TarsStructBase
 public:
     static string className() { return "bcostars.TransactionData"; }
     static string MD5() { return "ea41d47be6b852a5c3edcfe7a805be85"; }
-    TransactionData() { resetDefautlt(); }
-    void resetDefautlt()
+    TransactionData() { resetDefault(); }
+    void resetDefault()
     {
         version = 0;
         chainID = "";
@@ -58,7 +58,7 @@ public:
     template <typename ReaderT>
     void readFrom(tars::TarsInputStream<ReaderT>& _is)
     {
-        resetDefautlt();
+        resetDefault();
         _is.read(version, 1, true);
         _is.read(chainID, 2, true);
         _is.read(groupID, 3, true);
@@ -84,7 +84,7 @@ public:
     string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
-        resetDefautlt();
+        resetDefault();
         if (NULL == p.get() || p->getType() != tars::eJsonTypeObj)
         {
             char s[128];
@@ -202,17 +202,18 @@ struct Transaction : public tars::TarsStructBase
 {
 public:
     static string className() { return "bcostars.Transaction"; }
-    static string MD5() { return "ad46f3dbb0da87bdc5ed991eb2a8caff"; }
-    Transaction() { resetDefautlt(); }
-    void resetDefautlt()
+    static string MD5() { return "a209610e78f47053c2be932314d20d5d"; }
+    Transaction() { resetDefault(); }
+    void resetDefault()
     {
-        data.resetDefautlt();
+        data.resetDefault();
         dataHash.clear();
         signature.clear();
         importTime = 0;
         attribute = 0;
         source = "";
         sender.clear();
+        extraData = "";
     }
     template <typename WriterT>
     void writeTo(tars::TarsOutputStream<WriterT>& _os) const
@@ -242,11 +243,15 @@ public:
         {
             _os.write(sender, 7);
         }
+        if (extraData != "")
+        {
+            _os.write(extraData, 8);
+        }
     }
     template <typename ReaderT>
     void readFrom(tars::TarsInputStream<ReaderT>& _is)
     {
-        resetDefautlt();
+        resetDefault();
         _is.read(data, 1, false);
         _is.read(dataHash, 2, false);
         _is.read(signature, 3, false);
@@ -254,40 +259,8 @@ public:
         _is.read(attribute, 5, false);
         _is.read(source, 6, false);
         _is.read(sender, 7, false);
+        _is.read(extraData, 8, false);
     }
-    tars::JsonValueObjPtr writeToJson() const
-    {
-        tars::JsonValueObjPtr p = new tars::JsonValueObj();
-        p->value["data"] = tars::JsonOutput::writeJson(data);
-        p->value["dataHash"] = tars::JsonOutput::writeJson(dataHash);
-        p->value["signature"] = tars::JsonOutput::writeJson(signature);
-        p->value["importTime"] = tars::JsonOutput::writeJson(importTime);
-        p->value["attribute"] = tars::JsonOutput::writeJson(attribute);
-        p->value["source"] = tars::JsonOutput::writeJson(source);
-        p->value["sender"] = tars::JsonOutput::writeJson(sender);
-        return p;
-    }
-    string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
-    void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
-    {
-        resetDefautlt();
-        if (NULL == p.get() || p->getType() != tars::eJsonTypeObj)
-        {
-            char s[128];
-            snprintf(s, sizeof(s), "read 'struct' type mismatch, get type: %d.",
-                (p.get() ? p->getType() : 0));
-            throw tars::TC_Json_Exception(s);
-        }
-        tars::JsonValueObjPtr pObj = tars::JsonValueObjPtr::dynamicCast(p);
-        tars::JsonInput::readJson(data, pObj->value["data"], false);
-        tars::JsonInput::readJson(dataHash, pObj->value["dataHash"], false);
-        tars::JsonInput::readJson(signature, pObj->value["signature"], false);
-        tars::JsonInput::readJson(importTime, pObj->value["importTime"], false);
-        tars::JsonInput::readJson(attribute, pObj->value["attribute"], false);
-        tars::JsonInput::readJson(source, pObj->value["source"], false);
-        tars::JsonInput::readJson(sender, pObj->value["sender"], false);
-    }
-    void readFromJsonString(const string& str) { readFromJson(tars::TC_Json::getValue(str)); }
     ostream& display(ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
@@ -298,6 +271,7 @@ public:
         _ds.display(attribute, "attribute");
         _ds.display(source, "source");
         _ds.display(sender, "sender");
+        _ds.display(extraData, "extraData");
         return _os;
     }
     ostream& displaySimple(ostream& _os, int _level = 0) const
@@ -309,7 +283,8 @@ public:
         _ds.displaySimple(importTime, true);
         _ds.displaySimple(attribute, true);
         _ds.displaySimple(source, true);
-        _ds.displaySimple(sender, false);
+        _ds.displaySimple(sender, true);
+        _ds.displaySimple(extraData, false);
         return _os;
     }
 
@@ -321,28 +296,19 @@ public:
     tars::Int32 attribute;
     std::string source;
     vector<tars::Char> sender;
+    std::string extraData;
 };
+
 inline bool operator==(const Transaction& l, const Transaction& r)
 {
     return l.data == r.data && l.dataHash == r.dataHash && l.signature == r.signature &&
            l.importTime == r.importTime && l.attribute == r.attribute && l.source == r.source &&
-           l.sender == r.sender;
+           l.sender == r.sender && l.extraData == r.extraData;
 }
+
 inline bool operator!=(const Transaction& l, const Transaction& r)
 {
     return !(l == r);
-}
-inline ostream& operator<<(ostream& os, const Transaction& r)
-{
-    os << r.writeToJsonString();
-    return os;
-}
-inline istream& operator>>(istream& is, Transaction& l)
-{
-    std::istreambuf_iterator<char> eos;
-    std::string s(std::istreambuf_iterator<char>(is), eos);
-    l.readFromJsonString(s);
-    return is;
 }
 
 using TransactionDataPtr = std::shared_ptr<TransactionData>;
