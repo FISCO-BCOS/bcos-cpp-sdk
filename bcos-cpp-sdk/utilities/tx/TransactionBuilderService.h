@@ -62,11 +62,13 @@ public:
      * @param _data
      * @param _abi
      * @param _attribute
+     * @param _extraData
      * @return std::pair<std::string, std::string>
      */
     std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _to,
-        const bcos::bytes& _data, const std::string& _abi, int32_t _attribute);
+        const bcos::bytes& _data, const std::string& _abi, int32_t _attribute,
+        const std::string& _extraData = "");
 
 private:
     service::Service::Ptr m_service;
