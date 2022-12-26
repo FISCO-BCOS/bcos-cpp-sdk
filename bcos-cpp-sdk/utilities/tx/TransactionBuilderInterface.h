@@ -94,11 +94,13 @@ public:
      * @param _signData
      * @param _transactionDataHash
      * @param _attribute
+     * @param _extraData
      * @return bcostars::TransactionUniquePtr
      */
     virtual bcostars::TransactionUniquePtr createTransaction(
         const bcostars::TransactionData& _transactionData, const bcos::bytes& _signData,
-        const crypto::HashType& _transactionDataHash, int32_t _attribute) = 0;
+        const crypto::HashType& _transactionDataHash, int32_t _attribute,
+        const std::string& _extraData = "") = 0;
 
     /**
      * @brief
@@ -117,11 +119,12 @@ public:
      * @param _signData
      * @param _transactionDataHash
      * @param _attribute
+     * @param _extraData
      * @return bytesConstPtr
      */
     virtual bytesConstPtr createSignedTransaction(const bcostars::TransactionData& _transactionData,
         const bcos::bytes& _signData, const crypto::HashType& _transactionDataHash,
-        int32_t _attribute) = 0;
+        int32_t _attribute, const std::string& _extraData = "") = 0;
 
     /**
      * @brief Create a Signed Transaction object
@@ -134,12 +137,14 @@ public:
      * @param _abi
      * @param _blockLimit
      * @param _attribute
+     * @param _extraData
      * @return std::pair<std::string, std::string>
      */
     virtual std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
         const string& _chainID, const std::string& _to, const bcos::bytes& _data,
-        const std::string& _abi, int64_t _blockLimit, int32_t _attribute) = 0;
+        const std::string& _abi, int64_t _blockLimit, int32_t _attribute,
+        const std::string& _extraData = "") = 0;
 };
 }  // namespace utilities
 }  // namespace cppsdk
