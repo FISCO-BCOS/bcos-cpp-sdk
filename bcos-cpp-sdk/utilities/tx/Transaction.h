@@ -24,8 +24,8 @@ struct TransactionData : public tars::TarsStructBase
 public:
     static std::string className() { return "bcostars.TransactionData"; }
     static std::string MD5() { return "ea41d47be6b852a5c3edcfe7a805be85"; }
-    TransactionData() { resetDefautlt(); }
-    void resetDefautlt()
+    TransactionData() { resetDefault(); }
+    void resetDefault()
     {
         version = 0;
         chainID = "";
@@ -57,7 +57,7 @@ public:
     template <typename ReaderT>
     void readFrom(tars::TarsInputStream<ReaderT>& _is)
     {
-        resetDefautlt();
+        resetDefault();
         _is.read(version, 1, true);
         _is.read(chainID, 2, true);
         _is.read(groupID, 3, true);
@@ -83,7 +83,7 @@ public:
     std::string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
-        resetDefautlt();
+        resetDefault();
         if (NULL == p.get() || p->getType() != tars::eJsonTypeObj)
         {
             char s[128];
@@ -144,7 +144,7 @@ public:
                 // encode blockLimit
                 int64_t networkBlockLimit = boost::endian::native_to_big((int64_t)blockLimit);
                 hasher.update(bcos::bytesConstRef((bcos::byte*)(&networkBlockLimit),
-                                           sizeof(networkBlockLimit) / sizeof(uint8_t)));
+                    sizeof(networkBlockLimit) / sizeof(uint8_t)));
                 // encode nonce
                 hasher.update(bcos::bytesConstRef((bcos::byte*)nonce.data(), nonce.size()));
                 // encode to
@@ -198,17 +198,17 @@ struct Transaction : public tars::TarsStructBase
 {
 public:
     static std::string className() { return "bcostars.Transaction"; }
-    static std::string MD5() { return "ad46f3dbb0da87bdc5ed991eb2a8caff"; }
-    Transaction() { resetDefautlt(); }
-    void resetDefautlt()
+    static std::string MD5() { return "1e037304f04d104276ebd5b7c4aebdea"; }
+    Transaction() { resetDefault(); }
+    void resetDefault()
     {
-        data.resetDefautlt();
+        data.resetDefault();
         dataHash.clear();
         signature.clear();
         importTime = 0;
         attribute = 0;
-        source = "";
         sender.clear();
+        extraData = "";
     }
     template <typename WriterT>
     void writeTo(tars::TarsOutputStream<WriterT>& _os) const
@@ -230,26 +230,26 @@ public:
         {
             _os.write(attribute, 5);
         }
-        if (source != "")
-        {
-            _os.write(source, 6);
-        }
         if (sender.size() > 0)
         {
             _os.write(sender, 7);
+        }
+        if (extraData != "")
+        {
+            _os.write(extraData, 8);
         }
     }
     template <typename ReaderT>
     void readFrom(tars::TarsInputStream<ReaderT>& _is)
     {
-        resetDefautlt();
+        resetDefault();
         _is.read(data, 1, false);
         _is.read(dataHash, 2, false);
         _is.read(signature, 3, false);
         _is.read(importTime, 4, false);
         _is.read(attribute, 5, false);
-        _is.read(source, 6, false);
         _is.read(sender, 7, false);
+        _is.read(extraData, 8, false);
     }
     tars::JsonValueObjPtr writeToJson() const
     {
@@ -259,14 +259,14 @@ public:
         p->value["signature"] = tars::JsonOutput::writeJson(signature);
         p->value["importTime"] = tars::JsonOutput::writeJson(importTime);
         p->value["attribute"] = tars::JsonOutput::writeJson(attribute);
-        p->value["source"] = tars::JsonOutput::writeJson(source);
         p->value["sender"] = tars::JsonOutput::writeJson(sender);
+        p->value["extraData"] = tars::JsonOutput::writeJson(extraData);
         return p;
     }
     std::string writeToJsonString() const { return tars::TC_Json::writeValue(writeToJson()); }
     void readFromJson(const tars::JsonValuePtr& p, bool isRequire = true)
     {
-        resetDefautlt();
+        resetDefault();
         if (NULL == p.get() || p->getType() != tars::eJsonTypeObj)
         {
             char s[128];
@@ -280,8 +280,8 @@ public:
         tars::JsonInput::readJson(signature, pObj->value["signature"], false);
         tars::JsonInput::readJson(importTime, pObj->value["importTime"], false);
         tars::JsonInput::readJson(attribute, pObj->value["attribute"], false);
-        tars::JsonInput::readJson(source, pObj->value["source"], false);
         tars::JsonInput::readJson(sender, pObj->value["sender"], false);
+        tars::JsonInput::readJson(extraData, pObj->value["extraData"], false);
     }
     void readFromJsonString(const std::string& str) { readFromJson(tars::TC_Json::getValue(str)); }
     std::ostream& display(std::ostream& _os, int _level = 0) const
@@ -292,8 +292,8 @@ public:
         _ds.display(signature, "signature");
         _ds.display(importTime, "importTime");
         _ds.display(attribute, "attribute");
-        _ds.display(source, "source");
         _ds.display(sender, "sender");
+        _ds.display(extraData, "extraData");
         return _os;
     }
     std::ostream& displaySimple(std::ostream& _os, int _level = 0) const
@@ -304,8 +304,8 @@ public:
         _ds.displaySimple(signature, true);
         _ds.displaySimple(importTime, true);
         _ds.displaySimple(attribute, true);
-        _ds.displaySimple(source, true);
-        _ds.displaySimple(sender, false);
+        _ds.displaySimple(sender, true);
+        _ds.displaySimple(extraData, false);
         return _os;
     }
 
@@ -315,14 +315,14 @@ public:
     std::vector<tars::Char> signature;
     tars::Int64 importTime;
     tars::Int32 attribute;
-    std::string source;
     std::vector<tars::Char> sender;
+    std::string extraData;
 };
 inline bool operator==(const Transaction& l, const Transaction& r)
 {
     return l.data == r.data && l.dataHash == r.dataHash && l.signature == r.signature &&
-           l.importTime == r.importTime && l.attribute == r.attribute && l.source == r.source &&
-           l.sender == r.sender;
+           l.importTime == r.importTime && l.attribute == r.attribute && l.sender == r.sender &&
+           l.extraData == r.extraData;
 }
 inline bool operator!=(const Transaction& l, const Transaction& r)
 {
