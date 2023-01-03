@@ -87,11 +87,13 @@ bcostars::TransactionDataUniquePtr TransactionBuilderService::createTransactionD
  * @param _data
  * @param _abi
  * @param _attribute
+ * @param _extraData
  * @return std::pair<std::string, std::string>
  */
 std::pair<std::string, std::string> TransactionBuilderService::createSignedTransaction(
     const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _to,
-    const bcos::bytes& _data, const std::string& _abi, int32_t _attribute)
+    const bcos::bytes& _data, const std::string& _abi, int32_t _attribute,
+    const std::string& _extraData)
 {
     int64_t blockLimit = 0;
     if (!m_service->getBlockLimit(m_groupInfo->groupID(), blockLimit))
@@ -129,5 +131,5 @@ std::pair<std::string, std::string> TransactionBuilderService::createSignedTrans
     }
 
     return m_transactionBuilderInterface->createSignedTransaction(_keyPair, m_groupInfo->groupID(),
-        m_groupInfo->chainID(), _to, _data, _abi, blockLimit, _attribute);
+        m_groupInfo->chainID(), _to, _data, _abi, blockLimit, _attribute, _extraData);
 }
