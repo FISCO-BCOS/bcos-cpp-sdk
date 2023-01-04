@@ -95,7 +95,7 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
     }
 }
 
-bcos::crypto::KeyPairInterface::UniquePtr useHsmKeyPair(
+bcos::crypto::KeyPairInterface::UniquePtr KeyPairBuilder::useHsmKeyPair(
     unsigned int _keyIndex, std::string _password, const std::string _hsmLibPath)
 {
     auto hsmKeyPairFactory = std::make_shared<bcos::crypto::HsmSM2KeyPairFactory>(_hsmLibPath);
