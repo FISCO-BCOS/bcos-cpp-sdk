@@ -68,7 +68,7 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
 
         return keyPair;
     }
-    else
+    else if (_cryptoType == CryptoType::SM2)
     {
         bcos::crypto::FastSM2KeyPairFactory sM2KeyPairFactory;
         auto keyPair = sM2KeyPairFactory.createKeyPair(keyImpl);
@@ -79,4 +79,22 @@ bcos::crypto::KeyPair::UniquePtr KeyPairBuilder::genKeyPair(
         */
         return keyPair;
     }
+    else if (_cryptoType == CryptoType::HsmSM2)
+    {
+        auto hsmKeyPairFactory = std::make_shared<bcos::crypto::HsmSM2KeyPairFactory>(_hsmLibPath);
+        UTILITIES_KEYPAIR_LOG(TRACE)
+            << LOG_BADGE("genKeyPair") << LOG_DESC("generate new hsm keypair");
+        return hsmKeyPairFactory->createKeyPair(keyImpl);
+    }
+    else
+    {
+        BOOST_THROW_EXCEPTION(std::runtime_error("genKeyPair don't unsupport algorithm "));
+    }
+}
+
+bcos::crypto::KeyPairInterface::UniquePtr KeyPairBuilder::useHsmKeyPair(
+    unsigned int _keyIndex, std::string _password, const std::string _hsmLibPath)
+{
+    auto hsmKeyPairFactory = std::make_shared<bcos::crypto::HsmSM2KeyPairFactory>(_hsmLibPath);
+    return hsmKeyPairFactory->createKeyPair(_keyIndex, _password);
 }
