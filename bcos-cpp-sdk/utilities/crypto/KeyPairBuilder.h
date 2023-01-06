@@ -43,9 +43,12 @@ public:
      * @param _cryptoType
      * @return bcos::crypto::KeyPair::UniquePtr
      */
-    bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(CryptoType _cryptoType);
     bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(
-        CryptoType _cryptoType, bytesConstRef _privateKey);
+        CryptoType _cryptoType, const std::string _hsmLibPath = "/usr/local/lib/libgmt0018.so");
+    bcos::crypto::KeyPairInterface::UniquePtr genKeyPair(CryptoType _cryptoType,
+        bytesConstRef _privateKey, const std::string _hsmLibPath = "/usr/local/lib/libgmt0018.so");
+    bcos::crypto::KeyPairInterface::UniquePtr genHsmKeyPair(unsigned int _keyIndex,
+        std::string _password, const std::string _hsmLibPath = "/usr/local/lib/libgmt0018.so");
 };
 }  // namespace utilities
 }  // namespace cppsdk

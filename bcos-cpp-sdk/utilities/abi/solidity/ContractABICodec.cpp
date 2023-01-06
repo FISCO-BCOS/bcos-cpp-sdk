@@ -20,7 +20,6 @@
 
 #include "ContractABICodec.h"
 
-using namespace std;
 using namespace bcos;
 using namespace bcos::codec::abi;
 

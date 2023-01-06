@@ -531,7 +531,7 @@ BOOST_AUTO_TEST_CASE(test_loadABI_TestStruct)
      contract StructTest {
 
          struct Person {
-             string name;
+             std::string name;
              uint age;
              Account account;
          }

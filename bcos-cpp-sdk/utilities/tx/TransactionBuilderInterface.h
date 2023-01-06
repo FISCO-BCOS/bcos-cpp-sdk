@@ -54,8 +54,25 @@ public:
      * @return bcostars::TransactionDataUniquePtr
      */
     virtual bcostars::TransactionDataUniquePtr createTransactionData(const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit) = 0;
+
+    /**
+     * @brief Create a Transaction Data object with json string
+     *
+     * @param _json
+     *              version:number
+     *              groupID:string
+     *              chainID:string
+     *              to:string
+     *              data:hex string
+     *              abi:string
+     *              blockLimit:number
+     *              nonce:string
+     * @return bcostars::TransactionDataUniquePtr
+     */
+    virtual bcostars::TransactionDataUniquePtr createTransactionDataWithJson(
+        const std::string& _json) = 0;
 
     /**
      * @brief
@@ -65,6 +82,14 @@ public:
      */
     virtual bytesConstPtr encodeTransactionData(
         const bcostars::TransactionData& _transactionData) = 0;
+
+    /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    virtual string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) = 0;
 
     /**
      * @brief
@@ -110,6 +135,13 @@ public:
      */
     virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) = 0;
 
+    /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    virtual string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) = 0;
 
 public:
     /**
@@ -142,7 +174,7 @@ public:
      */
     virtual std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit, int32_t _attribute,
         const std::string& _extraData = "") = 0;
 };
