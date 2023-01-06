@@ -136,7 +136,7 @@ public:
      * @param _txBytes encoded bytes
      * @return transaction data json string
      */
-    string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
+    string std::decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
 
     /**
      * @brief Create a Signed Transaction object

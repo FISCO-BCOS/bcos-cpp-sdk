@@ -141,7 +141,7 @@ public:
      * @param _txBytes encoded bytes
      * @return transaction data json string
      */
-    virtual string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) = 0;
+    virtual std::string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) = 0;
 
 public:
     /**
