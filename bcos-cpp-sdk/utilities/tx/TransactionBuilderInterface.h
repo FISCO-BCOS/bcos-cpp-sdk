@@ -58,6 +58,23 @@ public:
         const std::string& _abi, int64_t _blockLimit) = 0;
 
     /**
+     * @brief Create a Transaction Data object with json string
+     *
+     * @param _json
+     *              version:number
+     *              groupID:string
+     *              chainID:string
+     *              to:string
+     *              data:hex string
+     *              abi:string
+     *              blockLimit:number
+     *              nonce:string
+     * @return bcostars::TransactionDataUniquePtr
+     */
+    virtual bcostars::TransactionDataUniquePtr createTransactionDataWithJson(
+        const std::string& _json) = 0;
+
+    /**
      * @brief
      *
      * @param _transactionData
@@ -65,6 +82,14 @@ public:
      */
     virtual bytesConstPtr encodeTransactionData(
         const bcostars::TransactionData& _transactionData) = 0;
+
+    /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    virtual string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) = 0;
 
     /**
      * @brief
@@ -94,11 +119,13 @@ public:
      * @param _signData
      * @param _transactionDataHash
      * @param _attribute
+     * @param _extraData
      * @return bcostars::TransactionUniquePtr
      */
     virtual bcostars::TransactionUniquePtr createTransaction(
         const bcostars::TransactionData& _transactionData, const bcos::bytes& _signData,
-        const crypto::HashType& _transactionDataHash, int32_t _attribute) = 0;
+        const crypto::HashType& _transactionDataHash, int32_t _attribute,
+        const std::string& _extraData = "") = 0;
 
     /**
      * @brief
@@ -108,6 +135,13 @@ public:
      */
     virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) = 0;
 
+    /**
+     * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data json string
+     */
+    virtual string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) = 0;
 
 public:
     /**
@@ -117,11 +151,12 @@ public:
      * @param _signData
      * @param _transactionDataHash
      * @param _attribute
+     * @param _extraData
      * @return bytesConstPtr
      */
     virtual bytesConstPtr createSignedTransaction(const bcostars::TransactionData& _transactionData,
         const bcos::bytes& _signData, const crypto::HashType& _transactionDataHash,
-        int32_t _attribute) = 0;
+        int32_t _attribute, const std::string& _extraData = "") = 0;
 
     /**
      * @brief Create a Signed Transaction object
@@ -134,12 +169,14 @@ public:
      * @param _abi
      * @param _blockLimit
      * @param _attribute
+     * @param _extraData
      * @return std::pair<std::string, std::string>
      */
     virtual std::pair<std::string, std::string> createSignedTransaction(
         const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
-        const std::string& _abi, int64_t _blockLimit, int32_t _attribute) = 0;
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _abi, int64_t _blockLimit, int32_t _attribute,
+        const std::string& _extraData = "") = 0;
 };
 }  // namespace utilities
 }  // namespace cppsdk

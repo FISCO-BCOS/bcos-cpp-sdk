@@ -63,6 +63,14 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     return _transactionData;
 }
 
+bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionDataWithJson(
+    const std::string& _json)
+{
+    auto _transactionData = std::make_unique<bcostars::TransactionData>();
+    _transactionData->readFromJsonString(_json);
+    return _transactionData;
+}
+
 /**
  * @brief
  *
@@ -78,6 +86,16 @@ bytesConstPtr TransactionBuilder::encodeTransactionData(
     auto buffer = std::make_shared<bcos::bytes>();
     buffer->assign(output.getBuffer(), output.getBuffer() + output.getLength());
     return buffer;
+}
+
+string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
+{
+    tars::TarsInputStream<tars::BufferReader> inputStream;
+    inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
+    auto txData = std::make_unique<bcostars::TransactionData>();
+    txData->readFrom(inputStream);
+    auto txDataJson = txData->writeToJsonString();
+    return txDataJson;
 }
 
 /**
@@ -134,11 +152,12 @@ bcos::bytesConstPtr TransactionBuilder::signTransactionDataHash(
  * @param _signData
  * @param _hash
  * @param _attribute
+ * @param _extraData
  * @return bcostars::TransactionUniquePtr
  */
 bcostars::TransactionUniquePtr TransactionBuilder::createTransaction(
     const bcostars::TransactionData& _transactionData, const bcos::bytes& _signData,
-    const crypto::HashType& _hash, int32_t _attribute)
+    const crypto::HashType& _hash, int32_t _attribute, const std::string& _extraData)
 {
     auto transaction = std::make_unique<bcostars::Transaction>();
     transaction->data = _transactionData;
@@ -147,6 +166,7 @@ bcostars::TransactionUniquePtr TransactionBuilder::createTransaction(
         transaction->signature.begin(), _signData.begin(), _signData.end());
     transaction->importTime = 0;
     transaction->attribute = _attribute;
+    transaction->extraData = _extraData;
     return transaction;
 }
 
@@ -166,6 +186,16 @@ bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction&
     return buffer;
 }
 
+string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
+{
+    tars::TarsInputStream<tars::BufferReader> inputStream;
+    inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
+    auto tx = std::make_unique<bcostars::Transaction>();
+    tx->readFrom(inputStream);
+    auto txDataJson = tx->writeToJsonString();
+    return txDataJson;
+}
+
 /**
  * @brief
  *
@@ -173,14 +203,15 @@ bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction&
  * @param _signData
  * @param _transactionDataHash
  * @param _attribute
+ * @param _extraData
  * @return bytesConstPtr
  */
 bytesConstPtr TransactionBuilder::createSignedTransaction(
     const bcostars::TransactionData& _transactionData, const bcos::bytes& _signData,
-    const crypto::HashType& _transactionDataHash, int32_t _attribute)
+    const crypto::HashType& _transactionDataHash, int32_t _attribute, const std::string& _extraData)
 {
-    auto transaction =
-        createTransaction(_transactionData, _signData, _transactionDataHash, _attribute);
+    auto transaction = createTransaction(
+        _transactionData, _signData, _transactionDataHash, _attribute, _extraData);
     return encodeTransaction(*transaction);
 }
 
@@ -195,19 +226,20 @@ bytesConstPtr TransactionBuilder::createSignedTransaction(
  * @param _abi
  * @param _blockLimit
  * @param _attribute
+ * @param _extraData
  * @return std::pair<std::string, std::string>
  */
 std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
     const bcos::crypto::KeyPairInterface& _keyPair, const std::string& _groupID,
-    const string& _chainID, const std::string& _to, const bcos::bytes& _data,
-    const std::string& _abi, int64_t _blockLimit, int32_t _attribute)
+    const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
+    const std::string& _abi, int64_t _blockLimit, int32_t _attribute, const std::string& _extraData)
 {
     auto transactionData = createTransactionData(_groupID, _chainID, _to, _data, _abi, _blockLimit);
     auto transactionDataHash =
         calculateTransactionDataHash(_keyPair.keyPairType(), *transactionData);
     auto signData = signTransactionDataHash(_keyPair, transactionDataHash);
     auto transaction =
-        createTransaction(*transactionData, *signData, transactionDataHash, _attribute);
+        createTransaction(*transactionData, *signData, transactionDataHash, _attribute, _extraData);
     auto encodedTx = encodeTransaction(*transaction);
 
     return std::make_pair<std::string, std::string>(
