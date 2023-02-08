@@ -16,12 +16,11 @@
 
 namespace bcostars
 {
-using namespace std;
 struct LogEntry : public tars::TarsStructBase
 {
 public:
-    static string className() { return "bcostars.LogEntry"; }
-    static string MD5() { return "62d086d520cb1c44d615aec11186ef08"; }
+    static std::string className() { return "bcostars.LogEntry"; }
+    static std::string MD5() { return "62d086d520cb1c44d615aec11186ef08"; }
     void resetDefault()
     {
         address = "";
@@ -100,7 +99,7 @@ public:
         auto dataBytes = bcos::fromHexString(dataHex);
         std::copy(dataBytes->begin(), dataBytes->end(), std::back_inserter(data));
     }
-    ostream& display(ostream& _os, int _level = 0) const
+    std::ostream& display(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.display(address, "address");
@@ -108,7 +107,7 @@ public:
         _ds.display(data, "data");
         return _os;
     }
-    ostream& displaySimple(ostream& _os, int _level = 0) const
+    std::ostream& displaySimple(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.displaySimple(address, true);
@@ -119,8 +118,8 @@ public:
 
 public:
     std::string address;
-    vector<vector<tars::Char> > topic;
-    vector<tars::Char> data;
+    std::vector<std::vector<tars::Char> > topic;
+    std::vector<tars::Char> data;
 };
 inline bool operator==(const LogEntry& l, const LogEntry& r)
 {
@@ -134,8 +133,8 @@ inline bool operator!=(const LogEntry& l, const LogEntry& r)
 struct TransactionReceiptData : public tars::TarsStructBase
 {
 public:
-    static string className() { return "bcostars.TransactionReceiptData"; }
-    static string MD5() { return "2e0147a8f94f43a2c1d0113c0432886e"; }
+    static std::string className() { return "bcostars.TransactionReceiptData"; }
+    static std::string MD5() { return "2e0147a8f94f43a2c1d0113c0432886e"; }
     TransactionReceiptData() { resetDefault(); }
     void resetDefault()
     {
@@ -200,7 +199,7 @@ public:
         p->value["blockNumber"] = tars::JsonOutput::writeJson(blockNumber);
         return p;
     }
-    [[nodiscard]] string writeToJsonString() const
+    [[nodiscard]] std::string writeToJsonString() const
     {
         return tars::TC_Json::writeValue(writeToJson());
     }
@@ -229,8 +228,8 @@ public:
         tars::JsonInput::readJson(logEntries, pObj->value["logEntries"], false);
         tars::JsonInput::readJson(blockNumber, pObj->value["blockNumber"], true);
     }
-    void readFromJsonString(const string& str) { readFromJson(tars::TC_Json::getValue(str)); }
-    ostream& display(ostream& _os, int _level = 0) const
+    void readFromJsonString(const std::string& str) { readFromJson(tars::TC_Json::getValue(str)); }
+    std::ostream& display(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.display(version, "version");
@@ -242,7 +241,7 @@ public:
         _ds.display(blockNumber, "blockNumber");
         return _os;
     }
-    ostream& displaySimple(ostream& _os, int _level = 0) const
+    std::ostream& displaySimple(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.displaySimple(version, true);
@@ -257,45 +256,45 @@ public:
 
     [[nodiscard]] bcos::crypto::HashType hash(bcos::crypto::Hash::Ptr _hashImpl) const
     {
-        auto hashContext = _hashImpl->init();
-        // encode version
-        int32_t networkVersion = boost::endian::native_to_big((int32_t)version);
-        _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&networkVersion),
-                                           sizeof(networkVersion) / sizeof(uint8_t)));
-        // gas used
-        _hashImpl->update(
-            hashContext, bcos::bytesConstRef((bcos::byte*)gasUsed.data(), gasUsed.size()));
-        // address
-        _hashImpl->update(hashContext,
-            bcos::bytesConstRef((bcos::byte*)contractAddress.data(), contractAddress.size()));
-        // status
-        int32_t receiptStatus = boost::endian::native_to_big((int32_t)status);
-        _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&receiptStatus),
+        auto anyHasher = _hashImpl->hasher();
+        bcos::crypto::HashType hashResult;
+        std::visit(
+            [this, &hashResult](auto& hasher) {
+                // encode version
+                int32_t networkVersion = boost::endian::native_to_big((int32_t)version);
+                hasher.update(networkVersion);
+                // gas used
+                hasher.update(bcos::bytesConstRef((bcos::byte*)gasUsed.data(), gasUsed.size()));
+                // address
+                hasher.update(bcos::bytesConstRef((bcos::byte*)contractAddress.data(), contractAddress.size()));
+                // status
+                int32_t receiptStatus = boost::endian::native_to_big((int32_t)status);
+                hasher.update(bcos::bytesConstRef((bcos::byte*)(&receiptStatus),
                                            sizeof(receiptStatus) / sizeof(uint8_t)));
-        // output
-        _hashImpl->update(
-            hashContext, bcos::bytesConstRef((bcos::byte*)output.data(), output.size()));
-        // logEntries
-        for (const auto& log : logEntries)
-        {
-            // log address
-            _hashImpl->update(hashContext,
-                bcos::bytesConstRef((bcos::byte*)log.address.data(), log.address.size()));
-            // log topic
-            for (const auto& item : log.topic)
-            {
-                _hashImpl->update(
-                    hashContext, bcos::bytesConstRef((bcos::byte*)item.data(), item.size()));
-            }
-            // log data
-            _hashImpl->update(
-                hashContext, bcos::bytesConstRef((bcos::byte*)log.data.data(), log.data.size()));
-        }
-        // block number
-        int64_t receiptBlockNumber = boost::endian::native_to_big((int64_t)blockNumber);
-        _hashImpl->update(hashContext, bcos::bytesConstRef((bcos::byte*)(&receiptBlockNumber),
+                // output
+                hasher.update(bcos::bytesConstRef((bcos::byte*)output.data(), output.size()));
+                // logEntries
+                for (const auto& log : logEntries)
+                {
+                    // log address
+                    hasher.update(bcos::bytesConstRef((bcos::byte*)log.address.data(), log.address.size()));
+                    // log topic
+                    for (const auto& item : log.topic)
+                    {
+                        hasher.update(bcos::bytesConstRef((bcos::byte*)item.data(), item.size()));
+                    }
+                    // log data
+                    hasher.update(bcos::bytesConstRef((bcos::byte*)log.data.data(), log.data.size()));
+                }
+                // block number
+                int64_t receiptBlockNumber = boost::endian::native_to_big((int64_t)blockNumber);
+                hasher.update(bcos::bytesConstRef((bcos::byte*)(&receiptBlockNumber),
                                            sizeof(receiptBlockNumber) / sizeof(uint8_t)));
-        auto hashResult = _hashImpl->final(hashContext);
+
+                hasher.final(hashResult);
+            },
+            anyHasher);
+
         return hashResult;
     }
 
@@ -304,8 +303,8 @@ public:
     std::string gasUsed;
     std::string contractAddress;
     tars::Int32 status;
-    vector<tars::Char> output;
-    vector<bcostars::LogEntry> logEntries;
+    std::vector<tars::Char> output;
+    std::vector<bcostars::LogEntry> logEntries;
     tars::Int64 blockNumber;
 };
 inline bool operator==(const TransactionReceiptData& l, const TransactionReceiptData& r)
@@ -322,8 +321,8 @@ inline bool operator!=(const TransactionReceiptData& l, const TransactionReceipt
 struct TransactionReceipt : public tars::TarsStructBase
 {
 public:
-    static string className() { return "bcostars.TransactionReceipt"; }
-    static string MD5() { return "536d257977d784307824953e3cf16980"; }
+    static std::string className() { return "bcostars.TransactionReceipt"; }
+    static std::string MD5() { return "536d257977d784307824953e3cf16980"; }
     TransactionReceipt() { resetDefault(); }
     void resetDefault()
     {
@@ -352,7 +351,7 @@ public:
         _is.read(dataHash, 2, false);
         _is.read(message, 3, false);
     }
-    ostream& display(ostream& _os, int _level = 0) const
+    std::ostream& display(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.display(data, "data");
@@ -360,7 +359,7 @@ public:
         _ds.display(message, "message");
         return _os;
     }
-    ostream& displaySimple(ostream& _os, int _level = 0) const
+    std::ostream& displaySimple(std::ostream& _os, int _level = 0) const
     {
         tars::TarsDisplayer _ds(_os, _level);
         _ds.displaySimple(data, true);
@@ -371,7 +370,7 @@ public:
 
 public:
     bcostars::TransactionReceiptData data;
-    vector<tars::Char> dataHash;
+    std::vector<tars::Char> dataHash;
     std::string message;
 };
 inline bool operator==(const TransactionReceipt& l, const TransactionReceipt& r)

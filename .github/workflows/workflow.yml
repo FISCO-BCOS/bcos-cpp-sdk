@@ -85,9 +85,15 @@ jobs:
             cache-gcc-v3-notest-${{ runner.temp }}-${{ github.base_ref }}-
             cache-gcc-v3-notest-${{ runner.temp }}-
       - name: install Ubuntu dependencies
-        run: sudo apt install -y git curl openssl build-essential cmake ccache
+        run: |
+          sudo apt update
+          sudo apt install -y git curl openssl build-essential cmake ccache
       - name: configure
-        run: mkdir -p build && cd build && cmake ../ -DBUILD_SAMPLE=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTESTS=ON
+        run: |
+          export GCC='gcc-10'
+          export CXX='g++-10'
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          mkdir -p build && cd build && cmake ../ -DBUILD_SAMPLE=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTESTS=ON
       - name: compile
         run: cd build && make -j4
       - name: run test

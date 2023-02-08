@@ -31,7 +31,7 @@ namespace tars
 */
 struct TC_AutoPtrNull_Exception : public TC_Exception
 {
-    TC_AutoPtrNull_Exception(const string &buffer) : TC_Exception(buffer){};
+    TC_AutoPtrNull_Exception(const std::string &buffer) : TC_Exception(buffer){};
     ~TC_AutoPtrNull_Exception() {};
 };
 
@@ -428,7 +428,7 @@ public:
 template<typename T> inline void
 TC_AutoPtr<T>::throwNullHandleException() const
 {
-    throw TC_AutoPtrNull_Exception("autoptr null handle error![" + string(typeid(T).name()) +"]");
+    throw TC_AutoPtrNull_Exception("autoptr null handle error![" + std::string(typeid(T).name()) +"]");
 }
 
 /**

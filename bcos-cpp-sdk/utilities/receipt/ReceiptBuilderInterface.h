@@ -43,7 +43,7 @@ public:
      * @return bcostars::TransactionDataUniquePtr
      */
     virtual bcostars::ReceiptDataUniquePtr createReceiptData(const std::string& _gasUsed,
-        const string& _contractAddress, const bcos::bytes& _output, int64_t _blockNumber) = 0;
+        const std::string& _contractAddress, const bcos::bytes& _output, int64_t _blockNumber) = 0;
 
     /**
      * @brief Create a Transaction Data object
@@ -87,6 +87,6 @@ public:
      * @param _receiptBytes encoded bytes
      * @return receipt data json string
      */
-    virtual string decodeReceiptDataToJsonObj(const bcos::bytes& _receiptBytes) = 0;
+    virtual std::string decodeReceiptDataToJsonObj(const bcos::bytes& _receiptBytes) = 0;
 };
 }  // namespace bcos::cppsdk::utilities

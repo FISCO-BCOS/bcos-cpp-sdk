@@ -36,7 +36,7 @@ using namespace bcos::boostssl;
 pragma solidity>=0.4.24 <0.6.11;
 
 contract HelloWorld {
-    string name;
+    std::string name;
 
     constructor() public {
         name = "Hello, World!";
