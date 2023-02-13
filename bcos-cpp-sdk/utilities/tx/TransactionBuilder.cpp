@@ -109,7 +109,8 @@ crypto::HashType TransactionBuilder::calculateTransactionDataHash(
     CryptoType _cryptoType, const bcostars::TransactionData& _transactionData)
 {
     bcos::crypto::CryptoSuite* cryptoSuite = nullptr;
-    if (_cryptoType == bcos::crypto::KeyPairType::SM2)
+    if (_cryptoType == bcos::crypto::KeyPairType::SM2 ||
+        _cryptoType == bcos::crypto::KeyPairType::HsmSM2)
     {
         cryptoSuite = &*m_smCryptoSuite;
     }
@@ -131,7 +132,8 @@ bcos::bytesConstPtr TransactionBuilder::signTransactionDataHash(
     const bcos::crypto::KeyPairInterface& _keyPair, const crypto::HashType& _transactionDataHash)
 {
     bcos::crypto::CryptoSuite* cryptoSuite = nullptr;
-    if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::SM2)
+    if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::SM2 ||
+        _keyPair.keyPairType() == bcos::crypto::KeyPairType::HsmSM2)
     {
         cryptoSuite = &*m_smCryptoSuite;
     }

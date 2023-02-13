@@ -103,7 +103,7 @@ std::pair<std::string, std::string> TransactionBuilderService::createSignedTrans
     }
 
     auto keyPairStrFunc = [](auto type) {
-        if (type == bcos::crypto::KeyPairType::SM2)
+        if (type == bcos::crypto::KeyPairType::SM2 || type == bcos::crypto::KeyPairType::HsmSM2)
         {
             return "sm";
         }
@@ -117,11 +117,12 @@ std::pair<std::string, std::string> TransactionBuilderService::createSignedTrans
 
     // check keypair type
     auto keyPairType = _keyPair.keyPairType();
-    if (m_groupInfo->smCryptoType() && keyPairType != bcos::crypto::KeyPairType::SM2)
+    if (m_groupInfo->smCryptoType() && keyPairType != bcos::crypto::KeyPairType::SM2 &&
+        keyPairType != bcos::crypto::KeyPairType::HsmSM2)
     {
-        BOOST_THROW_EXCEPTION(
-            std::runtime_error("group id: " + m_groupInfo->groupID() + " ,group crypto type: sm" +
-                               " ,but the keypair type: " + keyPairStrFunc(keyPairType)));
+        BOOST_THROW_EXCEPTION(std::runtime_error(
+            "group id: " + m_groupInfo->groupID() + " ,group crypto type: sm/hsm" +
+            " ,but the keypair type: " + keyPairStrFunc(keyPairType)));
     }
     else if (!m_groupInfo->smCryptoType() && keyPairType != bcos::crypto::KeyPairType::Secp256K1)
     {
