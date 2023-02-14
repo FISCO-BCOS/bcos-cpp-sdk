@@ -22,7 +22,7 @@ file(GLOB_RECURSE SOURCES "unittests/*.cpp" "unittests/*.h" "unittests/*.sol")
 # cmake settings
 include(SearchTestCases)
 set(TEST_BINARY_NAME test-bcos-cpp-sdk)
-config_test_cases("" "${SOURCES}" bin/${TEST_BINARY_NAME} "")
+config_test_cases("" "${SOURCES}" ${TEST_BINARY_NAME} "")
 
 add_executable(${TEST_BINARY_NAME} ${SOURCES})
 target_include_directories(${TEST_BINARY_NAME} PRIVATE . ${CMAKE_SOURCE_DIR})
