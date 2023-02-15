@@ -36,8 +36,8 @@ hunter_config(wedpr-crypto VERSION 1.0.0
 )
 
 hunter_config(bcos-crypto VERSION 1.0.0-rc3-local
-    URL https://${URL_BASE}/FISCO-BCOS/bcos-crypto/archive/d3a42936923a28137c586c8fe8037d65b9e6403f.tar.gz
-    SHA1 690bd71f3212a0dcd22857c48922228c11e9c00d
+    URL https://${URL_BASE}/FISCO-BCOS/bcos-crypto/archive/beaeb3d909d1e660fd359f6662bad2c6c73e20a1.tar.gz
+    SHA1 cd93fad31ed599c95e7196ed5abe7de1ad2a7930
     CMAKE_ARGS HUNTER_PACKAGE_LOG_BUILD=ON HUNTER_PACKAGE_LOG_INSTALL=ON
 )
 

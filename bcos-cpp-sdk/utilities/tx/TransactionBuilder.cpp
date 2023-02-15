@@ -21,6 +21,7 @@
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-crypto/interfaces/crypto/CryptoSuite.h>
+#include <bcos-crypto/signature/hsmSM2/HsmSM2Crypto.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
@@ -132,10 +133,25 @@ bcos::bytesConstPtr TransactionBuilder::signTransactionDataHash(
     const bcos::crypto::KeyPairInterface& _keyPair, const crypto::HashType& _transactionDataHash)
 {
     bcos::crypto::CryptoSuite* cryptoSuite = nullptr;
-    if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::SM2 ||
-        _keyPair.keyPairType() == bcos::crypto::KeyPairType::HsmSM2)
+    if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::SM2)
     {
         cryptoSuite = &*m_smCryptoSuite;
+    }
+    else if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::HsmSM2)
+    {
+        if (!m_hsmCryptoSuite)
+        {
+            std::lock_guard<std::mutex> l(x_hsmCryptoSuite);
+            if (!m_hsmCryptoSuite)
+            {
+                m_hsmCryptoSuite = std::make_unique<bcos::crypto::CryptoSuite>(
+                    std::make_shared<bcos::crypto::SM3>(),
+                    std::make_shared<bcos::crypto::HsmSM2Crypto>(
+                        dynamic_cast<const bcos::crypto::HsmSM2KeyPair&>(_keyPair).hsmLibPath()),
+                    nullptr);
+            }
+        }
+        cryptoSuite = &*m_hsmCryptoSuite;
     }
     else
     {
