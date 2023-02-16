@@ -27,6 +27,7 @@
 #include <bcos-crypto/signature/sm2/SM2Crypto.h>
 #include <bcos-utilities/Common.h>
 #include <memory>
+#include <mutex>
 
 namespace bcos
 {
@@ -187,6 +188,10 @@ private:
     bcos::crypto::CryptoSuite::UniquePtr m_smCryptoSuite =
         std::make_unique<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::SM3>(),
             std::make_shared<bcos::crypto::SM2Crypto>(), nullptr);
+
+    bcos::crypto::CryptoSuite::UniquePtr m_hsmCryptoSuite = nullptr;
+
+    std::mutex x_hsmCryptoSuite;
 };
 }  // namespace utilities
 }  // namespace cppsdk

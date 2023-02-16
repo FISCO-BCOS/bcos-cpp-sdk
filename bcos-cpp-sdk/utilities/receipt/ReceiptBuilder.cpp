@@ -51,6 +51,10 @@ bcos::crypto::HashType bcos::cppsdk::utilities::ReceiptBuilder::calculateReceipt
     {
         cryptoSuite = &*m_smCryptoSuite;
     }
+    else if (_cryptoType == bcos::crypto::KeyPairType::HsmSM2)
+    {
+        return _receiptData.hash(std::make_shared<bcos::crypto::SM3>());
+    }
     else
     {
         cryptoSuite = &*m_ecdsaCryptoSuite;
