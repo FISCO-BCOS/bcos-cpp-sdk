@@ -47,7 +47,8 @@ bcos::crypto::HashType bcos::cppsdk::utilities::ReceiptBuilder::calculateReceipt
     const bcostars::TransactionReceiptData& _receiptData)
 {
     bcos::crypto::CryptoSuite* cryptoSuite = nullptr;
-    if (_cryptoType == bcos::crypto::KeyPairType::SM2)
+    if (_cryptoType == bcos::crypto::KeyPairType::SM2 ||
+        _cryptoType == bcos::crypto::KeyPairType::HsmSM2)
     {
         cryptoSuite = &*m_smCryptoSuite;
     }
