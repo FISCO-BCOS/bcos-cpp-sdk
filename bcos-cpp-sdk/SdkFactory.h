@@ -18,6 +18,7 @@
  * @date 2021-08-21
  */
 #pragma once
+#include "rpc/JsonRpcServiceImpl.h"
 #include <bcos-boostssl/websocket/WsConfig.h>
 #include <bcos-boostssl/websocket/WsService.h>
 #include <bcos-cpp-sdk/Sdk.h>
@@ -43,6 +44,8 @@ public:
         std::shared_ptr<bcos::boostssl::ws::WsConfig> _config);
     bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(
         bcos::cppsdk::service::Service::Ptr _service);
+    bcos::cppsdk::jsonrpc::JsonRpcServiceImpl::Ptr buildJsonRpcService(
+        bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr _jsonRpc);
     bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::cppsdk::service::Service::Ptr _service);
     bcos::cppsdk::event::EventSub::Ptr buildEventSub(bcos::cppsdk::service::Service::Ptr _service);
 

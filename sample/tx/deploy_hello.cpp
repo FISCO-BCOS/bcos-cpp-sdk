@@ -187,6 +187,52 @@ int main(int argc, char** argv)
     auto hexBin = getBinary(groupInfo->smCryptoType());
     auto binBytes = fromHexString(hexBin);
 
+    auto rpcService = sdk->jsonRpcService();
+
+    std::promise<bool> p;
+    auto f = p.get_future();
+    rpcService->sendTransaction(*keyPair, group, "", "", std::move(*binBytes), "", 0, "extraData",
+        [&p](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
+            if (_error && _error->errorCode() != 0)
+            {
+                std::cout << LOG_DESC(" [DeployHello] send transaction response error")
+                          << LOG_KV("errorCode", _error->errorCode())
+                          << LOG_KV("errorMessage", _error->errorMessage()) << std::endl;
+            }
+            else
+            {
+                std::string receipt = std::string(_resp->begin(), _resp->end());
+                std::cout << LOG_DESC(" [DeployHello] recv response success ")
+                          << LOG_KV("transaction receipt", receipt) << std::endl;
+
+                Json::Value root;
+                Json::Reader jsonReader;
+
+                try
+                {
+                    if (!jsonReader.parse(receipt, root))
+                    {
+                        std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
+                                  << LOG_KV("resp", receipt) << std::endl;
+                        return;
+                    }
+
+                    std::cout << LOG_DESC(" [DeployHello] contract address ==> " +
+                                          root["result"]["contractAddress"].asString())
+                              << std::endl;
+                }
+                catch (const std::exception& _e)
+                {
+                    std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
+                              << LOG_KV("resp", receipt) << std::endl;
+                }
+            }
+            p.set_value(true);
+        });
+
+    f.get();
+    /*
+
     auto transactionBuilderService =
         std::make_shared<TransactionBuilderService>(sdk->service(), group, transactionBuilder);
 
@@ -237,6 +283,7 @@ int main(int argc, char** argv)
             p.set_value(true);
         });
     f.get();
+    */
 
     return 0;
 }

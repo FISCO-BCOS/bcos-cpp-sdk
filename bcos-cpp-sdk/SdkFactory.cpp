@@ -17,6 +17,10 @@
  * @author: octopus
  * @date 2021-08-21
  */
+#include "rpc/JsonRpcInterface.h"
+#include "rpc/JsonRpcServiceImpl.h"
+#include "utilities/tx/TransactionBuilder.h"
+#include "utilities/tx/TransactionBuilderService.h"
 #include <bcos-boostssl/websocket/WsConnector.h>
 #include <bcos-boostssl/websocket/WsInitializer.h>
 #include <bcos-boostssl/websocket/WsMessage.h>
@@ -67,8 +71,10 @@ bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(
     auto amop = buildAMOP(service);
     auto jsonRpc = buildJsonRpc(service);
     auto eventSub = buildEventSub(service);
+    auto jsonRpcService = buildJsonRpcService(jsonRpc);
 
-    auto sdk = std::make_unique<bcos::cppsdk::Sdk>(service, jsonRpc, amop, eventSub);
+    auto sdk =
+        std::make_unique<bcos::cppsdk::Sdk>(service, jsonRpc, amop, eventSub, jsonRpcService);
     return sdk;
 }
 
@@ -138,6 +144,14 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _s
     });
 
     return jsonRpc;
+}
+
+bcos::cppsdk::jsonrpc::JsonRpcServiceImpl::Ptr SdkFactory::buildJsonRpcService(
+    bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr _jsonRpc)
+{
+    auto transactionBuilder = std::make_shared<utilities::TransactionBuilder>();
+    auto jsonRpcService = std::make_shared<JsonRpcServiceImpl>(_jsonRpc, transactionBuilder);
+    return jsonRpcService;
 }
 
 bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Service::Ptr _service)

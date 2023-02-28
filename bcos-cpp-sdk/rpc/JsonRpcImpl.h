@@ -135,7 +135,7 @@ public:
     JsonRpcSendFunc sender() const { return m_sender; }
     void setSender(JsonRpcSendFunc _sender) { m_sender = _sender; }
 
-    std::shared_ptr<bcos::boostssl::ws::WsService> service() const { return m_service; }
+    std::shared_ptr<bcos::cppsdk::service::Service> service() const { return m_service; }
     void setService(std::shared_ptr<bcos::cppsdk::service::Service> _service)
     {
         m_service = _service;
