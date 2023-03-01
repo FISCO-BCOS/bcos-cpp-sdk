@@ -552,7 +552,7 @@ bcos::group::GroupInfo::Ptr Service::getGroupInfo(const std::string& _groupID)
         return nullptr;
     }
 
-    RPC_WS_LOG(INFO) << LOG_BADGE("getGroupInfo") << LOG_KV("count", groupInfos.size());
+    RPC_WS_LOG(TRACE) << LOG_BADGE("getGroupInfo") << LOG_KV("count", groupInfos.size());
 
     auto firstGroupInfo = *groupInfos.begin();
     auto groupInfo =

@@ -51,7 +51,6 @@ inline bool isSigned(const std::string& _s)
 }
 
 
-
 }  // namespace utilities
 }  // namespace cppsdk
 }  // namespace bcos
