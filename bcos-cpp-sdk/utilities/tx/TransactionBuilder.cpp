@@ -281,5 +281,6 @@ u256 TransactionBuilder::genRandomUint256()
         element = dis(generator);
     }
 
+    // TODO: opt this
     return u256(bcos::toHexStringWithPrefix(bcos::bytesRef(random256.data(), random256.size())));
 }

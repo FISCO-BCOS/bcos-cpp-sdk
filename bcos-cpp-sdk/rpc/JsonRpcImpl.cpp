@@ -24,6 +24,7 @@
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <json/value.h>
+#include"boost/format.hpp"
 #include <fstream>
 
 using namespace bcos;
@@ -117,8 +118,15 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
         return;
     }
 
-    auto txBytes = fromHexString(_data);
+    boost::format fmt("{\"id\":%1%,\"jsonrpc\":\"2.0\",\"method\":\"sendTransaction\",\"params\":[\"%2%\",\"%3%\",\"%4%\",%5%]}");
+    fmt % m_factory->nextId();
+    fmt % _groupID;
+    fmt % name;
+    fmt % _data;
+    fmt % _requireProof;
 
+    std::string s = fmt.str();
+    /*
     Json::Value params = Json::Value(Json::arrayValue);
     params.append(_groupID);
     params.append(name);
@@ -127,6 +135,8 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
 
     auto request = m_factory->buildRequest("sendTransaction", params);
     auto s = request->toJson();
+    */
+    
     m_sender(_groupID, name, s, _respFunc);
     RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction") << LOG_KV("request", s);
 }
