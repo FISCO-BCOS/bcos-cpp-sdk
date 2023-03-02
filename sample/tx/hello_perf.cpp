@@ -197,12 +197,61 @@ int main(int argc, char** argv)
 
     auto rpcService = sdk->jsonRpcService();
 
-    auto task = [&group,&keyPair,&binBytes,&ratelimit,&recvRateReporter,&sendRateReporter,&rpcService] () {
+    std::string contractAddress;
+
+    std::promise<bool> p;
+    auto f = p.get_future();
+    rpcService->sendTransaction(*keyPair, group, "", "", std::move(*binBytes), "", 0,
+                "extraData", [&contractAddress,&p](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
+                    if (_error && _error->errorCode() != 0)
+                    {
+                    std::cout << LOG_DESC(" [DeployHello] send transaction response error")
+                              << LOG_KV("errorCode", _error->errorCode())
+                              << LOG_KV("errorMessage", _error->errorMessage()) << std::endl;
+                        exit(0);
+                    }
+                    else
+                    {
+                        
+                        std::string receipt = std::string(_resp->begin(), _resp->end());
+                        std::cout << LOG_DESC(" [DeployHello] recv response success ")
+                                << LOG_KV("transaction receipt", receipt) << std::endl;
+
+                        Json::Value root;
+                        Json::Reader jsonReader;
+
+                        try
+                        {
+                            if (!jsonReader.parse(receipt, root))
+                            {
+                                std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
+                                        << LOG_KV("resp", receipt) << std::endl;
+                                return;
+                            }
+
+                            contractAddress = root["result"]["contractAddress"].asString();
+                            std::cout << LOG_DESC(" [DeployHello] contract address ==> " + contractAddress)
+                                    << std::endl;
+                        }
+                        catch (const std::exception& _e)
+                        {
+                            std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
+                                    << LOG_KV("resp", receipt) << std::endl;
+                        }
+                    }
+                    p.set_value(true);
+            });
+    f.get();
+
+    std::string getData = "0x6d4ce63c";
+
+    auto task = [&group,&keyPair,&getData,&ratelimit,&recvRateReporter,&sendRateReporter,&rpcService,&contractAddress] () {
         while (true)
         {
             ratelimit->acquire(1);
             sendRateReporter->update(1, true);
-            rpcService->sendTransaction(*keyPair, group, "", "", std::move(*binBytes), "", 0,
+            auto getBytes = fromHexString(getData);
+            rpcService->sendTransaction(*keyPair, group, "", contractAddress, std::move(*getBytes), "", 0,
                 "extraData", [&recvRateReporter](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
                     recvRateReporter->update(1, true);
                     if (_error && _error->errorCode() != 0)
@@ -210,37 +259,7 @@ int main(int argc, char** argv)
                     std::cout << LOG_DESC(" [DeployHello] send transaction response error")
                               << LOG_KV("errorCode", _error->errorCode())
                               << LOG_KV("errorMessage", _error->errorMessage()) << std::endl;
-                }
-                // else
-                // {
-                    
-                //     std::string receipt = std::string(_resp->begin(), _resp->end());
-                //     std::cout << LOG_DESC(" [DeployHello] recv response success ")
-                //               << LOG_KV("transaction receipt", receipt) << std::endl;
-
-                //     Json::Value root;
-                //     Json::Reader jsonReader;
-
-                //     try
-                //     {
-                //         if (!jsonReader.parse(receipt, root))
-                //         {
-                //             std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
-                //                       << LOG_KV("resp", receipt) << std::endl;
-                //             return;
-                //         }
-
-                //         std::cout << LOG_DESC(" [DeployHello] contract address ==> " +
-                //                               root["result"]["contractAddress"].asString())
-                //                   << std::endl;
-                //     }
-                //     catch (const std::exception& _e)
-                //     {
-                //         std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
-                //                   << LOG_KV("resp", receipt) << std::endl;
-                //     }
-                    
-                // }
+                    }
             });
         }
     };
@@ -253,60 +272,6 @@ int main(int argc, char** argv)
     for(auto &thread : threads) {
         thread->join();
     }
-    
-    /*
-
-    auto transactionBuilderService =
-        std::make_shared<TransactionBuilderService>(sdk->service(), group, transactionBuilder);
-
-    auto r =
-        transactionBuilderService->createSignedTransaction(*keyPair, "", *binBytes.get(), "", 0);
-
-    std::cout << LOG_DESC(" [DeployHello] create signed transaction success")
-              << LOG_KV("tx hash", r.first) << std::endl;
-
-    std::promise<bool> p;
-    auto f = p.get_future();
-    sdk->jsonRpc()->sendTransaction(group, "", r.second, false,
-        [&p](bcos::Error::Ptr _error, std::shared_ptr<bcos::bytes> _resp) {
-            if (_error && _error->errorCode() != 0)
-            {
-                std::cout << LOG_DESC(" [DeployHello] send transaction response error")
-                          << LOG_KV("errorCode", _error->errorCode())
-                          << LOG_KV("errorMessage", _error->errorMessage()) << std::endl;
-            }
-            else
-            {
-                std::string receipt = std::string(_resp->begin(), _resp->end());
-                std::cout << LOG_DESC(" [DeployHello] recv response success ")
-                          << LOG_KV("transaction receipt", receipt) << std::endl;
-
-                Json::Value root;
-                Json::Reader jsonReader;
-
-                try
-                {
-                    if (!jsonReader.parse(receipt, root))
-                    {
-                        std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
-                                  << LOG_KV("resp", receipt) << std::endl;
-                        return;
-                    }
-
-                    std::cout << LOG_DESC(" [DeployHello] contract address ==> " +
-                                          root["result"]["contractAddress"].asString())
-                              << std::endl;
-                }
-                catch (const std::exception& _e)
-                {
-                    std::cout << LOG_DESC(" [DeployHello] [ERROR] recv invalid json object")
-                              << LOG_KV("resp", receipt) << std::endl;
-                }
-            }
-            p.set_value(true);
-        });
-    f.get();
-    */
 
     return 0;
 }
