@@ -55,7 +55,7 @@ std::string JsonRpcServiceImpl::sendTransaction(const bcos::crypto::KeyPairInter
     if (c_fileLogLevel <= LogLevel::TRACE)
     {
         BCOS_LOG(TRACE) << LOG_BADGE("JsonRpcServiceImpl::sendTransaction")
-                        << LOG_KV("account", _keyPair.publicKey()->hex())
+                        << LOG_KV("sign account", _keyPair.publicKey()->hex())
                         << LOG_KV("groupID", _groupID) << LOG_KV("chainID", chainID)
                         << LOG_KV("nodeName", _nodeName) << LOG_KV("to", _to) << LOG_KV("abi", _abi)
                         << LOG_KV("blockLimit", _blockLimit) << LOG_KV("attribute", _attribute)
