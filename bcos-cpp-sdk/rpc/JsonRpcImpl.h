@@ -141,6 +141,13 @@ public:
         m_service = _service;
     }
 
+    void setSendRequestToHighestBlockNode(bool _sendRequestToHighestBlockNode)
+    {
+        m_sendRequestToHighestBlockNode = _sendRequestToHighestBlockNode;
+    }
+
+    bool sendRequestToHighestBlockNode() const { return m_sendRequestToHighestBlockNode; }
+
 private:
     std::shared_ptr<bcos::cppsdk::service::Service> m_service;
     JsonRpcRequestFactory::Ptr m_factory;
@@ -148,6 +155,8 @@ private:
         const std::string& _request, RespFunc _respFunc)>
         m_sender;
     bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
+
+    bool m_sendRequestToHighestBlockNode = false;
 };
 
 }  // namespace jsonrpc
