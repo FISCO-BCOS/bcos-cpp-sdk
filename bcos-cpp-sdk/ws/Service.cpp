@@ -151,10 +151,7 @@ void Service::asyncSendMessageByGroupAndNode(const std::string& _group, const st
         auto ss = sessions();
         for (const auto& session : ss)
         {
-            if (session->isConnected())
-            {
-                endPoints.insert(session->endPoint());
-            }
+            endPoints.insert(session->endPoint());
         }
 
         if (endPoints.empty())

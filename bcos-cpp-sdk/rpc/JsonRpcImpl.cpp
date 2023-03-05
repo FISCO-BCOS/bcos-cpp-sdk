@@ -18,13 +18,13 @@
  * @date 2021-08-10
  */
 
+#include "boost/format.hpp"
 #include <bcos-boostssl/websocket/WsError.h>
 #include <bcos-cpp-sdk/rpc/Common.h>
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <json/value.h>
-#include"boost/format.hpp"
 #include <fstream>
 
 using namespace bcos;
@@ -104,6 +104,8 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
     const std::string& _data, bool _requireProof, RespFunc _respFunc)
 {
     std::string name = _nodeName;
+
+    // TODO: Optimize the lock here
     if (name.empty())
     {
         m_service->randomGetHighestBlockNumberNode(_groupID, name);
@@ -118,7 +120,9 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
         return;
     }
 
-    boost::format fmt("{\"id\":%1%,\"jsonrpc\":\"2.0\",\"method\":\"sendTransaction\",\"params\":[\"%2%\",\"%3%\",\"%4%\",%5%]}");
+    boost::format fmt(
+        "{\"id\":%1%,\"jsonrpc\":\"2.0\",\"method\":\"sendTransaction\",\"params\":[\"%2%\",\"%3%"
+        "\",\"%4%\",%5%]}");
     fmt % m_factory->nextId();
     fmt % _groupID;
     fmt % name;
@@ -136,9 +140,9 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
     auto request = m_factory->buildRequest("sendTransaction", params);
     auto s = request->toJson();
     */
-    
-    m_sender(_groupID, name, s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction") << LOG_KV("request", s);
+
+    m_sender("", "", s, _respFunc);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction => ") << LOG_KV("request", s);
 }
 
 void JsonRpcImpl::getTransaction(const std::string& _groupID, const std::string& _nodeName,

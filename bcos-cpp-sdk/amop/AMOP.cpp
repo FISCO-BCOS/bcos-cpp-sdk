@@ -227,7 +227,7 @@ void AMOP::onRecvAMOPRequest(std::shared_ptr<boostssl::MessageFace> _msg,
 
     if (callback)
     {
-        callback(nullptr, _session->connectedEndPoint(), seq, request->data(), _session);
+        callback(nullptr, _session->endPoint(), seq, request->data(), _session);
     }
     else
     {
@@ -275,7 +275,7 @@ void AMOP::onRecvAMOPBroadcast(std::shared_ptr<boostssl::MessageFace> _msg,
 
     if (callback)
     {
-        callback(nullptr, _session->connectedEndPoint(), seq, request->data(), _session);
+        callback(nullptr, _session->endPoint(), seq, request->data(), _session);
     }
     else
     {
