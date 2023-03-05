@@ -90,9 +90,11 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
     auto groupInfoCodec = std::make_shared<bcos::group::JsonGroupInfoCodec>();
     auto groupInfoFactory = std::make_shared<bcos::group::GroupInfoFactory>();
     auto service = std::make_shared<Service>(groupInfoCodec, groupInfoFactory, "SDK");
+    auto timerFactory = std::make_shared<timer::TimerFactory>();
     auto initializer = std::make_shared<WsInitializer>();
     initializer->setConfig(_config);
     initializer->initWsService(service);
+    service->setTimerFactory(timerFactory);
     service->registerMsgHandler(bcos::protocol::MessageType::BLOCK_NOTIFY,
         [service](
             std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
