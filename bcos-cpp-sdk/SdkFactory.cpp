@@ -60,7 +60,7 @@ SdkFactory::SdkFactory()
 }
 
 bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(
-    std::shared_ptr<bcos::boostssl::ws::WsConfig> _config)
+    std::shared_ptr<bcos::boostssl::ws::WsConfig> _config, bool _sendRequestToHighestBlockNode)
 {
     if (!_config)
     {
@@ -69,7 +69,7 @@ bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(
 
     auto service = buildService(_config);
     auto amop = buildAMOP(service);
-    auto jsonRpc = buildJsonRpc(service);
+    auto jsonRpc = buildJsonRpc(service, _sendRequestToHighestBlockNode);
     auto eventSub = buildEventSub(service);
     auto jsonRpcService = buildJsonRpcService(jsonRpc);
 
@@ -82,7 +82,7 @@ bcos::cppsdk::Sdk::UniquePtr SdkFactory::buildSdk(const std::string& _configFile
 {
     auto config = std::make_shared<Config>();
     auto wsConfig = config->loadConfig(_configFile);
-    return buildSdk(wsConfig);
+    return buildSdk(wsConfig, config->sendRpcRequestToHighestBlockNode());
 }
 
 Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConfig> _config)
@@ -121,13 +121,18 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
     return service;
 }
 
-bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(Service::Ptr _service)
+bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
+    Service::Ptr _service, bool _sendRequestToHighestBlockNode)
 {
     auto groupInfoCodec = std::make_shared<bcos::group::JsonGroupInfoCodec>();
     auto jsonRpc = std::make_shared<JsonRpcImpl>(groupInfoCodec);
     auto factory = std::make_shared<JsonRpcRequestFactory>();
     jsonRpc->setFactory(factory);
     jsonRpc->setService(_service);
+    jsonRpc->setSendRequestToHighestBlockNode(_sendRequestToHighestBlockNode);
+
+    BCOS_LOG(INFO) << "[buildJsonRpc]" << LOG_DESC("build json rpc")
+                   << LOG_KV("sendRequestToHighestBlockNode", _sendRequestToHighestBlockNode);
 
     jsonRpc->setSender([_service](const std::string& _group, const std::string& _node,
                            const std::string& _request, bcos::cppsdk::jsonrpc::RespFunc _respFunc) {

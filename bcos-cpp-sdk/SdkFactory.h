@@ -43,7 +43,7 @@ public:
     bcos::cppsdk::service::Service::Ptr buildService(
         std::shared_ptr<bcos::boostssl::ws::WsConfig> _config);
     bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(
-        bcos::cppsdk::service::Service::Ptr _service);
+        bcos::cppsdk::service::Service::Ptr _service, bool _sendRequestToHighestBlockNode = true);
     bcos::cppsdk::jsonrpc::JsonRpcServiceImpl::Ptr buildJsonRpcService(
         bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr _jsonRpc);
     bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::cppsdk::service::Service::Ptr _service);
@@ -51,7 +51,8 @@ public:
 
 public:
     bcos::cppsdk::Sdk::UniquePtr buildSdk(
-        std::shared_ptr<bcos::boostssl::ws::WsConfig> _config = nullptr);
+        std::shared_ptr<bcos::boostssl::ws::WsConfig> _config = nullptr,
+        bool _sendRequestToHighestBlockNode = true);
     bcos::cppsdk::Sdk::UniquePtr buildSdk(const std::string& _configFile);
 
 public:
