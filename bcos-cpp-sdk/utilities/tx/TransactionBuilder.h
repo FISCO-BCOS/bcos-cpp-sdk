@@ -174,7 +174,9 @@ public:
         const std::string& _extraData = "") override;
 
 
-    u256 genRandomUint256();
+    [[deprecated("Use generateRandomStr")]] u256 genRandomUint256();
+
+    std::string generateRandomStr();
 
 public:
     auto ecdsaCryptoSuite() -> auto& { return m_ecdsaCryptoSuite; }
