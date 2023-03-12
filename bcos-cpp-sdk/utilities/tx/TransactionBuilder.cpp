@@ -28,6 +28,7 @@
 #include <time.h>
 #include <chrono>
 #include <memory>
+#include <string>
 #include <thread>
 #include <utility>
 
@@ -56,7 +57,7 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     _transactionData->groupID = _groupID;
     _transactionData->to = _to;
     _transactionData->blockLimit = _blockLimit;
-    _transactionData->nonce = genRandomUint256().str(10);
+    _transactionData->nonce = generateRandomStr();
 
     _transactionData->abi = _abi;
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
@@ -264,6 +265,29 @@ std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
         toHexStringWithPrefix(transactionDataHash), toHexStringWithPrefix(*encodedTx));
 }
 
+std::string TransactionBuilder::generateRandomStr()
+{
+    static thread_local std::mt19937 generator(std::random_device{}());
+    /*
+    static thread_local auto timeTicks = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch())
+                                             .count();
+    static thread_local std::mt19937 generator(timeTicks);
+    */
+
+    std::uniform_int_distribution<int> dis(0, 255);
+    std::array<bcos::byte, 16> randomFixedBytes;
+    for (auto& element : randomFixedBytes)
+    {
+        element = dis(generator);
+    }
+
+    uint64_t* firstNum = (uint64_t*)randomFixedBytes.data();
+    uint64_t* lastNum = (uint64_t*)(randomFixedBytes.data() + sizeof(uint64_t));
+
+    return std::to_string(*firstNum) + std::to_string(*lastNum);
+}
+
 u256 TransactionBuilder::genRandomUint256()
 {
     static thread_local std::mt19937 generator(std::random_device{}());
@@ -281,6 +305,5 @@ u256 TransactionBuilder::genRandomUint256()
         element = dis(generator);
     }
 
-    // TODO: opt this
     return u256(bcos::toHexStringWithPrefix(bcos::bytesRef(random256.data(), random256.size())));
 }

@@ -104,7 +104,6 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
     const std::string& _data, bool _requireProof, RespFunc _respFunc)
 {
     std::string name = _nodeName;
-    // TODO: Optimize the lock here
     if (m_sendRequestToHighestBlockNode && name.empty())
     {
         m_service->randomGetHighestBlockNumberNode(_groupID, name);
@@ -132,7 +131,9 @@ void JsonRpcImpl::sendTransaction(const std::string& _groupID, const std::string
     */
 
     m_sender("", "", s, _respFunc);
-    RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction") << LOG_KV("request", s);
+    RPCIMPL_LOG(DEBUG) << LOG_BADGE("sendTransaction")
+                       << LOG_KV("sendRequestToHighestBlockNode", m_sendRequestToHighestBlockNode)
+                       << LOG_KV("request", s);
 }
 
 void JsonRpcImpl::getTransaction(const std::string& _groupID, const std::string& _nodeName,
