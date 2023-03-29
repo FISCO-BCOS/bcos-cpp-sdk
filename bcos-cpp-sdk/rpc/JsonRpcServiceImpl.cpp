@@ -47,7 +47,7 @@ std::string JsonRpcServiceImpl::sendTransaction(const bcos::crypto::KeyPairInter
     std::string chainID = groupInfo->chainID();
 
     auto result = m_transactionBuilder->createSignedTransaction(
-        _keyPair, _groupID, chainID, _to, _data, _abi, _blockLimit, _attribute);
+        _keyPair, _groupID, chainID, _to, _data, _abi, _blockLimit, _attribute, _extraData);
 
     auto& transactionHash = result.first;
     auto& signedTransaction = result.second;
