@@ -78,9 +78,16 @@ public:
      */
     bytesConstPtr encodeTransactionData(const bcostars::TransactionData& _transactionData) override;
 
-
     /**
      * @brief decode transaction data from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction data
+     */
+    bcostars::TransactionDataUniquePtr decodeTransactionData(const bcos::bytes& _txBytes) override;
+
+    /**
+     * @brief decode transaction data json object from encoded bytes
      *
      * @param _txBytes encoded bytes
      * @return transaction data json string
@@ -132,10 +139,18 @@ public:
     virtual bytesConstPtr encodeTransaction(const bcostars::Transaction& _transaction) override;
 
     /**
-     * @brief decode transaction data from encoded bytes
+     * @brief decode transaction from encoded bytes
      *
      * @param _txBytes encoded bytes
-     * @return transaction data json string
+     * @return transaction data
+     */
+    bcostars::TransactionUniquePtr decodeTransaction(const bcos::bytes& _txBytes) override;
+
+    /**
+     * @brief decode transaction to json object from encoded bytes
+     *
+     * @param _txBytes encoded bytes
+     * @return transaction json string
      */
     std::string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
 
