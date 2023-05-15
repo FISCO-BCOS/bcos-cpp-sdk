@@ -137,6 +137,21 @@ public:
         const std::string& _extraData = "") = 0;
 
     /**
+     * @brief Create a Transaction object with json string
+     *
+     * @param _json
+     *              transactionData:bcostars::TransactionData
+     *              dataHash:string
+     *              signature:string
+     *              importTime:number
+     *              attribute:number
+     *              sender:string
+     *              extraData:string
+     * @return bcostars::TransactionUniquePtr
+     */
+    virtual bcostars::TransactionUniquePtr createTransactionWithJson(const std::string& _json) = 0;
+
+    /**
      * @brief
      *
      * @param _transaction

@@ -131,6 +131,21 @@ public:
         const std::string& _extraData = "") override;
 
     /**
+     * @brief Create a Transaction object with json string
+     *
+     * @param _json
+     *              transactionData:bcostars::TransactionData
+     *              dataHash:string
+     *              signature:string
+     *              importTime:number
+     *              attribute:number
+     *              sender:string
+     *              extraData:string
+     * @return bcostars::TransactionUniquePtr
+     */
+    bcostars::TransactionUniquePtr createTransactionWithJson(const std::string& _json) override;
+
+    /**
      * @brief
      *
      * @param _transaction

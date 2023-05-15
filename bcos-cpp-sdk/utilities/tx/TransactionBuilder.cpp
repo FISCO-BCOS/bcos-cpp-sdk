@@ -197,6 +197,27 @@ bcostars::TransactionUniquePtr TransactionBuilder::createTransaction(
 }
 
 /**
+ * @brief Create a Transaction object with json string
+ *
+ * @param _json
+ *              transactionData:bcostars::TransactionData
+ *              dataHash:string
+ *              signature:string
+ *              importTime:number
+ *              attribute:number
+ *              sender:string
+ *              extraData:string
+ * @return bcostars::TransactionUniquePtr
+ */
+bcostars::TransactionUniquePtr TransactionBuilder::createTransactionWithJson(
+    const std::string& _json)
+{
+    auto _transaction = std::make_unique<bcostars::Transaction>();
+    _transaction->readFromJsonString(_json);
+    return _transaction;
+}
+
+/**
  * @brief
  *
  * @param _transactionData
