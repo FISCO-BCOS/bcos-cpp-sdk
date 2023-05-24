@@ -48,6 +48,15 @@ void JsonRpcImpl::start()
 
 void JsonRpcImpl::stop()
 {
+    if (m_service)
+    {  // stop websocket service
+        m_service->stop();
+    }
+    else
+    {
+        RPCIMPL_LOG(WARNING) << LOG_BADGE("stop")
+                             << LOG_DESC("websocket service is not uninitialized");
+    }
     RPCIMPL_LOG(INFO) << LOG_BADGE("stop") << LOG_DESC("stop rpc");
 }
 

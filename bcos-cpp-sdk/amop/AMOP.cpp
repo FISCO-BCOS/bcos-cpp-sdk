@@ -51,6 +51,16 @@ void AMOP::start()
 }
 void AMOP::stop()
 {
+    if (m_service)
+    {  // stop websocket service
+        m_service->stop();
+    }
+    else
+    {
+        AMOP_CLIENT(WARNING) << LOG_BADGE("stop")
+                             << LOG_DESC("websocket service is not uninitialized");
+    }
+
     AMOP_CLIENT(INFO) << LOG_BADGE("stop") << LOG_DESC("stop amop");
 }
 
