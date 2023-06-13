@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 20)
+
 file(GLOB_RECURSE SRC_LIST "*.cpp")
 file(GLOB_RECURSE HEADERS "*.h")
 

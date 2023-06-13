@@ -27,6 +27,7 @@
 #include <bcos-crypto/signature/sm2/SM2Crypto.h>
 #include <bcos-utilities/Common.h>
 #include <memory>
+#include <mutex>
 
 namespace bcos
 {
@@ -49,7 +50,7 @@ public:
      * @return bcostars::TransactionDataUniquePtr
      */
     virtual bcostars::TransactionDataUniquePtr createTransactionData(const std::string& _groupID,
-        const string& _chainID, const std::string& _to, const bcos::bytes& _data,
+        const std::string& _chainID, const std::string& _to, const bcos::bytes& _data,
         const std::string& _abi, int64_t _blockLimit) override;
 
     /**
@@ -84,7 +85,7 @@ public:
      * @param _txBytes encoded bytes
      * @return transaction data json string
      */
-    string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) override;
+    std::string decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes) override;
 
     /**
      * @brief
@@ -136,7 +137,7 @@ public:
      * @param _txBytes encoded bytes
      * @return transaction data json string
      */
-    string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
+    std::string decodeTransactionToJsonObj(const bcos::bytes& _txBytes) override;
 
     /**
      * @brief Create a Signed Transaction object
@@ -173,7 +174,9 @@ public:
         const std::string& _extraData = "") override;
 
 
-    u256 genRandomUint256();
+    [[deprecated("Use generateRandomStr")]] u256 genRandomUint256();
+
+    std::string generateRandomStr();
 
 public:
     auto ecdsaCryptoSuite() -> auto& { return m_ecdsaCryptoSuite; }
@@ -187,6 +190,10 @@ private:
     bcos::crypto::CryptoSuite::UniquePtr m_smCryptoSuite =
         std::make_unique<bcos::crypto::CryptoSuite>(std::make_shared<bcos::crypto::SM3>(),
             std::make_shared<bcos::crypto::SM2Crypto>(), nullptr);
+
+    bcos::crypto::CryptoSuite::UniquePtr m_hsmCryptoSuite = nullptr;
+
+    std::mutex x_hsmCryptoSuite;
 };
 }  // namespace utilities
 }  // namespace cppsdk

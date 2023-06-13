@@ -28,13 +28,13 @@
 namespace tars
 {
 
-TC_Exception::TC_Exception(const string &buffer)
+TC_Exception::TC_Exception(const std::string &buffer)
 : _code(0), _buffer(buffer)
 {
 }
 
 
-TC_Exception::TC_Exception(const string &buffer, int err)
+TC_Exception::TC_Exception(const std::string &buffer, int err)
 {
     if(err != 0)
     {
@@ -90,9 +90,9 @@ static std::string Unicode2ANSI(LPCWSTR lpszSrc)
 }
 #endif
 
-string TC_Exception::parseError(int err)
+std::string TC_Exception::parseError(int err)
 {
-    string errMsg;
+    std::string errMsg;
 
 #if TARGET_PLATFORM_LINUX || TARGET_PLATFORM_IOS
     errMsg = strerror(err);
@@ -125,7 +125,7 @@ int TC_Exception::getSystemCode()
 #endif
 }
 
-string TC_Exception::getSystemError()
+std::string TC_Exception::getSystemError()
 {
     return parseError(getSystemCode());
 }

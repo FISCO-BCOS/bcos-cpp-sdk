@@ -62,7 +62,7 @@ int main(int argc, char** argv)
         }
 
         // auto fixBytes = bcos::FixedBytes<32>().generateRandomFixedBytes();
-        auto u256Value = transactionBuilder->genRandomUint256();
+        auto u256Value = transactionBuilder->generateRandomStr();
         (void)u256Value;
     }
 

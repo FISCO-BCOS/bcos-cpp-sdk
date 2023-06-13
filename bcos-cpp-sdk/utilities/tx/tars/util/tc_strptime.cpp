@@ -25,7 +25,7 @@ this is enough information for determining the date.  */
 #endif
 
 #ifndef strncasecmp
-#define strncasecmp  _strnicmp 
+#define strncasecmp  _strnicmp
 #endif
 
 #endif
@@ -110,7 +110,7 @@ static const unsigned short int __mon_yday[2][13] =
 
 
 /* Status of lookup: do we use the locale data or the raw data?  */
-enum locale_status { not, loc, raw };
+enum locale_status { none, loc, raw };
 
 # define __isleap(year) \
    ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
@@ -198,11 +198,11 @@ strptime_internal(const char *rp, const char *fmt, struct tm *tm,
             /* Match day of week.  */
             for (cnt = 0; cnt < 7; ++cnt)
             {
-                if (*decided != loc
+                if (*decided != locale_status::loc
                     && (match_string(weekday_name[cnt], rp)
                         || match_string(ab_weekday_name[cnt], rp)))
                 {
-                    *decided = raw;
+                    *decided = locale_status::raw;
                     break;
                 }
             }
@@ -221,7 +221,7 @@ strptime_internal(const char *rp, const char *fmt, struct tm *tm,
                 if (match_string(month_name[cnt], rp)
                     || match_string(ab_month_name[cnt], rp))
                 {
-                    *decided = raw;
+                    *decided = locale_status::raw;
                     break;
                 }
             }
@@ -519,7 +519,7 @@ strptime(const char *buf, const char *format, struct tm *tm)
         /* have_used_strptime = 1; might change locale during session */
     }
 #endif
-    decided = raw;
+    decided = locale_status::raw;
     return strptime_internal(buf, format, tm, &decided);
 }
 

@@ -17,6 +17,8 @@
 # ------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.10)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "-pthread -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -fexceptions")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.3" CACHE STRING "Minimum OS X deployment version")
 include(FetchContent)
 
@@ -26,18 +28,7 @@ if(NOT DEFINED URL_BASE)
     # set(URL_BASE "github.com.cnpmjs.org")
 endif()
 
-include(FetchContent)
-set(BCOS_CMAKE_SCRIPTS_DIR ${CMAKE_CURRENT_BINARY_DIR}/bcos-cmake-scripts)
-FetchContent_Declare(bcos-cmake-scripts
-    GIT_REPOSITORY https://${URL_BASE}/FISCO-BCOS/bcos-cmake-scripts.git
-    GIT_TAG 364f603f4ec112cb79840ea4026243399d7c419b
-    SOURCE_DIR ${BCOS_CMAKE_SCRIPTS_DIR}
-)
-FetchContent_MakeAvailable(bcos-cmake-scripts)
-
-set(BCOS_RPC_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "The cmake path for the library")
-list(APPEND CMAKE_MODULE_PATH ${BCOS_CMAKE_SCRIPTS_DIR})
-list(APPEND CMAKE_MODULE_PATH ${BCOS_RPC_CMAKE_DIR})
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # init hunter
 include(Options)
@@ -49,8 +40,8 @@ endif()
 
 include(HunterGate)
 HunterGate(
-    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/162ff7cde3d843e43afdab8fe3214275c35ef168.tar.gz"
-    SHA1 "0ba8099fe89beb0d44986c750fe0d44040725d99"
+    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/155dfdb7b5888493eefb656b3abcc026edb98730.tar.gz"
+    SHA1 "a797abf35de1904ec089a9f517d847637731d467"
     FILEPATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake"
 )
 
@@ -84,11 +75,13 @@ include(InstallBcosUtilities)
 hunter_add_package(bcos-boostssl)
 find_package(bcos-boostssl CONFIG REQUIRED)
 
+# hsm-crypto
+include(InstallSDF)
+
 # bcos-crypto
 include(InstallBcosCrypto)
 
 # basic settings
-include(Options)
 configure_project()
 include(CompilerSettings)
 include(InstallConfig)

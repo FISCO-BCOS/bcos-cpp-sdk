@@ -151,10 +151,7 @@ void Service::asyncSendMessageByGroupAndNode(const std::string& _group, const st
         auto ss = sessions();
         for (const auto& session : ss)
         {
-            if (session->isConnected())
-            {
-                endPoints.insert(session->endPoint());
-            }
+            endPoints.insert(session->endPoint());
         }
 
         if (endPoints.empty())
@@ -552,7 +549,7 @@ bcos::group::GroupInfo::Ptr Service::getGroupInfo(const std::string& _groupID)
         return nullptr;
     }
 
-    RPC_WS_LOG(INFO) << LOG_BADGE("getGroupInfo") << LOG_KV("count", groupInfos.size());
+    RPC_WS_LOG(TRACE) << LOG_BADGE("getGroupInfo") << LOG_KV("count", groupInfos.size());
 
     auto firstGroupInfo = *groupInfos.begin();
     auto groupInfo =

@@ -21,7 +21,6 @@
 #include "ContractABIType.h"
 #include <bcos-utilities/FixedBytes.h>
 
-using namespace std;
 using namespace bcos;
 using namespace bcos::codec;
 using namespace bcos::codec::abi;

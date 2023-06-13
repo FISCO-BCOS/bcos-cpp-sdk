@@ -20,7 +20,7 @@
 
 #include "ReceiptBuilder.h"
 bcostars::ReceiptDataUniquePtr bcos::cppsdk::utilities::ReceiptBuilder::createReceiptData(
-    const std::string& _gasUsed, const string& _contractAddress, const bcos::bytes& _output,
+    const std::string& _gasUsed, const std::string& _contractAddress, const bcos::bytes& _output,
     int64_t _blockNumber)
 {
     auto _receipt = std::make_unique<bcostars::TransactionReceiptData>();
@@ -47,7 +47,8 @@ bcos::crypto::HashType bcos::cppsdk::utilities::ReceiptBuilder::calculateReceipt
     const bcostars::TransactionReceiptData& _receiptData)
 {
     bcos::crypto::CryptoSuite* cryptoSuite = nullptr;
-    if (_cryptoType == bcos::crypto::KeyPairType::SM2)
+    if (_cryptoType == bcos::crypto::KeyPairType::SM2 ||
+        _cryptoType == bcos::crypto::KeyPairType::HsmSM2)
     {
         cryptoSuite = &*m_smCryptoSuite;
     }
@@ -68,7 +69,7 @@ bcos::bytesConstPtr bcos::cppsdk::utilities::ReceiptBuilder::encodeReceipt(
     buffer->assign(output.getBuffer(), output.getBuffer() + output.getLength());
     return buffer;
 }
-string bcos::cppsdk::utilities::ReceiptBuilder::decodeReceiptDataToJsonObj(
+std::string bcos::cppsdk::utilities::ReceiptBuilder::decodeReceiptDataToJsonObj(
     const bcos::bytes& _receiptBytes)
 {
     tars::TarsInputStream<tars::BufferReader> inputStream;

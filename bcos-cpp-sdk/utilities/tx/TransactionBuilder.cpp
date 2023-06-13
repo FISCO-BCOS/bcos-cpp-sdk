@@ -21,12 +21,14 @@
 #include <bcos-cpp-sdk/utilities/tx/Transaction.h>
 #include <bcos-cpp-sdk/utilities/tx/TransactionBuilder.h>
 #include <bcos-crypto/interfaces/crypto/CryptoSuite.h>
+#include <bcos-crypto/signature/hsmSM2/HsmSM2Crypto.h>
 #include <bcos-utilities/Common.h>
 #include <bcos-utilities/DataConvertUtility.h>
 #include <bcos-utilities/FixedBytes.h>
 #include <time.h>
 #include <chrono>
 #include <memory>
+#include <string>
 #include <thread>
 #include <utility>
 
@@ -46,7 +48,7 @@ using namespace bcos::cppsdk::utilities;
  * @return bcostars::TransactionDataUniquePtr
  */
 bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
-    const std::string& _groupID, const string& _chainID, const std::string& _to,
+    const std::string& _groupID, const std::string& _chainID, const std::string& _to,
     const bcos::bytes& _data, const std::string& _abi, int64_t _blockLimit)
 {
     auto _transactionData = std::make_unique<bcostars::TransactionData>();
@@ -55,7 +57,7 @@ bcostars::TransactionDataUniquePtr TransactionBuilder::createTransactionData(
     _transactionData->groupID = _groupID;
     _transactionData->to = _to;
     _transactionData->blockLimit = _blockLimit;
-    _transactionData->nonce = genRandomUint256().str(10);
+    _transactionData->nonce = generateRandomStr();
 
     _transactionData->abi = _abi;
     _transactionData->input.insert(_transactionData->input.begin(), _data.begin(), _data.end());
@@ -88,7 +90,7 @@ bytesConstPtr TransactionBuilder::encodeTransactionData(
     return buffer;
 }
 
-string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
+std::string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
 {
     tars::TarsInputStream<tars::BufferReader> inputStream;
     inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
@@ -109,7 +111,8 @@ crypto::HashType TransactionBuilder::calculateTransactionDataHash(
     CryptoType _cryptoType, const bcostars::TransactionData& _transactionData)
 {
     bcos::crypto::CryptoSuite* cryptoSuite = nullptr;
-    if (_cryptoType == bcos::crypto::KeyPairType::SM2)
+    if (_cryptoType == bcos::crypto::KeyPairType::SM2 ||
+        _cryptoType == bcos::crypto::KeyPairType::HsmSM2)
     {
         cryptoSuite = &*m_smCryptoSuite;
     }
@@ -134,6 +137,22 @@ bcos::bytesConstPtr TransactionBuilder::signTransactionDataHash(
     if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::SM2)
     {
         cryptoSuite = &*m_smCryptoSuite;
+    }
+    else if (_keyPair.keyPairType() == bcos::crypto::KeyPairType::HsmSM2)
+    {
+        if (!m_hsmCryptoSuite)
+        {
+            std::lock_guard<std::mutex> l(x_hsmCryptoSuite);
+            if (!m_hsmCryptoSuite)
+            {
+                m_hsmCryptoSuite = std::make_unique<bcos::crypto::CryptoSuite>(
+                    std::make_shared<bcos::crypto::SM3>(),
+                    std::make_shared<bcos::crypto::HsmSM2Crypto>(
+                        dynamic_cast<const bcos::crypto::HsmSM2KeyPair&>(_keyPair).hsmLibPath()),
+                    nullptr);
+            }
+        }
+        cryptoSuite = &*m_hsmCryptoSuite;
     }
     else
     {
@@ -186,7 +205,7 @@ bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction&
     return buffer;
 }
 
-string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
+std::string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
 {
     tars::TarsInputStream<tars::BufferReader> inputStream;
     inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
@@ -244,6 +263,29 @@ std::pair<std::string, std::string> TransactionBuilder::createSignedTransaction(
 
     return std::make_pair<std::string, std::string>(
         toHexStringWithPrefix(transactionDataHash), toHexStringWithPrefix(*encodedTx));
+}
+
+std::string TransactionBuilder::generateRandomStr()
+{
+    static thread_local std::mt19937 generator(std::random_device{}());
+    /*
+    static thread_local auto timeTicks = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch())
+                                             .count();
+    static thread_local std::mt19937 generator(timeTicks);
+    */
+
+    std::uniform_int_distribution<int> dis(0, 255);
+    std::array<bcos::byte, 16> randomFixedBytes;
+    for (auto& element : randomFixedBytes)
+    {
+        element = dis(generator);
+    }
+
+    uint64_t* firstNum = (uint64_t*)randomFixedBytes.data();
+    uint64_t* lastNum = (uint64_t*)(randomFixedBytes.data() + sizeof(uint64_t));
+
+    return std::to_string(*firstNum) + std::to_string(*lastNum);
 }
 
 u256 TransactionBuilder::genRandomUint256()
