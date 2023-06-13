@@ -90,12 +90,19 @@ bytesConstPtr TransactionBuilder::encodeTransactionData(
     return buffer;
 }
 
-std::string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
+bcostars::TransactionDataUniquePtr TransactionBuilder::decodeTransactionData(
+    const bcos::bytes& _txBytes)
 {
     tars::TarsInputStream<tars::BufferReader> inputStream;
     inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
     auto txData = std::make_unique<bcostars::TransactionData>();
     txData->readFrom(inputStream);
+    return txData;
+}
+
+std::string TransactionBuilder::decodeTransactionDataToJsonObj(const bcos::bytes& _txBytes)
+{
+    auto txData = decodeTransactionData(_txBytes);
     auto txDataJson = txData->writeToJsonString();
     return txDataJson;
 }
@@ -190,6 +197,27 @@ bcostars::TransactionUniquePtr TransactionBuilder::createTransaction(
 }
 
 /**
+ * @brief Create a Transaction object with json string
+ *
+ * @param _json
+ *              transactionData:bcostars::TransactionData
+ *              dataHash:string
+ *              signature:string
+ *              importTime:number
+ *              attribute:number
+ *              sender:string
+ *              extraData:string
+ * @return bcostars::TransactionUniquePtr
+ */
+bcostars::TransactionUniquePtr TransactionBuilder::createTransactionWithJson(
+    const std::string& _json)
+{
+    auto _transaction = std::make_unique<bcostars::Transaction>();
+    _transaction->readFromJsonString(_json);
+    return _transaction;
+}
+
+/**
  * @brief
  *
  * @param _transactionData
@@ -205,12 +233,18 @@ bytesConstPtr TransactionBuilder::encodeTransaction(const bcostars::Transaction&
     return buffer;
 }
 
-std::string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
+bcostars::TransactionUniquePtr TransactionBuilder::decodeTransaction(const bcos::bytes& _txBytes)
 {
     tars::TarsInputStream<tars::BufferReader> inputStream;
     inputStream.setBuffer((const char*)_txBytes.data(), _txBytes.size());
     auto tx = std::make_unique<bcostars::Transaction>();
     tx->readFrom(inputStream);
+    return tx;
+}
+
+std::string TransactionBuilder::decodeTransactionToJsonObj(const bcos::bytes& _txBytes)
+{
+    auto tx = decodeTransaction(_txBytes);
     auto txDataJson = tx->writeToJsonString();
     return txDataJson;
 }
