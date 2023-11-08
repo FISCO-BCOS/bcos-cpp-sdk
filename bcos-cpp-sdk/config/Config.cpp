@@ -182,7 +182,6 @@ void Config::loadSslCert(
     contextConfig->setSslType("ssl");
     contextConfig->setCertConfig(certConfig);
     _config.setContextConfig(contextConfig);
-    return;
 }
 
 void Config::loadSMSslCert(
@@ -229,5 +228,4 @@ void Config::loadSMSslCert(
     ctxConfig->setSslType("sm_ssl");
     ctxConfig->setSmCertConfig(cert);
     _config.setContextConfig(ctxConfig);
-    return;
 }

@@ -24,15 +24,12 @@
 #include <bcos-cpp-sdk/ws/Service.h>
 #include <bcos-framework/interfaces/multigroup/GroupInfoCodec.h>
 #include <functional>
+#include <utility>
 
-namespace bcos
+namespace bcos::cppsdk::jsonrpc
 {
-namespace cppsdk
-{
-namespace jsonrpc
-{
-using JsonRpcSendFunc = std::function<void(const std::string& _group, const std::string& _node,
-    const std::string& _request, RespFunc _respFunc)>;
+using JsonRpcSendFunc =
+    std::function<void(const std::string&, const std::string&, const std::string&, RespFunc)>;
 
 class JsonRpcImpl : public JsonRpcInterface, public std::enable_shared_from_this<JsonRpcImpl>
 {
@@ -42,14 +39,14 @@ public:
 
 public:
     JsonRpcImpl(bcos::group::GroupInfoCodec::Ptr _groupInfoCodec)
-      : m_groupInfoCodec(_groupInfoCodec)
+      : m_groupInfoCodec(std::move(_groupInfoCodec))
     {}
 
-    virtual ~JsonRpcImpl() { stop(); }
+    ~JsonRpcImpl() override { stop(); }
 
 public:
-    virtual void start() override;
-    virtual void stop() override;
+    void start() override;
+    void stop() override;
 
 public:
     //-------------------------------------------------------------------------------------
@@ -130,7 +127,7 @@ public:
 
 public:
     JsonRpcRequestFactory::Ptr factory() const { return m_factory; }
-    void setFactory(JsonRpcRequestFactory::Ptr _factory) { m_factory = _factory; }
+    void setFactory(JsonRpcRequestFactory::Ptr _factory) { m_factory = std::move(_factory); }
 
     JsonRpcSendFunc sender() const { return m_sender; }
     void setSender(JsonRpcSendFunc _sender) { m_sender = _sender; }
@@ -151,14 +148,11 @@ public:
 private:
     std::shared_ptr<bcos::cppsdk::service::Service> m_service;
     JsonRpcRequestFactory::Ptr m_factory;
-    std::function<void(const std::string& _group, const std::string& _node,
-        const std::string& _request, RespFunc _respFunc)>
+    std::function<void(const std::string&, const std::string&, const std::string&, RespFunc)>
         m_sender;
     bcos::group::GroupInfoCodec::Ptr m_groupInfoCodec;
 
     bool m_sendRequestToHighestBlockNode = false;
 };
 
-}  // namespace jsonrpc
-}  // namespace cppsdk
-}  // namespace bcos
+}  // namespace bcos::cppsdk::jsonrpc

@@ -25,11 +25,7 @@
 #include <memory>
 #include <string>
 
-namespace bcos
-{
-namespace cppsdk
-{
-namespace config
+namespace bcos::cppsdk::config
 {
 class Config
 {
@@ -59,6 +55,4 @@ private:
     bool m_sendRpcRequestToHighestBlockNode = true;
 };
 
-}  // namespace config
-}  // namespace cppsdk
-}  // namespace bcos
+}  // namespace bcos::cppsdk::config
