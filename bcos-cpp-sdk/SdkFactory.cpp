@@ -41,6 +41,7 @@
 #include <bcos-utilities/Common.h>
 #include <memory>
 #include <mutex>
+#include <utility>
 
 using namespace bcos;
 using namespace bcos::boostssl;
@@ -92,12 +93,11 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
     auto service = std::make_shared<Service>(groupInfoCodec, groupInfoFactory, "SDK");
     auto timerFactory = std::make_shared<timer::TimerFactory>();
     auto initializer = std::make_shared<WsInitializer>();
-    initializer->setConfig(_config);
+    initializer->setConfig(std::move(_config));
     initializer->initWsService(service);
     service->setTimerFactory(timerFactory);
-    service->registerMsgHandler(bcos::protocol::MessageType::BLOCK_NOTIFY,
-        [service](
-            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
+    service->registerMsgHandler(
+        bcos::protocol::MessageType::BLOCK_NOTIFY, [service](auto&& _msg, auto&& _session) {
             auto blkMsg = std::string(_msg->payload()->begin(), _msg->payload()->end());
 
             service->onRecvBlockNotifier(blkMsg);
@@ -106,9 +106,8 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
                            << LOG_KV("endpoint", _session->endPoint()) << LOG_KV("blk", blkMsg);
         });
 
-    service->registerMsgHandler(bcos::protocol::MessageType::GROUP_NOTIFY,
-        [service](
-            std::shared_ptr<boostssl::MessageFace> _msg, std::shared_ptr<WsSession> _session) {
+    service->registerMsgHandler(
+        bcos::protocol::MessageType::GROUP_NOTIFY, [service](auto&& _msg, auto&& _session) {
             std::string groupInfo = std::string(_msg->payload()->begin(), _msg->payload()->end());
 
             service->onNotifyGroupInfo(groupInfo, _session);
@@ -122,7 +121,7 @@ Service::Ptr SdkFactory::buildService(std::shared_ptr<bcos::boostssl::ws::WsConf
 }
 
 bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
-    Service::Ptr _service, bool _sendRequestToHighestBlockNode)
+    const Service::Ptr& _service, bool _sendRequestToHighestBlockNode)
 {
     auto groupInfoCodec = std::make_shared<bcos::group::JsonGroupInfoCodec>();
     auto jsonRpc = std::make_shared<JsonRpcImpl>(groupInfoCodec);
@@ -143,8 +142,7 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
         msg->setPayload(data);
 
         _service->asyncSendMessageByGroupAndNode(_group, _node, msg, Options(),
-            [_respFunc](Error::Ptr _error, std::shared_ptr<MessageFace> _msg,
-                std::shared_ptr<WsSession> _session) {
+            [_respFunc](auto&& _error, auto&& _msg, auto&& _session) {
                 (void)_session;
                 _respFunc(_error, _msg ? _msg->payload() : nullptr);
             });
@@ -154,14 +152,15 @@ bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr SdkFactory::buildJsonRpc(
 }
 
 bcos::cppsdk::jsonrpc::JsonRpcServiceImpl::Ptr SdkFactory::buildJsonRpcService(
-    bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr _jsonRpc)
+    const bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr& _jsonRpc)
 {
     auto transactionBuilder = std::make_shared<utilities::TransactionBuilder>();
     auto jsonRpcService = std::make_shared<JsonRpcServiceImpl>(_jsonRpc, transactionBuilder);
     return jsonRpcService;
 }
 
-bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Service::Ptr _service)
+bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(
+    const bcos::cppsdk::service::Service::Ptr& _service)
 {
     auto amop = std::make_shared<bcos::cppsdk::amop::AMOP>();
 
@@ -182,7 +181,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
             auto amop = amopWeakPtr.lock();
             if (amop)
             {
-                amop->onRecvAMOPRequest(_msg, _session);
+                amop->onRecvAMOPRequest(std::move(_msg), std::move(_session));
             }
         });
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_RESPONSE,
@@ -191,7 +190,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
             auto amop = amopWeakPtr.lock();
             if (amop)
             {
-                amop->onRecvAMOPResponse(_msg, _session);
+                amop->onRecvAMOPResponse(std::move(_msg), std::move(_session));
             }
         });
     _service->registerMsgHandler(bcos::cppsdk::amop::MessageType::AMOP_BROADCAST,
@@ -200,7 +199,7 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
             auto amop = amopWeakPtr.lock();
             if (amop)
             {
-                amop->onRecvAMOPBroadcast(_msg, _session);
+                amop->onRecvAMOPBroadcast(std::move(_msg), std::move(_session));
             }
         });
     _service->registerWsHandshakeSucHandler([amopWeakPtr](std::shared_ptr<WsSession> _session) {
@@ -208,13 +207,13 @@ bcos::cppsdk::amop::AMOP::Ptr SdkFactory::buildAMOP(bcos::cppsdk::service::Servi
         if (amop)
         {
             // service handshake successfully
-            amop->updateTopicsToRemote(_session);
+            amop->updateTopicsToRemote(std::move(_session));
         }
     });
     return amop;
 }
 
-bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(Service::Ptr _service)
+bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(const Service::Ptr& _service)
 {
     auto eventSub = std::make_shared<event::EventSub>();
     auto messageFactory = std::make_shared<WsMessageFactory>();
@@ -230,7 +229,7 @@ bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(Service::Ptr _servi
             auto eventSub = eventWeakPtr.lock();
             if (eventSub)
             {
-                eventSub->onRecvEventSubMessage(_msg, _session);
+                eventSub->onRecvEventSubMessage(std::move(_msg), std::move(_session));
             }
         });
 
@@ -238,7 +237,7 @@ bcos::cppsdk::event::EventSub::Ptr SdkFactory::buildEventSub(Service::Ptr _servi
         auto eventSub = eventWeakPtr.lock();
         if (eventSub)
         {
-            eventSub->suspendTasks(_session);
+            eventSub->suspendTasks(std::move(_session));
         }
     });
 

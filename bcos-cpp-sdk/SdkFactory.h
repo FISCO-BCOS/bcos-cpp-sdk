@@ -27,10 +27,9 @@
 #include <bcos-cpp-sdk/rpc/JsonRpcImpl.h>
 #include <bcos-cpp-sdk/ws/Service.h>
 #include <bcos-utilities/ThreadPool.h>
+#include <utility>
 
-namespace bcos
-{
-namespace cppsdk
+namespace bcos::cppsdk
 {
 class SdkFactory : public std::enable_shared_from_this<SdkFactory>
 {
@@ -43,11 +42,13 @@ public:
     bcos::cppsdk::service::Service::Ptr buildService(
         std::shared_ptr<bcos::boostssl::ws::WsConfig> _config);
     bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr buildJsonRpc(
-        bcos::cppsdk::service::Service::Ptr _service, bool _sendRequestToHighestBlockNode = true);
+        const bcos::cppsdk::service::Service::Ptr& _service,
+        bool _sendRequestToHighestBlockNode = true);
     bcos::cppsdk::jsonrpc::JsonRpcServiceImpl::Ptr buildJsonRpcService(
-        bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr _jsonRpc);
-    bcos::cppsdk::amop::AMOP::Ptr buildAMOP(bcos::cppsdk::service::Service::Ptr _service);
-    bcos::cppsdk::event::EventSub::Ptr buildEventSub(bcos::cppsdk::service::Service::Ptr _service);
+        const bcos::cppsdk::jsonrpc::JsonRpcImpl::Ptr& _jsonRpc);
+    bcos::cppsdk::amop::AMOP::Ptr buildAMOP(const bcos::cppsdk::service::Service::Ptr& _service);
+    bcos::cppsdk::event::EventSub::Ptr buildEventSub(
+        const bcos::cppsdk::service::Service::Ptr& _service);
 
 public:
     bcos::cppsdk::Sdk::UniquePtr buildSdk(
@@ -57,10 +58,12 @@ public:
 
 public:
     std::shared_ptr<bcos::boostssl::ws::WsConfig> config() const { return m_config; }
-    void setConfig(std::shared_ptr<bcos::boostssl::ws::WsConfig> _config) { m_config = _config; }
+    void setConfig(std::shared_ptr<bcos::boostssl::ws::WsConfig> _config)
+    {
+        m_config = std::move(_config);
+    }
 
 private:
     std::shared_ptr<bcos::boostssl::ws::WsConfig> m_config;
 };
-}  // namespace cppsdk
-}  // namespace bcos
+}  // namespace bcos::cppsdk
